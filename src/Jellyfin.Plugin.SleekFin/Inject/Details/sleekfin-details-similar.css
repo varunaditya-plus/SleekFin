@@ -7,10 +7,15 @@ html.sleekfin-details-mounted #similarCollapsible > [is="emby-scroller"] {
     padding: 0 !important;
 }
 
+/*
+ * Jellyfin renders these as portrait cards and loads the portrait Primary image, so the
+ * grid fills with as many columns as the row width allows. A fixed column count made the
+ * artwork read as oversized on wide screens.
+ */
 html.sleekfin-details-mounted #similarCollapsible .similarContent {
     display: grid;
     gap: 24px 6px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     padding: 0 !important;
     transform: none !important;
     width: 100% !important;
@@ -46,13 +51,11 @@ html.sleekfin-details-mounted #similarCollapsible .cardPadder {
     padding-bottom: 0 !important;
 }
 
-html.sleekfin-details-mounted #similarCollapsible .cardImageContainer {
-    background-image: var(--sleekfin-similar-poster, var(--sleekfin-similar-backdrop)) !important;
-    background-position: top center;
-    background-size: cover;
-}
-
-html.sleekfin-details-mounted #similarCollapsible :is(.cardOverlayContainer, .cardText-secondary, .blurhash-canvas, .cardIndicators) {
+/*
+ * Jellyfin renders its own run dates here as "1966 - 1969". The meta line below each
+ * card already reports the year, so hide this rather than repeat it.
+ */
+html.sleekfin-details-mounted #similarCollapsible :is(.cardOverlayContainer, .cardText-secondary, .blurhash-canvas) {
     display: none !important;
 }
 
@@ -77,41 +80,8 @@ html.sleekfin-details-mounted #similarCollapsible .card:hover .cardText a {
     color: var(--sleekfin-accent);
 }
 
-.sleekfin-details-similar-meta {
-    margin-top: 4px;
-    padding: 0 2px;
-}
-
-@media (min-width: 768px) {
-    html.sleekfin-details-mounted #similarCollapsible .cardScalable {
-        aspect-ratio: 16 / 9;
-    }
-
-    html.sleekfin-details-mounted #similarCollapsible .cardImageContainer {
-        background-image: var(--sleekfin-similar-backdrop, var(--sleekfin-similar-poster)) !important;
-    }
-}
-
-@media (min-width: 1024px) {
-    html.sleekfin-details-mounted #similarCollapsible .similarContent {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 1400px) {
-    html.sleekfin-details-mounted #similarCollapsible .similarContent {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 1700px) {
-    html.sleekfin-details-mounted #similarCollapsible .similarContent {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-}
-
 @media (min-width: 2000px) {
     html.sleekfin-details-mounted #similarCollapsible .similarContent {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 32px 10px;
     }
 }
