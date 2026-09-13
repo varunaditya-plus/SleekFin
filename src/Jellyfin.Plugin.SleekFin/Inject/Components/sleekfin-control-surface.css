@@ -8,6 +8,18 @@
     transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
+.sliderContainer:has(.osdVolumeSlider, .osdPositionSlider) .mdl-slider-background-lower:not(.mdl-slider-background-lower-clear) {
+    background: var(--sleekfin-accent) !important;
+}
+
+input[type="range"].mdl-slider:is(.osdVolumeSlider, .osdPositionSlider)::-webkit-slider-thumb {
+    background: var(--sleekfin-accent) !important;
+}
+
+input[type="range"].mdl-slider:is(.osdVolumeSlider, .osdPositionSlider)::-moz-range-thumb {
+    background: var(--sleekfin-accent) !important;
+}
+
 @media (hover: hover) {
     .sleekfin-control-3d:is(button, a):hover {
         background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)), rgba(36, 36, 40, 0.9) !important;
