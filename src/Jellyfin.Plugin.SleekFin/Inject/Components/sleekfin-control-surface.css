@@ -8,6 +8,31 @@
     transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
+.mdl-slider-background-lower {
+    background: var(--sleekfin-accent) !important;
+}
+
+input[type="range"].mdl-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--sleekfin-accent) !important;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+input[type="range"].mdl-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--sleekfin-accent) !important;
+    cursor: pointer;
+    border: none;
+    box-shadow: none;
+}
+
 @media (hover: hover) {
     .sleekfin-control-3d:is(button, a):hover {
         background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)), rgba(36, 36, 40, 0.9) !important;
