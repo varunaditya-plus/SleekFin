@@ -391,3 +391,21 @@ html.sleekfin-header-mounted [data-sleekfin-header-proxy="legacy"] {
         z-index: 1103;
     }
 }
+
+/* SleekFin adopts the native header element and restyles it, and that lands about 1.3s after
+   Jellyfin first paints it. Concealing it from the first paint is the only way to avoid showing the
+   native chrome and then replacing it. Opacity rather than visibility, because SleekFin locates the
+   header through a visibility check and has to still find it while it is concealed.
+
+   The mounted rule outranks the concealing rule on purpose. The two classes overlap for one task
+   while the header feature swaps them, and the conceal must not win that overlap or an adopted
+   header stays hidden. */
+html.sleekfin-header-concealing header.MuiAppBar-root,
+html.sleekfin-header-concealing .skinHeader {
+    opacity: 0;
+}
+
+html.sleekfin-header-mounted header.MuiAppBar-root,
+html.sleekfin-header-mounted .skinHeader {
+    opacity: 1;
+}

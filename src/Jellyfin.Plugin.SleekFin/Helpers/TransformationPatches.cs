@@ -41,8 +41,12 @@ public static class TransformationPatches
             }
 
             string url = $"../SleekFin/{asset.FileName}{cacheQuery}";
-            string element = asset.IsStyle ? $"<link rel=\"stylesheet\" href=\"{url}\" data-sleekfin-asset=\"{asset.FileName}\" />" : $"<script defer src=\"{url}\" data-sleekfin-asset=\"{asset.FileName}\"></script>";
-            string closingTag = asset.IsStyle ? "</head>" : "</body>";
+            string element = asset.IsStyle
+                ? $"<link rel=\"stylesheet\" href=\"{url}\" data-sleekfin-asset=\"{asset.FileName}\" />"
+                : asset.IsBlockingScript
+                    ? $"<script src=\"{url}\" data-sleekfin-asset=\"{asset.FileName}\"></script>"
+                    : $"<script defer src=\"{url}\" data-sleekfin-asset=\"{asset.FileName}\"></script>";
+            string closingTag = asset.IsStyle || asset.IsBlockingScript ? "</head>" : "</body>";
             contents = contents.Replace(closingTag, $"{element}{closingTag}", StringComparison.Ordinal);
         }
 
@@ -53,6 +57,7 @@ public static class TransformationPatches
     {
         return asset.RequiredFeature switch
         {
+            FrontendAssets.Feature.Header => configuration.HeaderEnabled,
             FrontendAssets.Feature.Hero => configuration.HeroEnabled,
             _ => true
         };
