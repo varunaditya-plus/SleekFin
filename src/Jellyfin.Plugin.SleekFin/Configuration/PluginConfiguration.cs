@@ -44,6 +44,8 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     public bool HeroEnabled { get; set; } = true;
 
+    public bool DetailsEnabled { get; set; } = true;
+
     public string HeroContentOrder { get; set; } = "ContinueWatching,NextUp,LatestMovies,LatestShows,Favorites";
 
     public bool HeroRandomized { get; set; }

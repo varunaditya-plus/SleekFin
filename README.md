@@ -29,7 +29,7 @@ The ultimate customisation plugin for Jellyfin, which fully reskins Jellyfin to 
 - **Floating header:** Turns Jellyfin's modern and legacy desktop/mobile headers into a custom compact navigation bar which can be customized in the plugin's UI Builder.
 - **Configurable home hero:** Adds a full-width hero section above rows on the home page to display your library's content more nicely.
 - **Redesigned home and library pages:** Restyles the carousels and library pages to show content more clearly with consistent spacing and concise info under posters.
-- **Updated detail pages:** Remade Movie, Series, Season, and Episode pages with full-page backdrop heros, title art, and lots of details about the content itself, organised in a more appealing manner.
+- **Updated detail pages:** Redesigns Jellyfin's Movie, Series, Season, and Episode pages with full-page backdrop heroes, title art, and richer metadata. Disable the replacement in plugin settings to keep Jellyfin's native detail pages.
 - **Upgraded cast and recommendations:** Restyles cast into a clean horizontal row and turns similar titles into a dedicated **You may like** section with backdrop/poster imagery, ratings, years, and media types.
 - **Responsive layouts:** Adapts the header, hero, media rows, detail pages, controls, typography, and spacing across mobile, tablet, desktop, and ultrawide browser sizes.
 
@@ -49,7 +49,7 @@ https://raw.githubusercontent.com/varunaditya-plus/SleekFin/main/manifest.json
 4. Now you have to restart your Jellyfin instance. Go to **Dashboard** and click the **Restart** button. You're done!
 
 ### Configuration
-After installation, go to **Dashboard → SleekFin**. The **Overview** tab contains the plugin's existing settings, while **UI Builder** provides a live draggable header preview and controls for its branding, layout, sizing, colors, and states.
+After installation, go to **Dashboard → SleekFin**. The **Overview** tab contains the plugin's settings, including an option to keep Jellyfin's native detail pages while retaining the SleekFin header and hero. Refresh the Jellyfin web client after changing this option. **UI Builder** provides a live draggable header preview and controls for its branding, layout, sizing, colors, and states.
 
 ## Screenshots
 <table>

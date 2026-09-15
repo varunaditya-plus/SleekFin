@@ -1176,6 +1176,24 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="sleekfin-section-container">
+                        <div class="sleekfin-config-section-title">Details</div>
+                        <div class="sleekfin-card">
+                            <div class="sleekfin-toggle-row">
+                                <div class="sleekfin-toggle-copy">
+                                    <label class="sleekfin-toggle-label" for="sleekFinDetailsEnabled">Use SleekFin detail pages</label>
+                                    <div class="sleekfin-field-description">Turn this off to keep Jellyfin's original Movie, Series, Season, and Episode pages while keeping the SleekFin header and hero.</div>
+                                </div>
+                                <div class="sleekfin-toggle-actions">
+                                    <label class="sleekfin-toggle">
+                                        <input id="sleekFinDetailsEnabled" type="checkbox" checked />
+                                        <span class="sleekfin-toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="sleekfin-page-panel" data-sleekfin-panel="ui-builder">
@@ -1375,6 +1393,7 @@
             var form = document.getElementById('sleekFinConfigurationForm');
             var enabledInput = document.getElementById('sleekFinEnabled');
             var heroEnabledInput = document.getElementById('sleekFinHeroEnabled');
+            var detailsEnabledInput = document.getElementById('sleekFinDetailsEnabled');
             var randomizedInput = document.getElementById('sleekFinHeroRandomized');
             var sources = document.getElementById('sleekFinHeroSources');
             var dependencyStatus = document.getElementById('sleekFinDependencyStatus');
@@ -1481,7 +1500,7 @@
                 HeaderActiveItemOpacity: document.getElementById('sleekFinHeaderActiveItemOpacity')
             };
 
-            if (!page || !form || !enabledInput || !heroEnabledInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || page.dataset.sleekfinBound === 'true') {
+            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || page.dataset.sleekfinBound === 'true') {
                 return;
             }
 
@@ -2643,6 +2662,7 @@
                         var configuration = results[0];
                         enabledInput.checked = readValue(configuration, 'HeaderEnabled') !== false;
                         heroEnabledInput.checked = readValue(configuration, 'HeroEnabled') !== false;
+                        detailsEnabledInput.checked = readValue(configuration, 'DetailsEnabled') !== false;
                         randomizedInput.checked = readValue(configuration, 'HeroRandomized') === true;
                         renderSources(readValue(configuration, 'HeroContentOrder') || defaultSourceOrder.join(','));
                         applyBuilderConfiguration(configuration);
@@ -2691,6 +2711,7 @@
                     .then(function (configuration) {
                         configuration.HeaderEnabled = enabledInput.checked;
                         configuration.HeroEnabled = heroEnabledInput.checked;
+                        configuration.DetailsEnabled = detailsEnabledInput.checked;
                         configuration.HeroRandomized = randomizedInput.checked;
                         configuration.HeroContentOrder = contentOrder.join(',');
                         saveBuilderConfiguration(configuration);

@@ -1,3 +1,54 @@
+/* Added by the synchronous boot asset while a detail route is entered and removed by the details bundle
+   once it has something to show. visibility rather than display hides the page without removing its
+   layout, so the bundle can still select, measure and move those nodes while it builds the hero, and
+   the background keeps Jellyfin's own page from showing through before the theme bundle defines the
+   token. */
+html.sleekfin-details-concealed,
+html.sleekfin-details-concealed body {
+    background: var(--sleekfin-background, #000);
+}
+
+/* A static rule rather than an animation: the boot script reveals the page by removing the class,
+   which is also what restarts this concealment on a later navigation. */
+html.sleekfin-details-concealed #itemDetailPage {
+    visibility: hidden;
+}
+
+/* Jellyfin's detail route raises its own loading ring on a fixed 10vh circle centred on the viewport
+   at z-index 9999999, which both outranks and encloses the loading mark below. Suppressing it while
+   the page is concealed leaves a single loader instead of two concentric ones. It stays hidden only
+   while the concealment gate is open: releasing the class without the bundle, which the boot script
+   failsafe does, brings Jellyfin's loader back with its page. */
+html.sleekfin-details-concealed .docspinner {
+    display: none !important;
+}
+
+/* The concealment leaves the page blank until the item arrives, which reads as a broken page
+   rather than a loading one. The spinner is scoped to the same class, so it exists only while the
+   stock page is hidden and cannot outlive the mount: taking the class off is what removes the mark,
+   whether the bundle did it or the failsafe did. */
+@keyframes sleekfin-details-spinner {
+    to {
+        transform: rotate(1turn);
+    }
+}
+
+html.sleekfin-details-concealed::before {
+    animation: sleekfin-details-spinner 0.9s linear infinite;
+    border: 3px solid var(--sleekfin-border, #1d2430);
+    border-radius: 50%;
+    border-top-color: var(--sleekfin-accent, #dc2626);
+    box-sizing: border-box;
+    content: "";
+    height: 40px;
+    left: 50%;
+    margin: -20px 0 0 -20px;
+    position: fixed;
+    top: 50%;
+    width: 40px;
+    z-index: 1;
+}
+
 html.sleekfin-details-mounted {
     --sleekfin-details-hero-height: 85vh;
     background: var(--sleekfin-background);
