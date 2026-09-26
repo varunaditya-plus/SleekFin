@@ -45,6 +45,7 @@ public static class FrontendAssets
         new("sleekfin-details-sections.css", "Details", Feature.Details),
         new("sleekfin-details-similar.css", "Details", Feature.Details),
         new("sleekfin-details-episodes.css", "Details", Feature.Details),
+        new("sleekfin-details-track-picker.css", "Details", Feature.Details),
         new("sleekfin-details-boot.js", "Details", Feature.Details, IsBlockingScript: true),
         new("sleekfin-runtime.js", "Build"),
         new("sleekfin-theme.js", "Build"),

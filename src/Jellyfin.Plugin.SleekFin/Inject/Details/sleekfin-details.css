@@ -102,6 +102,9 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details]::-webkit-sc
     border-radius: 6px;
 }
 
+/* The hero is absolutely positioned, so the wrapper owns the offset that keeps every column below it.
+   Both columns previously carried their own copy, which left a blank band on items whose only content
+   there is the track selector. */
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > .detailPageWrapperContainer {
     background: transparent !important;
     box-sizing: border-box;
@@ -109,12 +112,153 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > .detailPa
     max-width: none;
     padding-top: var(--sleekfin-details-hero-height);
     position: relative;
-    width: calc(100vw - 5px);
+    width: 100%;
     z-index: 1;
 }
 
+/* Jellyfin puts this block in flow under the hero, where the page is already black and the empty
+   right half of the hero is wasted. Taken out of flow and set against the right gutter instead, so it
+   occupies that space. The top offset puts the audio row's centre on the last stretch of the hero's
+   fade - the audio row is the middle of the three, so centring it leaves the panel evenly placed over
+   the image above the fully black band. 91px is that row's centre measured from the panel's top edge;
+   it has to move with --sleekfin-page-gutter and with any change to the row height. */
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPagePrimaryContainer {
+    box-sizing: border-box;
+    left: auto;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: var(--sleekfin-page-gutter);
+    top: calc(var(--sleekfin-details-hero-height) * 0.88 - 91px);
+    width: 560px;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPageSecondaryContainer {
+    padding-top: 0;
+}
+
+/* Jellyfin indents this block by 32.45vw to clear the poster it draws in the left column. SleekFin
+   draws no such poster and the panel already carries its own padding, so that indent has to go or it
+   applies a second time and shifts the panel right by a third of the viewport. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPagePrimaryContent {
+    padding: 0 !important;
+}
+
+/* SleekFin moves the title, overview and buttons into the hero, so the only thing left in Jellyfin's
+   primary block that belongs on this page is the track selector. Everything else it holds - genres,
+   tags, external links, streaming lookups and plugin sections - is hidden with it.
+   The ribbon is on this list for a different reason: Jellyfin floats it up by 7.2em to sit at the
+   bottom edge of the poster in the left column, and every child of it is empty here, so all that
+   reaches the page is its own dark background across 107px of the hero. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] :is(.detailImageContainer, .detailRibbon, .itemMiscInfo, .itemDetailsGroup, .recordingFields) {
     display: none !important;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPagePrimaryContent > .detailSection > :not(.trackSelections) {
+    display: none !important;
+}
+
+/* Shown again only because the rule above cannot exempt it; Jellyfin's own `hide` class decides
+   whether this item has selectable tracks. With no margin of its own: on an item that has no media
+   sources the form is empty, and an empty block's bottom margin collapses through the zero-height
+   containers above it and opens a gap the height of the margin directly under the hero.
+   It carries its own surface because it now sits over the hero artwork, where an unbacked control is
+   not readable. That surface is the flat card one rather than the glass one: `--sleekfin-glass-*` is
+   for floating overlays such as the header, while cards and list items in this theme are an opaque
+   surface with a hairline border. A translucent gradient over the artwork was neither.
+   The display override is scoped to `:not(.hide)` so that on a series or season - where Jellyfin adds
+   `hide` and leaves the form empty - the block keeps Jellyfin's own `display: none` and paints
+   nothing. Overriding it unconditionally left an empty bordered box on the hero. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPagePrimaryContent > .detailSection > .trackSelections:not(.hide) {
+    background: var(--sleekfin-surface);
+    border: 1px solid var(--sleekfin-border);
+    border-radius: 12px;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    padding: 6px 0;
+}
+
+/* The control itself is SleekFin's own listbox, built by the details bundle and styled in
+   sleekfin-details-track-picker.css. Jellyfin's select stays in the row because it still carries the
+   stream index, but it is taken out of the layout there, so only the pieces around it are styled
+   here: the arrow Jellyfin adds is unused, and its label is moved onto the trigger. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectArrowContainer {
+    display: none;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer > .selectLabel {
+    display: none;
+}
+
+/* One row per field: an icon, then the picker, which carries the label and the value together. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer {
+    align-items: center;
+    align-self: stretch;
+    background: none !important;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    box-sizing: border-box;
+    display: grid;
+    gap: 0 12px;
+    grid-template-columns: 26px minmax(0, 1fr);
+    margin: 0 !important;
+    min-height: 48px;
+    padding: 0 12px;
+    position: relative;
+}
+
+/* Separators are drawn between rows that are actually shown. A hidden row is still a sibling, so
+   without excluding it the first visible row would carry a separator with nothing above it, drawn
+   just inside the panel's top edge. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer:not(.hide) ~ .selectContainer:not(.hide) {
+    border-top: 1px solid var(--sleekfin-border);
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer.hide {
+    display: none !important;
+}
+
+/* The icon is placed explicitly rather than left to auto-placement, because the picker spans the rest
+   of the row and would otherwise be pushed onto a second one. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer::before {
+    align-items: center;
+    background: rgba(241, 242, 244, 0.08);
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: var(--sleekfin-muted);
+    display: flex;
+    font: 400 14px/1 "Material Icons";
+    grid-column: 1;
+    grid-row: 1;
+    height: 26px;
+    justify-content: center;
+    width: 26px;
+}
+
+/* The icon belongs to the row rather than to the picker, so a field with no choice is dimmed here to
+   match the trigger dimmed by sleekfin-details-track-picker.css. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer:has(.sleekfin-details-track-trigger:disabled)::before {
+    opacity: 0.45;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectSourceContainer::before {
+    content: "movie";
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectVideoContainer::before {
+    content: "videocam";
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectAudioContainer::before {
+    content: "volume_up";
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectSubtitlesContainer::before {
+    content: "subtitles";
 }
 
 html.sleekfin-details-mounted :is(#castCollapsible, #similarCollapsible) .cardScalable {
@@ -128,5 +272,28 @@ html.sleekfin-details-mounted :is(#castCollapsible, #similarCollapsible) .cardSc
 @media (max-width: 767px) {
     html.sleekfin-details-mounted {
         --sleekfin-details-hero-height: max(620px, 85vh);
+    }
+
+    html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer {
+        gap: 0 10px;
+        grid-template-columns: 22px minmax(0, 1fr);
+        min-height: 52px;
+    }
+
+    html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer::before {
+        height: 22px;
+        width: 22px;
+    }
+
+    /* A narrow viewport has no empty right column to move into, so the block returns to the flow
+       between the hero and the sections below it. */
+    html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPagePrimaryContainer {
+        left: auto;
+        margin: 0;
+        padding: 0 var(--sleekfin-page-gutter);
+        position: static;
+        right: auto;
+        top: auto;
+        width: auto;
     }
 }

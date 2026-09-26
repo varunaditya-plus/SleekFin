@@ -1,0 +1,150 @@
+/* The native select keeps carrying the stream index, because Jellyfin reads select.value when it
+   builds the play request. It is taken out of the layout rather than removed, so the value stays
+   readable and writable to the page while the visible control is SleekFin's own. Left visible it
+   would stay in the tab order as an invisible focus stop, so it is hidden outright. */
+.sleekfin-details-track-native {
+    height: 1px;
+    left: -9999px;
+    position: absolute;
+    visibility: hidden;
+    width: 1px;
+}
+
+.sleekfin-details-track {
+    grid-column: 2 / -1;
+    grid-row: 1;
+    min-width: 0;
+}
+
+.sleekfin-details-track[hidden] {
+    display: none;
+}
+
+.sleekfin-details-track-trigger {
+    -webkit-appearance: none;
+    appearance: none;
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: var(--sleekfin-text);
+    cursor: pointer;
+    display: flex;
+    font: 500 13px/18px var(--sleekfin-font-family);
+    gap: 10px;
+    height: 34px;
+    margin: 0;
+    padding: 0 12px;
+    text-align: left;
+    transition: background 160ms ease;
+    width: 100%;
+}
+
+.sleekfin-details-track-trigger:not(:disabled):hover,
+.sleekfin-details-track[data-open="true"] .sleekfin-details-track-trigger {
+    background: var(--sleekfin-border);
+}
+
+.sleekfin-details-track-trigger:focus-visible {
+    background: var(--sleekfin-border);
+    outline: 0;
+}
+
+/* A field with one option reports a fact rather than offering a choice, so it is dimmed instead of
+   looking like a control that ignores a click. */
+.sleekfin-details-track-trigger:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.sleekfin-details-track-label {
+    color: var(--sleekfin-muted);
+    flex: 0 0 auto;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.sleekfin-details-track-value {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sleekfin-details-track-chevron {
+    border-bottom: 1.5px solid var(--sleekfin-muted);
+    border-right: 1.5px solid var(--sleekfin-muted);
+    flex: 0 0 auto;
+    height: 6px;
+    margin-right: 1px;
+    transform: translateY(-2px) rotate(45deg);
+    width: 6px;
+}
+
+/* The list is drawn on a fixed layer outside the scrolling page, because the panel sits inside the
+   hero's stacking context and a list rendered in place would be clipped by the container it is in. */
+.sleekfin-details-track-layer {
+    inset: 0;
+    pointer-events: none;
+    position: fixed;
+    z-index: 1110;
+}
+
+.sleekfin-details-track-menu {
+    border-radius: 12px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    left: 0;
+    max-height: 420px;
+    max-height: min(50vh, 420px);
+    max-width: 520px;
+    max-width: min(70vw, 520px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 6px;
+    pointer-events: auto;
+    position: fixed;
+    top: 0;
+    width: max-content;
+    z-index: 20;
+}
+
+.sleekfin-details-track-menu[data-positioned="false"] {
+    visibility: hidden;
+}
+
+.sleekfin-details-track-option {
+    align-items: center;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: var(--sleekfin-header-item-text, rgba(255, 255, 255, 0.7));
+    cursor: pointer;
+    display: flex;
+    flex: 0 0 auto;
+    font: 500 13px/1 var(--sleekfin-font-family);
+    min-height: 38px;
+    padding: 0 10px;
+}
+
+.sleekfin-details-track-option > .sleekfin-details-track-option-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sleekfin-details-track-option:hover,
+.sleekfin-details-track-option[data-active="true"] {
+    background: var(--sleekfin-header-active-background, rgba(255, 255, 255, 0.12));
+    color: var(--sleekfin-header-active-text, var(--sleekfin-text));
+}
+
+.sleekfin-details-track-option[data-selected="true"] {
+    box-shadow: inset 2px 0 var(--sleekfin-accent);
+    color: var(--sleekfin-header-active-text, var(--sleekfin-text));
+}

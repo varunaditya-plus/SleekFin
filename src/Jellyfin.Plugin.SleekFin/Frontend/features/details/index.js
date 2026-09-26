@@ -4,6 +4,7 @@ import { createEpisodes } from './episodes.jsx';
 import { createHero } from './hero.jsx';
 import { createSections } from './sections.jsx';
 import { createSimilar } from './similar.jsx';
+import { createTrackPickers } from './trackPickers.js';
 
 const CONCEALED_CLASS = 'sleekfin-details-concealed';
 const CONCEAL_EVENT = 'sleekfin:details-conceal';
@@ -138,6 +139,7 @@ function loadSeasons(client, userId, mediaItem) {
 function destroyMount() {
   stopHiddenWatch();
   if (!state.mount) return;
+  state.mount.trackPickers.destroy();
   state.mount.episodes?.destroy();
   state.mount.similar.destroy();
   state.mount.sections.destroy();
@@ -161,6 +163,7 @@ function mount() {
   const actions = createActions(hero.actions, state.item.Type === 'Episode');
   const sections = createSections(state.page);
   const similar = createSimilar(state.page);
+  const trackPickers = createTrackPickers(state.page);
   const episodes = ['Series', 'Season', 'Episode'].includes(state.item.Type) && state.seasons.length ? createEpisodes(state.page, state.item, state.seasons) : null;
 
   state.mount = {
@@ -170,6 +173,7 @@ function mount() {
     page: state.page,
     sections,
     similar,
+    trackPickers,
   };
   state.page.dataset.sleekfinDetails = 'true';
   document.documentElement.classList.add('sleekfin-details-mounted');
@@ -398,6 +402,7 @@ function reconcile() {
   state.mount.actions.reconcile();
   state.mount.sections.reconcile();
   state.mount.similar.render();
+  state.mount.trackPickers.reconcile();
 }
 
 function scheduleReconcile() {
