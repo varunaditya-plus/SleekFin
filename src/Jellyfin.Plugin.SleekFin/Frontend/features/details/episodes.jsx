@@ -46,23 +46,169 @@ function EpisodeCard({ client, episode }) {
   );
 }
 
+function seasonLabel(season) {
+  return season.Name || `Season ${season.IndexNumber || ''}`;
+}
+
+function seasonKeyboardKey(event) {
+  if (event.key === 'Spacebar') return ' ';
+  if (event.key) return event.key;
+  const keyCode = event.keyCode || event.which;
+  const specialKeys = {
+    9: 'Tab',
+    13: 'Enter',
+    27: 'Escape',
+    32: ' ',
+    35: 'End',
+    36: 'Home',
+    38: 'ArrowUp',
+    40: 'ArrowDown',
+  };
+  if (specialKeys[keyCode]) return specialKeys[keyCode];
+  const characterCode = keyCode >= 96 && keyCode <= 105 ? keyCode - 48 : keyCode;
+  return (characterCode >= 48 && characterCode <= 57) || (characterCode >= 65 && characterCode <= 90)
+    ? String.fromCharCode(characterCode).toLowerCase()
+    : '';
+}
+
 function Episodes({ client, list, mediaItem, seasons }) {
-  const firstSeason = useMemo(() => seasons.find((season) => Number(season.IndexNumber) > 0) || seasons[0] || null, [seasons]);
+  const firstSeason = useMemo(() => seasons.filter((season) => Number(season.IndexNumber) > 0)[0] || seasons[0] || null, [seasons]);
   const [episodes, setEpisodes] = useState([]);
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
+  const [seasonMenuOpen, setSeasonMenuOpen] = useState(false);
+  const [activeSeasonIndex, setActiveSeasonIndex] = useState(0);
   const [selectedSeasonId, setSelectedSeasonId] = useState(firstSeason?.Id || '');
   const [sortDescending, setSortDescending] = useState(false);
   const [status, setStatus] = useState(firstSeason ? 'loading' : 'error');
   const [view, setView] = useState('grid');
   const requestGeneration = useRef(0);
   const searchInput = useRef(null);
+  const seasonSelect = useRef(null);
+  const seasonMenu = useRef(null);
+  const seasonMenuRoot = useRef(null);
+  const seasonSearch = useRef('');
+  const seasonSearchTimer = useRef(0);
+  const selectedSeasonIndex = Math.max(0, seasons.map((season) => String(season.Id)).indexOf(String(selectedSeasonId)));
+  const selectedSeason = seasons[selectedSeasonIndex];
+  const selectedSeasonLabel = selectedSeason ? seasonLabel(selectedSeason) : 'Seasons';
+  const activeIndex = Math.max(0, Math.min(seasons.length - 1, activeSeasonIndex));
+  const seasonMenuId = `sleekfin-season-menu-${mediaItem.Id}`;
 
   useEffect(() => {
     if (searchOpen) {
       searchInput.current?.focus();
     }
   }, [searchOpen]);
+
+  useEffect(() => () => window.clearTimeout(seasonSearchTimer.current), []);
+
+  useEffect(() => {
+    if (!seasonMenuOpen) return undefined;
+    // The detail wrapper stacks below the hero, so the listbox must live outside it.
+    const root = document.createElement('div');
+    root.className = 'sleekfin-details-season-layer';
+    document.body.appendChild(root);
+    seasonMenuRoot.current = root;
+    return () => {
+      render(null, root);
+      root.remove();
+      seasonMenuRoot.current = null;
+      seasonMenu.current = null;
+    };
+  }, [seasonMenuOpen]);
+
+  useEffect(() => {
+    const root = seasonMenuRoot.current;
+    if (!seasonMenuOpen || !root) return;
+    render(
+      <div
+        aria-label="Seasons"
+        class="sleekfin-details-season-menu sleekfin-control-3d"
+        data-placement="below"
+        data-positioned="false"
+        id={seasonMenuId}
+        ref={seasonMenu}
+        role="listbox"
+      >
+        {seasons.map((season, index) => (
+          <div
+            aria-selected={index === activeIndex}
+            class="sleekfin-details-season-option"
+            data-active={index === activeIndex ? 'true' : 'false'}
+            data-selected={index === selectedSeasonIndex ? 'true' : 'false'}
+            id={`${seasonMenuId}-option-${index}`}
+            key={season.Id}
+            onClick={() => chooseSeason(season, index)}
+            onMouseMove={() => setActiveSeasonIndex(index)}
+            role="option"
+          >
+            <span>{seasonLabel(season)}</span>
+          </div>
+        ))}
+      </div>,
+      root,
+    );
+  }, [activeIndex, seasonMenuId, seasonMenuOpen, seasons, selectedSeasonIndex]);
+
+  useEffect(() => {
+    if (!seasonMenuOpen) return undefined;
+    function closeSeasonMenu(event) {
+      if (!seasonSelect.current?.contains(event.target) && !seasonMenu.current?.contains(event.target)) {
+        setSeasonMenuOpen(false);
+      }
+    }
+
+    function updateSeasonMenuPlacement() {
+      const trigger = seasonSelect.current?.querySelector('.sleekfin-details-season-trigger');
+      const menu = seasonMenu.current;
+      if (!trigger || !menu) return;
+      const triggerRect = trigger.getBoundingClientRect();
+      const menuRect = menu.getBoundingClientRect();
+      const maxMenuHeight = Math.min(420, window.innerHeight * 0.5);
+      const menuContentHeight = menu.scrollHeight + (menu.offsetHeight - menu.clientHeight);
+      const menuHeight = Math.min(menuContentHeight, maxMenuHeight);
+      const menuWidth = menuRect.width;
+      const spaceBelow = Math.max(0, window.innerHeight - triggerRect.bottom - 8);
+      const spaceAbove = Math.max(0, triggerRect.top - 8);
+      const placement = menuHeight > spaceBelow && spaceAbove > spaceBelow ? 'above' : 'below';
+      const availableSpace = placement === 'above' ? spaceAbove : spaceBelow;
+      const maxHeight = Math.floor(Math.min(maxMenuHeight, availableSpace));
+      const maxWidth = Math.min(360, window.innerWidth * 0.7);
+      const minWidth = Math.min(triggerRect.width, maxWidth);
+      const width = Math.max(minWidth, Math.min(menuWidth, maxWidth));
+      const left = Math.max(8, Math.min(triggerRect.left, window.innerWidth - width - 8));
+      const visibleHeight = Math.min(menuHeight, maxHeight);
+      const top = placement === 'above' ? Math.max(8, triggerRect.top - visibleHeight - 6) : triggerRect.bottom + 6;
+      // Keep portal positioning synchronous with scroll so it does not trail the moving trigger.
+      menu.dataset.placement = placement;
+      menu.style.left = `${left}px`;
+      menu.style.maxHeight = `${maxHeight}px`;
+      menu.style.minWidth = `${minWidth}px`;
+      menu.style.top = `${top}px`;
+      menu.dataset.positioned = 'true';
+    }
+
+    document.addEventListener('mousedown', closeSeasonMenu);
+    document.addEventListener('touchstart', closeSeasonMenu);
+    window.addEventListener('resize', updateSeasonMenuPlacement);
+    window.addEventListener('scroll', updateSeasonMenuPlacement, true);
+    updateSeasonMenuPlacement();
+    return () => {
+      document.removeEventListener('mousedown', closeSeasonMenu);
+      document.removeEventListener('touchstart', closeSeasonMenu);
+      window.removeEventListener('resize', updateSeasonMenuPlacement);
+      window.removeEventListener('scroll', updateSeasonMenuPlacement, true);
+      window.clearTimeout(seasonSearchTimer.current);
+      seasonSearch.current = '';
+    };
+  }, [seasonMenuOpen, seasons.length]);
+
+  useEffect(() => {
+    if (seasonMenuOpen) {
+      seasonMenu.current?.children[activeIndex]?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [activeIndex, seasonMenuOpen]);
 
   useEffect(() => {
     const seriesId = mediaItem.Type === 'Series' ? mediaItem.Id : mediaItem.SeriesId;
@@ -126,17 +272,105 @@ function Episodes({ client, list, mediaItem, seasons }) {
   }, [client, list, view, visibleEpisodes]);
 
   const subtitle = status === 'loading' ? 'Loading episodes' : status === 'error' ? 'Episodes unavailable' : `${visibleEpisodes.length}${visibleEpisodes.length === 1 ? ' episode' : ' episodes'}`;
+
+  function chooseSeason(season, index) {
+    setSelectedSeasonId(String(season.Id));
+    setActiveSeasonIndex(index);
+    setSeasonMenuOpen(false);
+  }
+
+  function openSeasonMenu(index, preserveSearch = false) {
+    if (!preserveSearch) {
+      window.clearTimeout(seasonSearchTimer.current);
+      seasonSearch.current = '';
+    }
+    setActiveSeasonIndex(index);
+    setSeasonMenuOpen(true);
+  }
+
+  function toggleSeasonMenu() {
+    if (seasonMenuOpen) {
+      setSeasonMenuOpen(false);
+    } else if (seasons.length) {
+      openSeasonMenu(selectedSeasonIndex);
+    }
+  }
+
+  function handleSeasonKeyDown(event) {
+    const key = seasonKeyboardKey(event);
+    if (key === 'ArrowDown' || key === 'ArrowUp') {
+      event.preventDefault();
+      if (!seasonMenuOpen) {
+        openSeasonMenu(selectedSeasonIndex);
+      } else {
+        const offset = key === 'ArrowDown' ? 1 : -1;
+        setActiveSeasonIndex((index) => Math.max(0, Math.min(seasons.length - 1, Math.min(index, activeIndex) + offset)));
+      }
+    } else if (seasonMenuOpen && key === 'Home') {
+      event.preventDefault();
+      setActiveSeasonIndex(0);
+    } else if (seasonMenuOpen && key === 'End') {
+      event.preventDefault();
+      setActiveSeasonIndex(seasons.length - 1);
+    } else if (key === 'Enter' || key === ' ') {
+      event.preventDefault();
+      if (seasonMenuOpen) {
+        const season = seasons[activeIndex];
+        if (season) chooseSeason(season, activeIndex);
+      } else {
+        toggleSeasonMenu();
+      }
+    } else if (seasonMenuOpen && key === 'Escape') {
+      event.preventDefault();
+      setActiveSeasonIndex(selectedSeasonIndex);
+      setSeasonMenuOpen(false);
+    } else if (seasonMenuOpen && key === 'Tab') {
+      const season = seasons[activeIndex];
+      if (season) chooseSeason(season, activeIndex);
+    } else if (key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey && seasons.length) {
+      event.preventDefault();
+      const character = key.toLocaleLowerCase();
+      const repeatedCharacter = seasonSearch.current && seasonSearch.current.split('').every((value) => value === character);
+      const search = repeatedCharacter ? character : `${seasonSearch.current}${character}`;
+      seasonSearch.current = search;
+      window.clearTimeout(seasonSearchTimer.current);
+      seasonSearchTimer.current = window.setTimeout(() => {
+        seasonSearch.current = '';
+      }, 700);
+      const startIndex = repeatedCharacter ? (activeIndex + 1) % seasons.length : activeIndex;
+      for (let offset = 0; offset < seasons.length; offset += 1) {
+        const index = (startIndex + offset) % seasons.length;
+        if (seasonLabel(seasons[index]).toLocaleLowerCase().slice(0, search.length) === search) {
+          if (seasonMenuOpen) {
+            setActiveSeasonIndex(index);
+          } else {
+            openSeasonMenu(index, true);
+          }
+          break;
+        }
+      }
+    }
+  }
+
   let title;
   if (mediaItem.Type === 'Series') {
     title = (
-      <span class="sleekfin-details-season-select">
-        <select class="sleekfin-details-season-native" value={selectedSeasonId} onChange={(event) => setSelectedSeasonId(event.currentTarget.value)}>
-          {seasons.map((season) => (
-            <option value={season.Id} key={season.Id}>
-              {season.Name || `Season ${season.IndexNumber || ''}`}
-            </option>
-          ))}
-        </select>
+      <span class="sleekfin-details-season-select" ref={seasonSelect} data-open={seasonMenuOpen ? 'true' : 'false'}>
+        <button
+          aria-activedescendant={seasonMenuOpen ? `${seasonMenuId}-option-${activeIndex}` : undefined}
+          aria-controls={seasonMenuOpen ? seasonMenuId : undefined}
+          aria-expanded={seasonMenuOpen}
+          aria-haspopup="listbox"
+          aria-label="Select season"
+          class="sleekfin-details-season-trigger"
+          disabled={!seasons.length}
+          role="combobox"
+          type="button"
+          onClick={toggleSeasonMenu}
+          onKeyDown={handleSeasonKeyDown}
+        >
+          {selectedSeasonLabel}
+        </button>
       </span>
     );
   } else {
