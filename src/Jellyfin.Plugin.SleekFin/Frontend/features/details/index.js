@@ -158,7 +158,7 @@ function mount() {
     revealNativePage();
     return;
   }
-  const actions = createActions(hero.actions, state.item.Type === 'Episode');
+  const actions = createActions(hero.actions, state.item);
   const sections = createSections(state.page);
   const similar = createSimilar(state.page);
   const episodes = ['Series', 'Season', 'Episode'].includes(state.item.Type) && state.seasons.length ? createEpisodes(state.page, state.item, state.seasons) : null;
