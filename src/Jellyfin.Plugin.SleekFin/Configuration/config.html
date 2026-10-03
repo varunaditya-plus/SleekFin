@@ -1617,6 +1617,18 @@
                                     </label>
                                 </div>
                             </div>
+                            <div class="sleekfin-toggle-row">
+                                <div class="sleekfin-toggle-copy">
+                                    <label class="sleekfin-toggle-label" for="sleekFinDetailsTrailerBackgroundEnabled">Play local trailers in the detail background</label>
+                                    <div class="sleekfin-field-description">Browser-compatible local trailers play muted behind the artwork; static artwork remains visible when none is available.</div>
+                                </div>
+                                <div class="sleekfin-toggle-actions">
+                                    <label class="sleekfin-toggle">
+                                        <input id="sleekFinDetailsTrailerBackgroundEnabled" type="checkbox" />
+                                        <span class="sleekfin-toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2133,6 +2145,7 @@
             var heroEnabledInput = document.getElementById('sleekFinHeroEnabled');
             var detailsEnabledInput = document.getElementById('sleekFinDetailsEnabled');
             var detailsSeasonPickerInput = document.getElementById('sleekFinDetailsSeasonPickerEnabled');
+            var detailsTrailerBackgroundInput = document.getElementById('sleekFinDetailsTrailerBackgroundEnabled');
             var randomizedInput = document.getElementById('sleekFinHeroRandomized');
             var sources = document.getElementById('sleekFinHeroSources');
             var dependencyStatus = document.getElementById('sleekFinDependencyStatus');
@@ -2329,7 +2342,7 @@
 
             var missingHeroField = Object.keys(heroFields).some(function (name) { return !heroFields[name]; });
 
-            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || !heroPreview || !heroPreviewBackdrop || !heroPreviewLogo || !heroPreviewTitle || !heroPreviewFacts || !heroPreviewDescription || !heroReset || missingHeroField || page.dataset.sleekfinBound === 'true') {
+            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !detailsTrailerBackgroundInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || !heroPreview || !heroPreviewBackdrop || !heroPreviewLogo || !heroPreviewTitle || !heroPreviewFacts || !heroPreviewDescription || !heroReset || missingHeroField || page.dataset.sleekfinBound === 'true') {
                 return;
             }
 
@@ -3707,6 +3720,7 @@
                         heroEnabledInput.checked = readValue(configuration, 'HeroEnabled') !== false;
                         detailsEnabledInput.checked = readValue(configuration, 'DetailsEnabled') !== false;
                         detailsSeasonPickerInput.checked = readValue(configuration, 'DetailsSeasonPickerEnabled') === true;
+                        detailsTrailerBackgroundInput.checked = readValue(configuration, 'DetailsTrailerBackgroundEnabled') === true;
                         applyHeroConfiguration(configuration);
                         applyBuilderConfiguration(configuration);
                         loadPreviewServerName(request);
@@ -3778,6 +3792,7 @@
                         configuration.HeroEnabled = heroEnabledInput.checked;
                         configuration.DetailsEnabled = detailsEnabledInput.checked;
                         configuration.DetailsSeasonPickerEnabled = detailsSeasonPickerInput.checked;
+                        configuration.DetailsTrailerBackgroundEnabled = detailsTrailerBackgroundInput.checked;
                         saveHeroConfiguration(configuration, contentOrder);
                         saveBuilderConfiguration(configuration);
                         return ApiClient.updatePluginConfiguration(PLUGIN_ID, configuration);
@@ -3787,6 +3802,7 @@
                         if (typeof CustomEvent === 'function') {
                             window.dispatchEvent(new CustomEvent('sleekfin:header-settings-changed'));
                             window.dispatchEvent(new CustomEvent('sleekfin:hero-settings-changed'));
+                            window.dispatchEvent(new CustomEvent('sleekfin:details-settings-changed'));
                         }
                     })
                     .catch(function () {

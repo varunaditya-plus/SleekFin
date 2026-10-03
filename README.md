@@ -30,7 +30,7 @@ The ultimate customisation plugin for Jellyfin, which fully reskins Jellyfin to 
 - **Floating header:** Turns Jellyfin's modern and legacy desktop/mobile headers into a custom compact navigation bar which can be customized in the plugin's UI Builder.
 - **Configurable home hero:** Adds a full-width hero section above rows on the home page to display your library's content more nicely.
 - **Redesigned home and library pages:** Restyles the carousels and library pages to show content more clearly with consistent spacing and concise info under posters.
-- **Updated detail pages:** Redesigns Jellyfin's Movie, Series, Season, and Episode pages with full-page backdrop heroes, title art, and richer metadata. Disable the replacement in plugin settings to keep Jellyfin's native detail pages. An optional custom season picker can replace the native season dropdown.
+- **Updated detail pages:** Redesigns Jellyfin's Movie, Series, Season, and Episode pages with full-page backdrop heroes, title art, and richer metadata. Disable the replacement in plugin settings to keep Jellyfin's native detail pages. An optional custom season picker can replace the native season dropdown. Optional browser-compatible local trailers can play muted behind the detail-page artwork; static artwork remains visible when no supported local trailer is available. Background playback is off by default.
 - **Upgraded cast and recommendations:** Restyles cast into a clean horizontal row and turns similar titles into a dedicated **You may like** section with backdrop/poster imagery, ratings, years, and media types.
 - **Responsive layouts:** Adapts the header, hero, media rows, detail pages, controls, typography, and spacing across mobile, tablet, desktop, and ultrawide browser sizes.
 

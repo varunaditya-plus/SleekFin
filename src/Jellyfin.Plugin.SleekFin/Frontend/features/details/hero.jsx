@@ -1,4 +1,5 @@
 import { Facts, Fragment, h, IconButton, item, dom, render } from '../../shared/runtime.js';
+import { createTrailerPreview } from './trailer.js';
 
 function goBack() {
   if (window.history.length > 1) {
@@ -61,6 +62,9 @@ export function createHero(page) {
   const childTitleRoot = stack.querySelector('.sleekfin-details-child-title');
   const factsRoot = stack.querySelector('.sleekfin-details-facts');
   const genresRoot = stack.querySelector('.sleekfin-details-genres');
+  const trailerPreview = createTrailerPreview(page, nativeBackdrop, actions);
+  let trailerBackgroundEnabled = false;
+  let currentItem = null;
   const downloadWasHidden = actions.querySelector('.btnDownload')?.classList.contains('hide');
   const logo = page.querySelector('.detailLogo');
 
@@ -83,6 +87,7 @@ export function createHero(page) {
   }
 
   function renderHero(mediaItem, seasons) {
+    currentItem = mediaItem;
     const backdropUrl = item.imageUrl(mediaItem, 'Backdrop', { maxWidth: Math.max(960, window.innerWidth), inherit: true, quality: 90 });
     const isChild = mediaItem.Type === 'Season' || mediaItem.Type === 'Episode';
     childTitleRoot.hidden = !isChild;
@@ -95,6 +100,12 @@ export function createHero(page) {
     if (backdropUrl) {
       nativeBackdrop.style.backgroundImage = `url("${backdropUrl.replace(/["\\]/g, '\\$&')}")`;
     }
+    trailerPreview.update(mediaItem, trailerBackgroundEnabled);
+  }
+
+  function setTrailerBackgroundEnabled(enabled) {
+    trailerBackgroundEnabled = enabled === true;
+    if (currentItem) trailerPreview.update(currentItem, trailerBackgroundEnabled);
   }
 
   function sync() {
@@ -118,6 +129,7 @@ export function createHero(page) {
   return {
     actions,
     destroy() {
+      trailerPreview.destroy();
       actions.querySelector('.btnDownload')?.classList.toggle('hide', downloadWasHidden);
       render(null, backRoot);
       render(null, childTitleRoot);
@@ -131,6 +143,7 @@ export function createHero(page) {
       return dom.isConnected(hero) && dom.isConnected(nativeBackdrop);
     },
     render: renderHero,
+    setTrailerBackgroundEnabled,
     sync,
   };
 }

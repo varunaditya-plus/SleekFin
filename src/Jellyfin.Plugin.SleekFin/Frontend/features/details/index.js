@@ -8,9 +8,12 @@ import { createSimilar } from './similar.jsx';
 
 const CONCEALED_CLASS = 'sleekfin-details-concealed';
 const CONCEAL_EVENT = 'sleekfin:details-conceal';
+const SETTINGS_CHANGED_EVENT = 'sleekfin:details-settings-changed';
 const DETAIL_PATH = /(^|\/)details\/?$/;
 const HISTORY_METHODS = ['pushState', 'replaceState'];
 const SUPPORTED_TYPES = ['Movie', 'Series', 'Season', 'Episode'];
+const SETTINGS_TIMEOUT_MS = 4000;
+const SETTINGS_DISABLED = Object.freeze({ seasonPickerEnabled: false, trailerBackgroundEnabled: false });
 // Jellyfin activates a page through viewManager.onViewChange, which dispatches these on the page
 // element it just made current, so event.target identifies the page Jellyfin is showing.
 const VIEW_EVENTS = ['viewinit', 'viewbeforeshow', 'viewshow'];
@@ -32,12 +35,18 @@ const state = {
   reconcileTimer: 0,
   retryTimer: 0,
   seasonPickerEnabled: false,
+  settingsScope: '',
   seasons: [],
   started: false,
   stopHidden: null,
   stopHistory: null,
   stopWatching: null,
+  trailerBackgroundEnabled: false,
 };
+const detailsSettings = new Map();
+const clientSettingsScopes = new WeakMap();
+let nextClientSettingsScope = 0;
+let detailsSettingsRevision = 0;
 
 // Jellyfin 12 is a hash router, so the route is carried in window.location.hash; the pathname
 // fallback mirrors the theme feature and the stripped '!' covers the deprecated bang form. Only the
@@ -130,50 +139,71 @@ function routeClient(serverId) {
   return String(client.serverId()).toLowerCase() === serverId.toLowerCase() ? client : null;
 }
 
-// The picker is chosen when the episodes component is created and, once mounted, nothing re-creates
-// it, so this has to resolve before that happens. It is deliberately not part of the item request: an
-// optional setting must not gate the detail page, and a settings request that never settles would
-// otherwise leave every page, including Movies, waiting. Memoized because the value is one global
-// plugin setting, and bounded because a stalled settings request has to fall back to the native
-// select. The seasons request that runs alongside it has no such timeout.
-const SETTINGS_TIMEOUT_MS = 4000;
-const SETTINGS_DISABLED = Object.freeze({ seasonPickerEnabled: false });
-let seasonPickerSetting = null;
-
-function loadSeasonPickerSetting(client) {
-  if (!seasonPickerSetting) {
-    let request;
-    try {
-      request = loadSettings(client);
-    } catch {
-      // A synchronous throw from the client still has to behave like a failed request.
-      request = Promise.reject(new Error('settings unavailable'));
-    }
-    let answered = false;
-    const fromServer = request
-      .then((settings) => {
-        answered = true;
-        return { seasonPickerEnabled: settings?.seasonPickerEnabled === true };
-      })
-      .catch(() => SETTINGS_DISABLED);
-    seasonPickerSetting = Promise.race([
-      fromServer,
-      new Promise((resolve) => window.setTimeout(() => resolve(SETTINGS_DISABLED), SETTINGS_TIMEOUT_MS)),
-    ]).then((settings) => {
-      // Only a real answer is cached. A failure or a timeout is retried on the next Series, so one
-      // bad request cannot leave a working server stuck on the native select for the whole session.
-      if (!answered) seasonPickerSetting = null;
-      return settings;
-    });
+function settingsScope(client, routeServerId) {
+  let serverId = '';
+  let address = '';
+  try {
+    serverId = typeof client.serverId === 'function' ? String(client.serverId() || '') : '';
+    address = typeof client.serverAddress === 'function' ? String(client.serverAddress() || '') : '';
+  } catch {
+    // Fall back to the route's server identity if a partially initialized client cannot report itself.
   }
-  return seasonPickerSetting;
+  serverId = (serverId || routeServerId || '').toLowerCase();
+  address = address.replace(/\/+$/, '').toLowerCase();
+  if (serverId || address) return `${serverId}\u0000${address}`;
+  if (!clientSettingsScopes.has(client)) clientSettingsScopes.set(client, `client:${++nextClientSettingsScope}`);
+  return clientSettingsScopes.get(client);
 }
 
-function loadSeasons(client, userId, mediaItem) {
-  // Only a Series renders the season picker, so only a Series asks for the setting.
+function loadDetailsSettings(client, scope) {
+  const cached = detailsSettings.get(scope);
+  if (cached) return cached.promise;
+
+  let request;
+  try {
+    request = loadSettings(client);
+  } catch {
+    request = Promise.reject(new Error('settings unavailable'));
+  }
+  const source = Promise.resolve(request);
+  let timeout = 0;
+  const record = { promise: null };
+  record.promise = new Promise((resolve) => {
+    timeout = window.setTimeout(() => {
+      if (detailsSettings.get(scope) === record) detailsSettings.delete(scope);
+      resolve(SETTINGS_DISABLED);
+    }, SETTINGS_TIMEOUT_MS);
+    source.then((settings) => {
+      window.clearTimeout(timeout);
+      resolve(settings);
+    }, () => {
+      window.clearTimeout(timeout);
+      resolve(SETTINGS_DISABLED);
+    });
+  });
+  detailsSettings.set(scope, record);
+
+  source.then((settings) => {
+    if (detailsSettings.get(scope) !== record) return;
+    record.promise = Promise.resolve(settings);
+  }, () => {
+    if (detailsSettings.get(scope) === record) detailsSettings.delete(scope);
+  });
+  return record.promise;
+}
+
+function applyDetailsSettings(settings, scope, revision) {
+  if (!state.currentId || state.settingsScope !== scope || revision !== detailsSettingsRevision) return;
+  state.seasonPickerEnabled = settings.seasonPickerEnabled === true;
+  state.trailerBackgroundEnabled = settings.trailerBackgroundEnabled === true;
+  state.mount?.hero.setTrailerBackgroundEnabled(state.trailerBackgroundEnabled);
+}
+
+function loadSeasons(client, userId, mediaItem, scope, applySettings) {
+  // Series consumes the setting for its picker; all detail types can use it for trailer previews.
   if (mediaItem.Type === 'Series') {
-    return Promise.all([client.getSeasons(mediaItem.Id, { userId }), loadSeasonPickerSetting(client)]).then(([seasons, settings]) => {
-      state.seasonPickerEnabled = settings.seasonPickerEnabled;
+    return Promise.all([client.getSeasons(mediaItem.Id, { userId }), loadDetailsSettings(client, scope)]).then(([seasons, settings]) => {
+      applySettings(settings);
       return seasons;
     });
   }
@@ -220,6 +250,7 @@ function mount() {
   };
   state.page.dataset.sleekfinDetails = 'true';
   document.documentElement.classList.add('sleekfin-details-mounted');
+  hero.setTrailerBackgroundEnabled(state.trailerBackgroundEnabled);
   hero.render(state.item, state.seasons);
   actions.reconcile();
   similar.render();
@@ -243,12 +274,19 @@ function load(id, serverId) {
   }
 
   const generation = state.generation;
+  const settingsRevision = detailsSettingsRevision;
+  const scope = settingsScope(client, serverId);
   const userId = client.getCurrentUserId();
   const isCurrent = () => generation === state.generation && id === state.currentId;
+  const applySettings = (settings) => {
+    if (isCurrent()) applyDetailsSettings(settings, scope, settingsRevision);
+  };
+  state.settingsScope = scope;
   state.loadingId = id;
 
-  // The settings request is started lazily by loadSeasons for a Series only, so it can never hold up
-  // the item request or a non-Series page.
+  // Settings are requested for every supported detail type, but never hold up the item or hero.
+  loadDetailsSettings(client, scope).then(applySettings);
+
   client.getItem(userId, id)
     .then((mediaItem) => {
       if (!isCurrent()) return;
@@ -259,7 +297,7 @@ function load(id, serverId) {
 
       // Seasons only extend the view that is already on screen, so a failed season request must
       // not be handled like a failed item request.
-      loadSeasons(client, userId, mediaItem)
+      loadSeasons(client, userId, mediaItem, scope, applySettings)
         .then((result) => {
           if (!isCurrent()) return;
           state.seasons = result.Items || [];
@@ -294,6 +332,9 @@ function select(page, id, serverId) {
   state.item = null;
   state.loadingId = '';
   state.page = page;
+  state.settingsScope = '';
+  state.seasonPickerEnabled = false;
+  state.trailerBackgroundEnabled = false;
   // The page recorded for the previous route must not be mounted onto this one.
   state.previousPage = previousPage;
   state.activePage = null;
@@ -309,9 +350,30 @@ function clearState() {
   state.item = null;
   state.loadingId = '';
   state.page = null;
+  state.settingsScope = '';
   state.previousPage = null;
   state.activePage = null;
   state.seasons = [];
+  state.seasonPickerEnabled = false;
+  state.trailerBackgroundEnabled = false;
+}
+
+function onSettingsChanged() {
+  // A response from before this save must not restore an older setting on the same detail page.
+  const revision = ++detailsSettingsRevision;
+  detailsSettings.clear();
+  state.mount?.hero.setTrailerBackgroundEnabled(false);
+  state.trailerBackgroundEnabled = false;
+  if (!state.currentId) return;
+
+  const client = routeClient(state.currentServerId);
+  if (!client) return;
+  const scope = settingsScope(client, state.currentServerId);
+  const generation = state.generation;
+  state.settingsScope = scope;
+  loadDetailsSettings(client, scope).then((settings) => {
+    if (generation === state.generation) applyDetailsSettings(settings, scope, revision);
+  });
 }
 
 function reset() {
@@ -516,6 +578,7 @@ function start() {
   if (state.started) return;
 
   state.started = true;
+  window.addEventListener(SETTINGS_CHANGED_EVENT, onSettingsChanged);
   state.stopWatching = dom.watchSpa(onRouteChange, {
     events: [...WINDOW_EVENTS, ...VIEW_EVENTS],
     viewshow: true,
@@ -528,6 +591,7 @@ function stop() {
   if (!state.started) return;
 
   state.started = false;
+  window.removeEventListener(SETTINGS_CHANGED_EVENT, onSettingsChanged);
   window.clearTimeout(state.reconcileTimer);
   window.clearTimeout(state.retryTimer);
   state.stopWatching?.();

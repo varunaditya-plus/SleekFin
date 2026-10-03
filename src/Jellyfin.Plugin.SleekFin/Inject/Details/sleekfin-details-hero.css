@@ -16,6 +16,7 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBack
     inset: 0;
     pointer-events: none;
     position: absolute;
+    z-index: 1;
 }
 
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop::before {
@@ -24,6 +25,31 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBack
 
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop::after {
     background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.14) 64%, rgba(0, 0, 0, 0.55) 82%, var(--sleekfin-background) 100%);
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop > .sleekfin-details-trailer {
+    inset: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity 350ms ease;
+    width: 100%;
+    z-index: 0;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop > .sleekfin-details-trailer[data-playing="true"] {
+    opacity: 1;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop > .sleekfin-details-trailer video {
+    border: 0;
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
 }
 
 .sleekfin-details-hero {
