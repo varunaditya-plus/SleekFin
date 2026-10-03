@@ -98,18 +98,77 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details]::-webkit-sc
     border-radius: 6px;
 }
 
+/* The hero consumes its own height in page flow, so lower sections start below it without a spacer. */
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > .detailPageWrapperContainer {
     background: transparent !important;
     box-sizing: border-box;
     margin: 0;
     max-width: none;
-    padding-top: var(--sleekfin-details-hero-height);
+    padding-top: 0;
     position: relative;
-    width: calc(100vw - 5px);
+    width: 100%;
     z-index: 1;
 }
 
+/* The native detail block stays hidden after its track form is moved into the hero layout. */
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPagePrimaryContainer {
+    display: none !important;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailPageSecondaryContainer {
+    padding-top: 0;
+}
+
+/* The track form moves into this slot, where its panel can sit beside the hero stack. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .sleekfin-details-track-slot .trackSelections:not(.hide) {
+    background: var(--sleekfin-surface);
+    border: 1px solid var(--sleekfin-border);
+    border-radius: 12px;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    padding: 6px 0;
+}
+
+/* The control itself is SleekFin's own listbox, built by the details bundle and styled in
+   sleekfin-details-track-picker.css. Jellyfin's select stays in the row because it still carries the
+   stream index, but it is taken out of the layout there, so only the pieces around it are styled
+   here: the arrow Jellyfin adds is unused, and its label is moved onto the trigger. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectArrowContainer {
+    display: none;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer > .selectLabel {
+    display: none;
+}
+
+/* Each picker carries the label and value from Jellyfin's native field. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer {
+    align-items: center;
+    align-self: stretch;
+    background: none !important;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0 !important;
+    min-height: 48px;
+    padding: 0 12px;
+    position: relative;
+}
+
+/* Separators are drawn between rows that are actually shown. A hidden row is still a sibling, so
+   without excluding it the first visible row would carry a separator with nothing above it, drawn
+   just inside the panel's top edge. */
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer:not(.hide) ~ .selectContainer:not(.hide) {
+    border-top: 1px solid var(--sleekfin-border);
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer.hide {
     display: none !important;
 }
 
@@ -124,5 +183,9 @@ html.sleekfin-details-mounted :is(#castCollapsible, #similarCollapsible) .cardSc
 @media (max-width: 767px) {
     html.sleekfin-details-mounted {
         --sleekfin-details-hero-height: max(620px, 85vh);
+    }
+
+    html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .trackSelections .selectContainer {
+        min-height: 52px;
     }
 }

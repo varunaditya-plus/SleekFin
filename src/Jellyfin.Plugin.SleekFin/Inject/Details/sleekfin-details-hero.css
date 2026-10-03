@@ -29,13 +29,20 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBack
 .sleekfin-details-hero {
     align-items: flex-end;
     box-sizing: border-box;
-    display: flex;
-    height: var(--sleekfin-details-hero-height);
-    inset: 0 0 auto;
+    column-gap: clamp(24px, 4vw, 64px);
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    min-height: var(--sleekfin-details-hero-height);
     padding: 0 var(--sleekfin-page-gutter) 72px;
     pointer-events: none;
-    position: absolute;
+    position: relative;
     z-index: 2;
+}
+
+.sleekfin-details-hero > :first-child {
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
 }
 
 .sleekfin-details-back {
@@ -55,9 +62,25 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBack
 }
 
 .sleekfin-details-stack {
+    grid-column: 1;
+    grid-row: 1;
     max-width: 560px;
     min-width: 0;
     pointer-events: auto;
+}
+
+.sleekfin-details-track-slot {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    max-width: 420px;
+    min-width: 0;
+    pointer-events: auto;
+    width: 100%;
+}
+
+.sleekfin-details-hero:not(.sleekfin-details-has-tracks) {
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .sleekfin-details-title {
@@ -184,6 +207,22 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBack
     .sleekfin-details-back {
         height: 44px;
         width: 44px;
+    }
+}
+
+@media (max-width: 1023px) {
+    .sleekfin-details-hero {
+        align-content: end;
+        column-gap: 0;
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 18px;
+    }
+
+    .sleekfin-details-stack,
+    .sleekfin-details-track-slot {
+        grid-column: 1;
+        grid-row: auto;
+        justify-self: start;
     }
 }
 

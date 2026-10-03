@@ -54,13 +54,14 @@ export function createHero(page) {
 
   let moved = [];
   const backdropOriginal = nativeBackdrop.style.backgroundImage;
-  const hero = dom.element('<div class="sleekfin-details-hero"><div></div><div class="sleekfin-details-stack"><div class="sleekfin-details-title"></div><div class="sleekfin-details-child-title" hidden></div><div class="sleekfin-details-facts"></div><div class="sleekfin-details-genres"></div></div></div>');
+  const hero = dom.element('<div class="sleekfin-details-hero"><div></div><div class="sleekfin-details-stack"><div class="sleekfin-details-title"></div><div class="sleekfin-details-child-title" hidden></div><div class="sleekfin-details-facts"></div><div class="sleekfin-details-genres"></div></div><div class="sleekfin-details-track-slot"></div></div>');
   const backRoot = hero.firstElementChild;
   const stack = hero.querySelector('.sleekfin-details-stack');
   const title = stack.querySelector('.sleekfin-details-title');
   const childTitleRoot = stack.querySelector('.sleekfin-details-child-title');
   const factsRoot = stack.querySelector('.sleekfin-details-facts');
   const genresRoot = stack.querySelector('.sleekfin-details-genres');
+  const trackSlot = hero.querySelector('.sleekfin-details-track-slot');
   const downloadWasHidden = actions.querySelector('.btnDownload')?.classList.contains('hide');
   const logo = page.querySelector('.detailLogo');
 
@@ -117,6 +118,7 @@ export function createHero(page) {
 
   return {
     actions,
+    trackSlot,
     destroy() {
       actions.querySelector('.btnDownload')?.classList.toggle('hide', downloadWasHidden);
       render(null, backRoot);
