@@ -170,13 +170,19 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBack
 }
 
 .sleekfin-details-stack > .overview {
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
     color: rgba(255, 255, 255, 0.88) !important;
-    display: -webkit-box;
     font: 400 14px/1.45 var(--sleekfin-font-family);
     margin: 12px 0 0 !important;
     max-width: 520px;
+}
+
+/* The collapse has to stay on `detail-clamp-text`, the class Jellyfin's overview toggle adds and
+   removes. Declared on the bare selector it outranks that class, so removing it changed nothing and
+   Show more could never reveal the text. */
+.sleekfin-details-stack > .overview.detail-clamp-text {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    display: -webkit-box;
     overflow: hidden;
 }
 
