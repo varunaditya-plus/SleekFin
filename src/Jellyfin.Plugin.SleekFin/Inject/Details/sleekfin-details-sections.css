@@ -28,17 +28,19 @@ html.sleekfin-details-mounted #castCollapsible > [is="emby-scroller"] {
     padding: 0 !important;
 }
 
+html.sleekfin-details-mounted #castCollapsible > [is="emby-scroller"].scrollX {
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+html.sleekfin-details-mounted #castCollapsible > [is="emby-scroller"].scrollX::-webkit-scrollbar {
+    display: none;
+}
+
 html.sleekfin-details-mounted #castCollapsible #castContent {
     display: flex;
     gap: 16px;
-    overflow-x: auto;
-    padding: 0 var(--sleekfin-page-gutter) 4px 0 !important;
-    scrollbar-width: none;
-    transform: none !important;
-}
-
-html.sleekfin-details-mounted #castCollapsible #castContent::-webkit-scrollbar {
-    display: none;
+    padding: 0 0 4px !important;
 }
 
 html.sleekfin-details-mounted #castCollapsible .card {
