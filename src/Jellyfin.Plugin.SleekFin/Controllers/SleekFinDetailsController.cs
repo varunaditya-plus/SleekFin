@@ -18,6 +18,7 @@ public sealed class SleekFinDetailsController : ControllerBase
         {
             dropdownStyle = configuration.DropdownStyle,
             seasonPostersEnabled = configuration.DetailsSeasonPostersEnabled,
+            compactEpisodeGridCardsEnabled = configuration.DetailsCompactEpisodeGridCardsEnabled,
             trailerBackgroundEnabled = configuration.DetailsTrailerBackgroundEnabled
         });
     }

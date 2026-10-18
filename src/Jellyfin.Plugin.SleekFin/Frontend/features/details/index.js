@@ -17,7 +17,7 @@ const SUPPORTED_TYPES = ['Movie', 'Series', 'Season', 'Episode'];
 const VIEW_EVENTS = ['viewinit', 'viewbeforeshow', 'viewshow'];
 const WINDOW_EVENTS = ['hashchange', 'popstate', 'pageshow', 'je-hidden-content-changed'];
 const SETTINGS_EVENT = 'sleekfin:details-settings-changed';
-const DEFAULT_SETTINGS = Object.freeze({ dropdownStyle: 'Jellyfin', seasonPostersEnabled: false, trailerBackgroundEnabled: false });
+const DEFAULT_SETTINGS = Object.freeze({ compactEpisodeGridCardsEnabled: false, dropdownStyle: 'Jellyfin', seasonPostersEnabled: false, trailerBackgroundEnabled: false });
 const features = (window.SleekFinFeatures = window.SleekFinFeatures || {});
 
 features.details?.stop?.();
@@ -211,7 +211,7 @@ function mount() {
     if (!state.item?.MediaSources?.some((source) => source.Id === id)) return;
     if ((id !== state.item?.Id || state.loadingId) && id !== state.loadingId) load(id, state.currentServerId, state.page.querySelector('.selectSource'));
   });
-  const episodes = !seasonPosters && ['Series', 'Season', 'Episode'].includes(state.item.Type) && state.seasons.length ? createEpisodes(state.page, state.item, state.seasons, state.settings.dropdownStyle) : null;
+  const episodes = !seasonPosters && ['Series', 'Season', 'Episode'].includes(state.item.Type) && state.seasons.length ? createEpisodes(state.page, state.item, state.seasons, state.settings.dropdownStyle, state.settings.compactEpisodeGridCardsEnabled) : null;
 
   state.mount = {
     actions,
@@ -255,11 +255,16 @@ function load(id, serverId, sourceSelect = null) {
   state.loadingId = id;
   const settingsPromise = loadDetailsSettings(client).then((settings) => {
     if (!isCurrent() || revision !== settingsRevision) return;
+    const compactEpisodeGridChanged = state.settings.compactEpisodeGridCardsEnabled !== settings.compactEpisodeGridCardsEnabled;
     state.settings = settings;
     if (state.mount) {
       const seasonPosters = state.item.Type === 'Series' && settings.seasonPostersEnabled;
       state.page.classList.toggle('sleekfin-details-season-posters', seasonPosters);
       state.mount.hero.render(state.item, state.seasons, settings.trailerBackgroundEnabled);
+      if (compactEpisodeGridChanged && state.mount.episodes) {
+        state.mount.episodes.destroy();
+        state.mount.episodes = createEpisodes(state.page, state.item, state.seasons, settings.dropdownStyle, settings.compactEpisodeGridCardsEnabled);
+      }
     }
     scheduleReconcile();
   });
@@ -286,7 +291,7 @@ function load(id, serverId, sourceSelect = null) {
             state.page.classList.toggle('sleekfin-details-season-posters', seasonPosters);
             state.mount.hero.render(state.item, state.seasons, state.settings.trailerBackgroundEnabled);
             if (!seasonPosters && !state.mount.episodes && ['Series', 'Season', 'Episode'].includes(state.item.Type) && state.seasons.length) {
-              state.mount.episodes = createEpisodes(state.page, state.item, state.seasons, state.settings.dropdownStyle);
+              state.mount.episodes = createEpisodes(state.page, state.item, state.seasons, state.settings.dropdownStyle, state.settings.compactEpisodeGridCardsEnabled);
             }
           }
           scheduleReconcile();

@@ -143,6 +143,8 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     public bool DetailsSeasonPostersEnabled { get; set; } = false;
 
+    public bool DetailsCompactEpisodeGridCardsEnabled { get; set; } = false;
+
     public bool DetailsTrailerBackgroundEnabled { get; set; } = false;
 
     public string HeroContentOrder { get; set; } = "ContinueWatching,NextUp,LatestMovies,LatestShows,Favorites";

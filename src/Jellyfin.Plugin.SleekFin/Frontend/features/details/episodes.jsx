@@ -10,7 +10,7 @@ function downloadEpisode(client, episode) {
   link.remove();
 }
 
-function EpisodeCard({ client, episode, moreLabel }) {
+function EpisodeCard({ client, episode, expanded, moreLabel }) {
   const score = Number(episode.CommunityRating || 0);
   const userData = episode.UserData || {};
   const progress = Math.max(0, Math.min(100, Number(userData.PlayedPercentage || 0)));
@@ -40,34 +40,39 @@ function EpisodeCard({ client, episode, moreLabel }) {
     return () => controls.remove();
   }, [episode]);
 
+  const copy = (
+    <span class="sleekfin-details-episode-copy">
+      <span class="sleekfin-details-episode-heading">
+        {!expanded && episode.IndexNumber != null && <span class="sleekfin-details-episode-number sleekfin-control-3d">{`E${episode.IndexNumber}`}</span>}
+        <span class="sleekfin-details-episode-title cardText">{episode.Name || ''}</span>
+      </span>
+      <span class="sleekfin-details-episode-overview">{episode.Overview || ''}</span>
+      <span class="sleekfin-details-episode-footer">
+        <span>
+          <Icon name="play" />
+          {item.formatRuntime(episode.RunTimeTicks)}
+        </span>
+        {score > 0 && (
+          <span class="sleekfin-details-episode-score">
+            <Icon name="star" />
+            {score.toFixed(1)}
+          </span>
+        )}
+      </span>
+    </span>
+  );
+
   return (
-    <article {...action} class="sleekfin-details-episode card card-withuserdata">
+    <article {...action} class={`sleekfin-details-episode card card-withuserdata${expanded ? ' sleekfin-details-episode-expanded' : ''}`}>
       <div class="cardBox cardScalable">
         <button data-action={playbackAction} type="button" class="sleekfin-details-episode-action cardImageContainer itemAction">
           {imageUrl && <img src={imageUrl} />}
-          <span class="sleekfin-details-episode-shade" />
+          {!expanded && <span class="sleekfin-details-episode-shade" />}
           <span class="innerCardFooter">
             {progress > 0 && progress < 100 && <span class="itemProgressBar"><span class="itemProgressBarForeground" style={{ width: `${progress}%` }} /></span>}
           </span>
-          <span class="sleekfin-details-episode-copy">
-            <span class="sleekfin-details-episode-heading">
-              {episode.IndexNumber != null && <span class="sleekfin-details-episode-number sleekfin-control-3d">{`E${episode.IndexNumber}`}</span>}
-              <span class="sleekfin-details-episode-title cardText">{episode.Name || ''}</span>
-            </span>
-            <span class="sleekfin-details-episode-overview">{episode.Overview || ''}</span>
-            <span class="sleekfin-details-episode-footer">
-              <span>
-                <Icon name="play" />
-                {item.formatRuntime(episode.RunTimeTicks)}
-              </span>
-              {score > 0 && (
-                <span class="sleekfin-details-episode-score">
-                  <Icon name="star" />
-                  {score.toFixed(1)}
-                </span>
-              )}
-            </span>
-          </span>
+          {expanded && episode.IndexNumber != null && <span class="sleekfin-details-episode-number sleekfin-control-3d">{`E${episode.IndexNumber}`}</span>}
+          {!expanded && copy}
         </button>
         <span class="sleekfin-details-episode-actions">
           {episode.UserData && <span ref={userControls} />}
@@ -77,6 +82,7 @@ function EpisodeCard({ client, episode, moreLabel }) {
           <button type="button" class="sleekfin-icon-button sleekfin-control-3d itemAction" data-action="menu" title={moreLabel}><span class="material-icons more_vert" /></button>
         </span>
       </div>
+      {expanded && <button data-action={playbackAction} type="button" class="sleekfin-details-episode-text itemAction">{copy}</button>}
     </article>
   );
 }
@@ -85,7 +91,7 @@ function seasonLabel(season) {
   return season.Name || `Season ${season.IndexNumber || ''}`;
 }
 
-function Episodes({ client, dropdownStyle, list, mediaItem, moreLabel, seasons }) {
+function Episodes({ client, compactEpisodeGridCardsEnabled, dropdownStyle, list, mediaItem, moreLabel, seasons }) {
   const seasonPickerEnabled = dropdownStyle === 'SeerrFin';
   const firstSeason = useMemo(() => seasons.filter((season) => Number(season.IndexNumber) > 0)[0] || seasons[0] || null, [seasons]);
   const [episodes, setEpisodes] = useState([]);
@@ -218,7 +224,7 @@ function Episodes({ client, dropdownStyle, list, mediaItem, moreLabel, seasons }
     render(
       <Fragment>
         {visibleEpisodes.map((episode) => (
-          <EpisodeCard client={client} episode={episode} moreLabel={moreLabel} key={episode.Id} />
+          <EpisodeCard client={client} episode={episode} expanded={view === 'grid' && !compactEpisodeGridCardsEnabled} moreLabel={moreLabel} key={episode.Id} />
         ))}
       </Fragment>,
       list,
@@ -244,7 +250,7 @@ function Episodes({ client, dropdownStyle, list, mediaItem, moreLabel, seasons }
       resizeObserver?.disconnect();
       if (!resizeObserver) window.removeEventListener('resize', updateScroll);
     };
-  }, [client, list, moreLabel, view, visibleEpisodes]);
+  }, [client, compactEpisodeGridCardsEnabled, list, moreLabel, view, visibleEpisodes]);
 
   const subtitle = status === 'loading' ? 'Loading episodes' : status === 'error' ? 'Episodes unavailable' : `${visibleEpisodes.length}${visibleEpisodes.length === 1 ? ' episode' : ' episodes'}`;
   const scrollButtonClass = `emby-scrollbuttons-button paper-icon-button-light${document.documentElement.classList.contains('layout-tv') || document.body?.classList.contains('layout-tv') ? ' show-focus' : ''}`;
@@ -323,7 +329,7 @@ function Episodes({ client, dropdownStyle, list, mediaItem, moreLabel, seasons }
   );
 }
 
-export function createEpisodes(page, mediaItem, seasons, dropdownStyle) {
+export function createEpisodes(page, mediaItem, seasons, dropdownStyle, compactEpisodeGridCardsEnabled) {
   const client = window.ApiClient;
   const wrapper = page.querySelector('.detailPageWrapperContainer');
   const secondary = page.querySelector('.detailPageSecondaryContainer');
@@ -339,7 +345,7 @@ export function createEpisodes(page, mediaItem, seasons, dropdownStyle) {
   section.appendChild(list);
   let destroyed = false;
   const moreLabel = page.querySelector('.btnMoreCommands')?.title || '';
-  render(<Episodes client={client} dropdownStyle={dropdownStyle} list={list} mediaItem={mediaItem} moreLabel={moreLabel} seasons={seasons} />, header);
+  render(<Episodes client={client} compactEpisodeGridCardsEnabled={compactEpisodeGridCardsEnabled} dropdownStyle={dropdownStyle} list={list} mediaItem={mediaItem} moreLabel={moreLabel} seasons={seasons} />, header);
   wrapper.insertBefore(section, secondary);
   window.CustomElements?.upgradeAll?.(section, true);
   page.classList.add('sleekfin-details-has-episodes');

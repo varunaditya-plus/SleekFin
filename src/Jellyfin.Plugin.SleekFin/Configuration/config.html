@@ -1616,6 +1616,18 @@
                             </div>
                             <div class="sleekfin-toggle-row">
                                 <div class="sleekfin-toggle-copy">
+                                    <label class="sleekfin-toggle-label" for="sleekFinDetailsCompactEpisodeGridCardsEnabled">Use compact episode grid cards</label>
+                                    <div class="sleekfin-field-description">Use the more compact version of episode cards which were default before v1.5.3.0</div>
+                                </div>
+                                <div class="sleekfin-toggle-actions">
+                                    <label class="sleekfin-toggle">
+                                        <input id="sleekFinDetailsCompactEpisodeGridCardsEnabled" type="checkbox" />
+                                        <span class="sleekfin-toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="sleekfin-toggle-row">
+                                <div class="sleekfin-toggle-copy">
                                     <label class="sleekfin-toggle-label" for="sleekFinDropdownStyle">Dropdown style</label> <!-- todo: finish this -->
                                     <div class="sleekfin-field-description">Choose Jellyfin, SeerrFin, or basic browser dropdowns for season and media selectors.</div>
                                 </div>
@@ -2141,6 +2153,9 @@
                         </div>
                     </div>
                     </div>
+                    <div class="sleekfin-section-container">
+                        <div class="sleekfin-config-section-title">Detail pages (coming soon)</div>
+                    </div>
                 </div>
 
                 <button type="submit" class="sleekfin-save-button">Save</button>
@@ -2162,6 +2177,7 @@
             var detailsEnabledInput = document.getElementById('sleekFinDetailsEnabled');
             var detailsTrailerBackgroundInput = document.getElementById('sleekFinDetailsTrailerBackgroundEnabled');
             var detailsSeasonPostersInput = document.getElementById('sleekFinDetailsSeasonPostersEnabled');
+            var detailsCompactEpisodeGridCardsInput = document.getElementById('sleekFinDetailsCompactEpisodeGridCardsEnabled');
             var dropdownStyleInput = document.getElementById('sleekFinDropdownStyle');
             var accentInput = document.getElementById('sleekFinAccentColor');
             var randomizedInput = document.getElementById('sleekFinHeroRandomized');
@@ -2360,7 +2376,7 @@
 
             var missingHeroField = Object.keys(heroFields).some(function (name) { return !heroFields[name]; });
 
-            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !detailsTrailerBackgroundInput || !detailsSeasonPostersInput || !dropdownStyleInput || !accentInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || !heroPreview || !heroPreviewBackdrop || !heroPreviewLogo || !heroPreviewTitle || !heroPreviewFacts || !heroPreviewDescription || !heroReset || missingHeroField || page.dataset.sleekfinBound === 'true') {
+            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !detailsTrailerBackgroundInput || !detailsSeasonPostersInput || !detailsCompactEpisodeGridCardsInput || !dropdownStyleInput || !accentInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || !heroPreview || !heroPreviewBackdrop || !heroPreviewLogo || !heroPreviewTitle || !heroPreviewFacts || !heroPreviewDescription || !heroReset || missingHeroField || page.dataset.sleekfinBound === 'true') {
                 return;
             }
 
@@ -3739,6 +3755,7 @@
                         detailsEnabledInput.checked = readValue(configuration, 'DetailsEnabled') !== false;
                         detailsTrailerBackgroundInput.checked = readValue(configuration, 'DetailsTrailerBackgroundEnabled') === true;
                         detailsSeasonPostersInput.checked = readValue(configuration, 'DetailsSeasonPostersEnabled') === true;
+                        detailsCompactEpisodeGridCardsInput.checked = readValue(configuration, 'DetailsCompactEpisodeGridCardsEnabled') === true;
                         var dropdownStyle = readValue(configuration, 'DropdownStyle');
                         dropdownStyleInput.value = ['Jellyfin', 'SeerrFin', 'Native'].indexOf(dropdownStyle) !== -1 ? dropdownStyle : dropdownStyle === undefined && readValue(configuration, 'DetailsSeasonPickerEnabled') === true ? 'SeerrFin' : 'Jellyfin';
                         accentInput.value = readValue(configuration, 'AccentColor') || accentInput.defaultValue;
@@ -3814,6 +3831,7 @@
                         configuration.DetailsEnabled = detailsEnabledInput.checked;
                         configuration.DetailsTrailerBackgroundEnabled = detailsTrailerBackgroundInput.checked;
                         configuration.DetailsSeasonPostersEnabled = detailsSeasonPostersInput.checked;
+                        configuration.DetailsCompactEpisodeGridCardsEnabled = detailsCompactEpisodeGridCardsInput.checked;
                         configuration.DropdownStyle = dropdownStyleInput.value;
                         configuration.DetailsSeasonPickerEnabled = dropdownStyleInput.value === 'SeerrFin';
                         configuration.AccentColor = accentInput.value;

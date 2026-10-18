@@ -309,7 +309,7 @@
     margin-top: 9px;
 }
 
-.sleekfin-details-episode-list[data-view="grid"] .sleekfin-details-episode:has(.je-hide-btn) .sleekfin-details-episode-footer {
+.sleekfin-details-episode-list[data-view="grid"] .sleekfin-details-episode:not(.sleekfin-details-episode-expanded):has(.je-hide-btn) .sleekfin-details-episode-footer {
     padding-left: 30px;
 }
 
@@ -373,6 +373,54 @@
 .sleekfin-details-episode:hover .sleekfin-details-episode-action > img {
     filter: brightness(1.08);
     transform: scale(1.035);
+}
+
+.sleekfin-details-episode-expanded.card {
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+}
+
+.sleekfin-details-episode-expanded > .cardBox {
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--sleekfin-border);
+    border-radius: 10px;
+    box-sizing: border-box;
+    height: auto;
+    overflow: hidden;
+}
+
+.sleekfin-details-episode-expanded .sleekfin-details-episode-action {
+    border-radius: 9px;
+}
+
+.sleekfin-details-episode-text {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    display: block;
+    font: inherit;
+    margin: 10px 0 0;
+    padding: 0;
+    text-align: start;
+    width: 100%;
+}
+
+.sleekfin-details-episode-expanded .sleekfin-details-episode-copy {
+    padding: 0;
+    position: static;
+}
+
+.sleekfin-details-episode-expanded .sleekfin-details-episode-overview {
+    color: var(--sleekfin-muted);
+    min-height: 36px;
+}
+
+.sleekfin-details-episode-expanded .sleekfin-details-episode-footer {
+    color: var(--sleekfin-muted);
+    flex-direction: row-reverse;
 }
 
 .sleekfin-details-episode-list[data-view="list"] {
