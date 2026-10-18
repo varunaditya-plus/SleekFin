@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added optional muted trailer backgrounds to hero section on detail pages which support local, remote and YouTube trailers. Added the option to the Hero UI Builder under “Artwork + Trailer”. Also made all builder sections start collapsed. Changes by @T9es and @varunaditya-plus",
+  "changelog": "Updated search results rows and cards to match SleekFin's style",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-07T23:10:03.0000000Z",
-  "version": "1.5.1.0",
+  "timestamp": "2026-10-18T19:42:54.0000000Z",
+  "version": "1.5.2.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [

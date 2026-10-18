@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.5.2.0",
+        "changelog": "Updated search results rows and cards to match SleekFin's style",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.5.2.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "E8A49CCD7C9B4254E0FF9EA026FAE722",
+        "timestamp": "2026-10-18T19:42:54.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.5.1.0",
         "changelog": "Added optional muted trailer backgrounds to hero section on detail pages which support local, remote and YouTube trailers. Added the option to the Hero UI Builder under “Artwork + Trailer”. Also made all builder sections start collapsed. Changes by @T9es and @varunaditya-plus",
         "targetAbi": "12.0.0.0",
