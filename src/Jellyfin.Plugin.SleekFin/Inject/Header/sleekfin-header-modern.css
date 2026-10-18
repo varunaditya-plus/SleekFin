@@ -1,3 +1,10 @@
+/* Jellyfin measures the whole AppBar to reserve space for its library toolbar. */
+html:is(.sleekfin-header-boot-loading, .sleekfin-header-loading) header.MuiAppBar-root,
+html.sleekfin-header-mounted [data-sleekfin-header="modern"] {
+    height: auto !important;
+    min-height: var(--sleekfin-header-height);
+}
+
 html.sleekfin-header-mounted [data-sleekfin-header-toolbar] {
     align-items: center !important;
     box-sizing: border-box !important;

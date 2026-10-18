@@ -1,14 +1,14 @@
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) {
     background: var(--sleekfin-background) !important;
     color: var(--sleekfin-text);
     font-family: var(--sleekfin-font-family);
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .padded-left {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .padded-left {
     padding-inline-start: var(--sleekfin-page-gutter) !important;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .padded-right {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .padded-right {
     padding-inline-end: var(--sleekfin-page-gutter) !important;
 }
 
@@ -20,6 +20,10 @@ html.sleekfin-media-mounted.sleekfin-header-mounted :is(#moviesPage, #tvshowsPag
     html.sleekfin-media-mounted.sleekfin-header-mounted :is(#moviesPage, #tvshowsPage, #tvRecommendedPage) {
         padding-top: 112px !important;
     }
+}
+
+html.sleekfin-media-mounted.sleekfin-header-mounted [data-sleekfin-header="modern"] ~ main :is(#moviesPage, #tvshowsPage, #tvRecommendedPage) {
+    padding-top: 0 !important;
 }
 
 html.sleekfin-media-mounted header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root {
@@ -42,7 +46,7 @@ html.sleekfin-media-mounted header.MuiAppBar-root > .MuiToolbar-root + .MuiToolb
 }
 
 html.sleekfin-media-mounted header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child::before,
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards::before {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards::before {
     align-self: stretch;
     background: var(--sleekfin-accent);
     border-radius: 999px;
@@ -53,7 +57,7 @@ html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .secti
 }
 
 html.sleekfin-media-mounted header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards {
     font: 600 24px/32px var(--sleekfin-font-family);
 }
 
@@ -101,13 +105,13 @@ html.sleekfin-media-mounted header.MuiAppBar-root > .MuiToolbar-root + .MuiToolb
 
 @media (max-width: 599px) {
     html.sleekfin-media-mounted header.MuiAppBar-root > .MuiToolbar-root + .MuiToolbar-root > button:first-child .MuiTypography-root,
-    html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards {
+    html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards {
         font-size: 20px;
         line-height: 28px;
     }
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .verticalSection {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .verticalSection {
     margin-bottom: 44px;
 }
 
@@ -121,12 +125,12 @@ html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .verti
     }
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .verticalSection:not(:empty),
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .verticalSection:not(:empty),
 html.sleekfin-media-mounted :is(#moviesPage, #tvshowsPage, #tvRecommendedPage) .itemsContainer:not(:empty) {
     animation: sleekfin-media-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitleContainer-cards {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitleContainer-cards {
     box-sizing: border-box;
     margin: 0 0 20px;
     max-width: none !important;
@@ -134,16 +138,16 @@ html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .secti
     width: 100%;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) :not(.sectionTitleContainer-cards):not(.sectionTitleTextButton) > .sectionTitle-cards {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) :not(.sectionTitleContainer-cards):not(.sectionTitleTextButton) > .sectionTitle-cards {
     margin: 0 0 20px;
     padding-block: 28px 0;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .emby-scroller {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .emby-scroller {
     padding-inline: var(--sleekfin-page-gutter) !important;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards {
     box-sizing: border-box;
     color: var(--sleekfin-text);
     display: block;
@@ -154,7 +158,7 @@ html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .secti
     width: max-content;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards::before {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards::before {
     display: inline-block;
     height: 30px;
     margin-inline-end: 10px;
@@ -162,11 +166,11 @@ html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .secti
     width: 3px;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .seerrfin-view-more {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .seerrfin-view-more {
     flex-shrink: 0;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitleTextButton {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitleTextButton {
     color: var(--sleekfin-text) !important;
     max-width: 100% !important;
     min-width: 0;
@@ -174,14 +178,14 @@ html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .secti
     width: max-content !important;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitleTextButton > .material-icons {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitleTextButton > .material-icons {
     color: var(--sleekfin-muted);
     flex-shrink: 0;
     font-size: 20px;
     transition: color 180ms ease, transform 180ms ease;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitleTextButton:hover > .material-icons {
+html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitleTextButton:hover > .material-icons {
     color: var(--sleekfin-accent);
     transform: translateX(2px);
 }
@@ -205,24 +209,24 @@ html.sleekfin-media-mounted #indexPage .homeLibraryButton:hover {
     border-color: var(--sleekfin-border-hover);
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardBox {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardBox {
     margin: 0 !important;
     margin-inline-end: 12px !important;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .card:is(.overflowBackdropCard, .overflowSmallBackdropCard, .backdropCard) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:is(.overflowBackdropCard, .overflowSmallBackdropCard, .backdropCard) {
     max-width: 320px;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .card:is(.overflowPortraitCard, .portraitCard) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:is(.overflowPortraitCard, .portraitCard) {
     max-width: 200px;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardBox.cardBox-bottompadded {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardBox.cardBox-bottompadded {
     margin-bottom: 32px !important;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardScalable {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardScalable {
     background: var(--sleekfin-surface);
     border: 1px solid var(--sleekfin-border);
     border-radius: 10px;
@@ -231,7 +235,7 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
     transition: border-color 220ms ease;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardScalable:has(.cardImageContainer.lazy-hidden)::after {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardScalable:has(.cardImageContainer.lazy-hidden)::after {
     animation: sleekfin-card-skeleton 1.5s linear infinite;
     background: linear-gradient(105deg, transparent 30%, var(--sleekfin-skeleton-shimmer) 50%, transparent 70%);
     content: "";
@@ -248,25 +252,25 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
     }
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) {
     border-radius: 9px;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardContent {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardContent {
     transform-origin: center;
     transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .card:hover .cardContent {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:hover .cardContent {
     transform: scale(1.06);
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .card:hover .cardBox:not(.visualCardBox) .cardScalable,
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .card:hover .visualCardBox {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:hover .cardBox:not(.visualCardBox) .cardScalable,
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:hover .visualCardBox {
     border-color: var(--sleekfin-border-hover);
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .visualCardBox {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .visualCardBox {
     background: var(--sleekfin-surface) !important;
     border: 1px solid var(--sleekfin-border) !important;
     border-radius: 10px;
@@ -275,20 +279,20 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
     overflow: hidden;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .visualCardBox .cardScalable {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .visualCardBox .cardScalable {
     border: 0;
     border-radius: 0;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .visualCardBox :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .visualCardBox :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) {
     border-radius: 9px 9px 0 0;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardOverlayContainer {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardOverlayContainer {
     background: transparent;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) :is(.cardOverlayButtonIcon, .cardOverlayButton-centered, .cardOverlayFab-primary) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) :is(.cardOverlayButtonIcon, .cardOverlayButton-centered, .cardOverlayFab-primary) {
     -webkit-backdrop-filter: blur(14px) saturate(130%);
     backdrop-filter: blur(14px) saturate(130%);
     background: rgba(16, 17, 19, 0.82) !important;
@@ -296,17 +300,17 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
     color: var(--sleekfin-text);
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardText {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardText {
     color: var(--sleekfin-text);
     font: 500 13px/1.375 var(--sleekfin-font-family);
     letter-spacing: 0;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardText-first {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardText-first {
     padding: 10px 2px 0;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardText-secondary {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardText-secondary {
     color: var(--sleekfin-muted);
     font-size: 11px;
     font-weight: 400;
@@ -314,40 +318,40 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
     padding: 4px 2px 0;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) :is(.cardTextCentered, .cardTextCentered > .textActionButton) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) :is(.cardTextCentered, .cardTextCentered > .textActionButton) {
     text-align: start !important;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardText a {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardText a {
     color: inherit;
     text-decoration: none;
     transition: color 180ms ease;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .card:hover .cardText-first a {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:hover .cardText-first a {
     color: var(--sleekfin-accent);
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .innerCardFooter {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .innerCardFooter {
     -webkit-backdrop-filter: blur(12px) saturate(120%);
     backdrop-filter: blur(12px) saturate(120%);
     background: rgba(0, 0, 0, 0.78);
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .innerCardFooter > .cardText {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .innerCardFooter > .cardText {
     padding: 8px 10px;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .itemProgressBar {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .itemProgressBar {
     background: rgba(150, 154, 161, 0.28);
     height: 3px;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .itemProgressBarForeground {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .itemProgressBarForeground {
     background: var(--sleekfin-accent) !important;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) :is(.countIndicator, .playedIndicator, .mediaSourceIndicator) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) :is(.countIndicator, .playedIndicator, .mediaSourceIndicator) {
     background: rgba(16, 17, 19, 0.86) !important;
     border: 1px solid rgba(241, 242, 244, 0.18);
     box-shadow: none;
@@ -363,15 +367,15 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
 
 
 @media (max-width: 599px) {
-    html.sleekfin-media-mounted :is(#indexPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards::before {
+    html.sleekfin-media-mounted :is(#indexPage, #searchPage, [data-seerrfin-modern-panel]) .sectionTitle.sectionTitle-cards::before {
         height: 26px;
     }
 
-    html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardBox {
+    html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardBox {
         margin-inline-end: 10px !important;
     }
 
-    html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, [data-seerrfin-modern-panel]) .cardBox.cardBox-bottompadded {
+    html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardBox.cardBox-bottompadded {
         margin-bottom: 24px !important;
     }
 }
