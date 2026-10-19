@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added collapsable text to hero section on home screen, and episode cards' descriptions.",
+  "changelog": "Added top shadow under header for all pages",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-19T03:38:44.0000000Z",
-  "version": "1.5.6.0",
+  "timestamp": "2026-10-19T03:39:50.0000000Z",
+  "version": "1.5.7.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [

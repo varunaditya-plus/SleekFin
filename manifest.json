@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.5.7.0",
+        "changelog": "Added top shadow under header for all pages",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.5.7.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "DA392A19E6085C5DC46CF84CEF4132D2",
+        "timestamp": "2026-10-19T03:39:50.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.5.6.0",
         "changelog": "Added collapsable text to hero section on home screen, and episode cards' descriptions.",
         "targetAbi": "12.0.0.0",
