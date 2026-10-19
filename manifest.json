@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.5.5.0",
+        "changelog": "If a trailer is playing in a detail page's hero section, clicking the hero section now pauses the trailer's playback",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.5.5.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "3319515AC69AD84DA1ACA7B4887E1258",
+        "timestamp": "2026-10-19T03:35:26.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.5.4.0",
         "changelog": "Restyled all native Jellyfin cards with with custom buttons, progress bars, and more. Also added Square, Squircle and Circle shape settings for different elements in settings",
         "targetAbi": "12.0.0.0",
