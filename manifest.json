@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.5.6.0",
+        "changelog": "Added collapsable text to hero section on home screen, and episode cards' descriptions.",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.5.6.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "F59F20332C778A8CC7E430066587175E",
+        "timestamp": "2026-10-19T03:38:44.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.5.5.0",
         "changelog": "If a trailer is playing in a detail page's hero section, clicking the hero section now pauses the trailer's playback",
         "targetAbi": "12.0.0.0",

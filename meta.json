@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "If a trailer is playing in a detail page's hero section, clicking the hero section now pauses the trailer's playback",
+  "changelog": "Added collapsable text to hero section on home screen, and episode cards' descriptions.",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-19T03:35:26.0000000Z",
-  "version": "1.5.5.0",
+  "timestamp": "2026-10-19T03:38:44.0000000Z",
+  "version": "1.5.6.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
