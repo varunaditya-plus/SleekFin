@@ -100,9 +100,15 @@ export function createYoutubePreview(iframe, { onPlaying, onEnded, onError }) {
     if (!cancelled) onError();
   });
 
-  return () => {
-    cancelled = true;
-    player?.destroy();
-    player = null;
+  return {
+    destroy() {
+      cancelled = true;
+      player?.destroy();
+      player = null;
+    },
+    togglePlayback() {
+      if (player.getPlayerState() === window.YT.PlayerState.PAUSED) player.playVideo();
+      else player.pauseVideo();
+    },
   };
 }

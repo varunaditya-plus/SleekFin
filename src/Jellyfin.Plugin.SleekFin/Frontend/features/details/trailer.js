@@ -61,7 +61,7 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
   let video = null;
   let candidates = [];
   let encoding = null;
-  let destroyYoutube = null;
+  let youtube = null;
 
   function isCurrent(token) {
     return token === generation && enabled;
@@ -76,8 +76,8 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
 
   function removeLayer() {
     window.removeEventListener('resize', sizeYoutube);
-    destroyYoutube?.();
-    destroyYoutube = null;
+    youtube?.destroy();
+    youtube = null;
     if (video?.tagName === 'VIDEO') {
       video.pause();
       video.removeAttribute('src');
@@ -157,7 +157,7 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
     nativeBackdrop.appendChild(iframe);
     sizeYoutube();
     window.addEventListener('resize', sizeYoutube);
-    destroyYoutube = createYoutubePreview(iframe, { onPlaying: () => markPlaying(token), onEnded: () => finish(token), onError: () => nextCandidate(token) });
+    youtube = createYoutubePreview(iframe, { onPlaying: () => markPlaying(token), onEnded: () => finish(token), onError: () => nextCandidate(token) });
   }
 
   function sizeYoutube() {
@@ -264,6 +264,13 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
     if (document.visibilityState === 'hidden' && enabled) finish(generation);
   }
 
+  function togglePlayback() {
+    if (video?.dataset.playing !== 'true') return;
+    if (video.tagName === 'IFRAME') youtube?.togglePlayback();
+    else if (video.paused) video.play()?.catch(() => {});
+    else video.pause();
+  }
+
   page.addEventListener('click', onActionClick, true);
   document.addEventListener('visibilitychange', onVisibilityChange);
   document.addEventListener('play', onMediaPlay, true);
@@ -277,6 +284,7 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
       document.removeEventListener('play', onMediaPlay, true);
       currentItem = null;
     },
+    togglePlayback,
     update,
   };
 }

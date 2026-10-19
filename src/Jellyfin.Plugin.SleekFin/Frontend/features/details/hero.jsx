@@ -101,8 +101,13 @@ export function createHero(page) {
     hero.classList.toggle('sleekfin-details-has-logo', Boolean(logo && window.getComputedStyle(logo).backgroundImage !== 'none'));
   }
 
+  function onHeroClick(event) {
+    if ((hero.contains(event.target) || nativeBackdrop.contains(event.target)) && !event.target.closest('a, button')) trailerPreview.togglePlayback();
+  }
+
   render(<IconButton class="sleekfin-details-back" icon="arrowLeft" label="Back" raised onClick={goBack} />, backRoot);
   stack.addEventListener('click', (event) => { if (overview?.contains(event.target)) page.querySelector('.overview-expand')?.click(); });
+  page.addEventListener('click', onHeroClick);
   move(logo, title);
   move(name, title);
   move(page.querySelector('.itemMiscInfo-primary'), factsRoot);
@@ -116,6 +121,7 @@ export function createHero(page) {
     actions,
     destroy() {
       trailerPreview.destroy();
+      page.removeEventListener('click', onHeroClick);
       delete actions.dataset.sleekfinCanDownload;
       overview?.removeAttribute('title');
       render(null, backRoot);
