@@ -285,7 +285,6 @@ html.sleekfin-details-mounted.sleekfin-header-mounted [data-sleekfin-header-menu
 .sleekfin-details-stack > .overview {
     -webkit-box-orient: vertical;
     color: rgba(255, 255, 255, 0.88) !important;
-    cursor: pointer;
     display: -webkit-box;
     font: 400 14px/1.45 var(--sleekfin-font-family);
     margin: 12px 0 0 !important;

@@ -15,7 +15,8 @@ export function Hero({ entries, root, settings }) {
     stopRotation();
     if (entries.length < 2) return;
     rotationTimer.current = window.setInterval(() => {
-      if (!document.hidden && pointerStartX.current === null) {
+      // An opened description would otherwise rotate away while it is being read.
+      if (!document.hidden && pointerStartX.current === null && !root.querySelector('.sleekfin-hero-slide[data-active="true"] [data-sleekfin-expanded]')) {
         setActiveIndex((index) => (index + 1) % entries.length);
       }
     }, settings.autoRotateSeconds * 1000);

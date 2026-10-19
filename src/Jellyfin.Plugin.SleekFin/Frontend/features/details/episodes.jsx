@@ -18,6 +18,7 @@ function EpisodeCard({ client, episode, expanded, moreLabel }) {
   const action = item.actionAttributes(episode);
   const playbackAction = action['data-action'];
   const userControls = useRef(null);
+  const overview = useRef(null);
   delete action.class;
   delete action['data-action'];
 
@@ -40,13 +41,16 @@ function EpisodeCard({ client, episode, expanded, moreLabel }) {
     return () => controls.remove();
   }, [episode]);
 
+  // Compact and list cards overlay the description on artwork, which leaves no room to expand it.
+  useEffect(() => (expanded && overview.current ? dom.expandableText(overview.current) : undefined), [expanded]);
+
   const copy = (
     <span class="sleekfin-details-episode-copy">
       <span class="sleekfin-details-episode-heading">
         {!expanded && episode.IndexNumber != null && <span class="sleekfin-details-episode-number sleekfin-control-3d">{`E${episode.IndexNumber}`}</span>}
         <span class="sleekfin-details-episode-title cardText">{episode.Name || ''}</span>
       </span>
-      <span class="sleekfin-details-episode-overview">{episode.Overview || ''}</span>
+      <span class="sleekfin-details-episode-overview" ref={overview}>{episode.Overview || ''}</span>
       <span class="sleekfin-details-episode-footer">
         <span>
           <Icon name="play" />

@@ -87,7 +87,6 @@ export function createHero(page) {
   }
 
   function sync() {
-    if (overview) overview.title = overview.classList.contains('detail-clamp-text') ? 'Click to expand' : 'Click to collapse';
     const header = document.documentElement.classList.contains('sleekfin-header-mounted') ? Array.from(document.querySelectorAll('[data-sleekfin-header]')).find(dom.isVisible) : null;
     const menu = header?.querySelector('.mainDrawerButton, svg[data-testid="MenuIcon"]')?.closest('button');
     backRoot.classList.toggle('sleekfin-details-back-after-menu', dom.isVisible(menu));
@@ -106,7 +105,7 @@ export function createHero(page) {
   }
 
   render(<IconButton class="sleekfin-details-back" icon="arrowLeft" label="Back" raised onClick={goBack} />, backRoot);
-  stack.addEventListener('click', (event) => { if (overview?.contains(event.target)) page.querySelector('.overview-expand')?.click(); });
+  const destroyOverview = overview ? dom.expandableText(overview) : null;
   page.addEventListener('click', onHeroClick);
   move(logo, title);
   move(name, title);
@@ -122,8 +121,8 @@ export function createHero(page) {
     destroy() {
       trailerPreview.destroy();
       page.removeEventListener('click', onHeroClick);
+      destroyOverview?.();
       delete actions.dataset.sleekfinCanDownload;
-      overview?.removeAttribute('title');
       render(null, backRoot);
       backRoot.remove();
       render(null, factsValuesRoot);

@@ -1,9 +1,10 @@
-import { Button, Facts, h, item, useState } from '../../shared/runtime.js';
+import { Button, dom, Facts, h, item, useEffect, useRef, useState } from '../../shared/runtime.js';
 
 export function HeroSlide({ entry, active, settings }) {
   const [backdropLoaded, setBackdropLoaded] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
   const [logoLoaded, setLogoLoaded] = useState(false);
+  const description = useRef(null);
   const displayItem = entry.display;
   const logoUrl = item.imageUrl(displayItem, 'Logo');
   const backdropUrl = item.imageUrl(displayItem, 'Backdrop');
@@ -18,6 +19,7 @@ export function HeroSlide({ entry, active, settings }) {
   facts.push({ text: item.year(displayItem) });
   facts.push({ text: item.typeLabel(displayItem.Type) });
   (displayItem.Genres || []).slice(0, 2).forEach((genre) => facts.push({ text: genre }));
+  useEffect(() => (description.current ? dom.expandableText(description.current) : undefined), []);
 
   return (
     <section class="sleekfin-hero-slide" data-active={active ? 'true' : 'false'}>
@@ -33,7 +35,7 @@ export function HeroSlide({ entry, active, settings }) {
           <div class="sleekfin-hero-facts">
             <Facts values={facts} />
           </div>
-          {displayItem.Overview && <p class="sleekfin-hero-description">{displayItem.Overview}</p>}
+          {displayItem.Overview && <p class="sleekfin-hero-description" ref={description}>{displayItem.Overview}</p>}
           <div class="sleekfin-hero-actions">
             <Button {...item.actionAttributes(entry.play, 'play')} variant="primary" icon="play" label="Play" />
             <Button {...item.actionAttributes(displayItem, 'link')} variant="control" icon="info" label="More info" />
