@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.5.8.0",
+        "changelog": "Added a Start from beginning button to movie pages, and favorite icon on the right of the Mark as watched button",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.5.8.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "2926A09F71D11CF73E469577578108FB",
+        "timestamp": "2026-10-19T03:40:39.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.5.7.0",
         "changelog": "Added top shadow under header for all pages",
         "targetAbi": "12.0.0.0",
