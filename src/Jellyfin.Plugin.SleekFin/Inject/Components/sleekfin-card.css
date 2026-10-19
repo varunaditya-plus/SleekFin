@@ -1,0 +1,253 @@
+html.sleekfin-main-ui .card:is(.personCard, [data-type="Person"]) {
+    --sleekfin-card-radius: var(--sleekfin-person-radius);
+    --sleekfin-card-inner-radius: var(--sleekfin-person-inner-radius);
+}
+
+html.sleekfin-main-ui .card:is([data-type], .chapterCard):not(.sleekfin-details-episode) .cardScalable {
+    background: var(--sleekfin-surface);
+    border: 1px solid var(--sleekfin-border);
+    border-radius: var(--sleekfin-card-radius);
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: border-color 220ms ease;
+}
+
+html.sleekfin-main-ui .card:is([data-type], .chapterCard) .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) {
+    border-radius: var(--sleekfin-card-inner-radius);
+}
+
+html.sleekfin-main-ui .card[data-type] .visualCardBox {
+    background: var(--sleekfin-surface) !important;
+    border: 1px solid var(--sleekfin-border) !important;
+    border-radius: var(--sleekfin-card-radius);
+    box-shadow: none;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Jellyfin's focus border is important, but the SleekFin visual card border must stay important to beat its theme. */
+html.sleekfin-main-ui .card[data-type]:focus .visualCardBox {
+    border-color: var(--sleekfin-accent) !important;
+}
+
+html.sleekfin-main-ui .card[data-type] .visualCardBox .cardScalable {
+    border: 0;
+    border-radius: 0;
+}
+
+html.sleekfin-main-ui .card[data-type] .visualCardBox :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) {
+    border-radius: var(--sleekfin-card-inner-radius) var(--sleekfin-card-inner-radius) 0 0;
+}
+
+html.sleekfin-main-ui .card[data-type] .cardOverlayContainer {
+    background: transparent;
+    container-type: size;
+}
+
+/* Thumbnail rows such as Next Up match SleekFin episode cards: a 380px image followed by a 12px gap. */
+html.sleekfin-main-ui .card:is(.overflowBackdropCard, .overflowSmallBackdropCard)[data-type]:not([data-type="CollectionFolder"]):not([data-type="UserView"]) {
+    width: 392px;
+}
+
+html.sleekfin-main-ui .card:is(.overflowBackdropCard, .overflowSmallBackdropCard)[data-type]:not([data-type="CollectionFolder"]):not([data-type="UserView"]) > .cardBox {
+    margin: 0 !important;
+    margin-inline-end: 12px !important;
+}
+
+@media (max-width: 767px) {
+    html.sleekfin-main-ui .card:is(.overflowBackdropCard, .overflowSmallBackdropCard)[data-type]:not([data-type="CollectionFolder"]):not([data-type="UserView"]) {
+        width: calc(min(84vw, 380px) + 12px);
+    }
+}
+
+html.sleekfin-main-ui .card[data-type] :is(button.cardOverlayButton, button.je-hide-btn, .sleekfin-icon-button) {
+    align-items: center;
+    border-radius: var(--sleekfin-card-button-radius) !important;
+    color: var(--sleekfin-muted);
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 32px;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 !important;
+    width: 32px;
+}
+
+html.sleekfin-main-ui .card[data-type] button.cardOverlayButton:not(.cardOverlayFab-primary):not(.cardOverlayButton-centered) {
+    margin: 0;
+}
+
+/* Jellyfin centres both Play buttons with negative margins derived from their size. */
+html.sleekfin-main-ui .card[data-type]:not(.sleekfin-details-season-card) :is(.cardOverlayContainer > button.cardOverlayFab-primary, button.cardOverlayButton-centered) {
+    border-radius: var(--sleekfin-card-play-radius) !important;
+    color: var(--sleekfin-text);
+    height: 52px;
+    margin: -26px 0 0 -26px;
+    width: 52px;
+}
+
+html.sleekfin-main-ui .card[data-type]:not(.sleekfin-details-season-card) .cardOverlayContainer > button.cardOverlayFab-primary:hover {
+    transform: scale(1.06);
+}
+
+html.sleekfin-main-ui .card[data-type]:not(.sleekfin-details-season-card) :is(.cardOverlayContainer > button.cardOverlayFab-primary, button.cardOverlayButton-centered) > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root) {
+    font-size: 30px !important;
+    height: 30px !important;
+    width: 30px !important;
+}
+
+/* Short backdrops cannot fit a centred Play button beside the action row, so it moves into the space beneath. */
+@container (max-height: 139px) {
+    html.sleekfin-main-ui .card[data-type]:not(.sleekfin-details-season-card) .cardOverlayContainer > button.cardOverlayFab-primary {
+        height: 40px;
+        margin: -20px 0 0 -20px;
+        top: calc(50% + 21px);
+        width: 40px;
+    }
+
+    html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .card[data-type]:not(.personCard):not([data-type="Person"]):not(.sleekfin-details-season-card) .cardOverlayContainer > button.cardOverlayFab-primary {
+        top: calc(50% - 21px);
+    }
+
+    html.sleekfin-main-ui .card[data-type]:not(.sleekfin-details-season-card) .cardOverlayContainer > button.cardOverlayFab-primary > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root) {
+        font-size: 24px !important;
+        height: 24px !important;
+        width: 24px !important;
+    }
+}
+
+/* Item actions take the top-right corner like SleekFin season cards. */
+html.sleekfin-main-ui .card[data-type]:not(.sleekfin-details-season-card) .cardOverlayButton-br:not(button) {
+    bottom: auto;
+    gap: 4px;
+    right: 10px;
+    top: 10px;
+}
+
+html.sleekfin-main-ui .card[data-type] button.cardOverlayButton-br:not(.cardOverlayButton-centered) {
+    bottom: 10px;
+    right: 10px;
+}
+
+/* Mobile layouts show Jellyfin's corner Play button instead of the hover menu. */
+html.sleekfin-main-ui .card[data-type] button.cardOverlayButton-br[data-action="play"] {
+    border-radius: var(--sleekfin-card-play-radius) !important;
+}
+
+html.sleekfin-main-ui .card[data-type] .cardIndicators {
+    transition: opacity 200ms ease;
+}
+
+/* Hover actions take the badge corner and already show the watched and favorite state. */
+html.sleekfin-main-ui .card-hoverable[data-type]:is(:hover, :focus-within) .cardIndicators {
+    opacity: 0;
+}
+
+/* Legacy icons carry a second circular surface and important em-based dimensions. */
+html.sleekfin-main-ui .card[data-type] .cardOverlayButtonIcon {
+    background: transparent !important;
+    font-size: 18px !important;
+    height: 18px !important;
+    width: 18px !important;
+}
+
+html.sleekfin-main-ui .card[data-type] button.cardOverlayButton > .MuiSvgIcon-root,
+html.sleekfin-main-ui .card[data-type] button.je-hide-btn > :is(svg, .material-icons) {
+    height: 18px;
+    width: 18px;
+}
+
+html.sleekfin-main-ui .card[data-type] :is(button.cardOverlayButton, button.je-hide-btn, .sleekfin-icon-button):hover {
+    color: var(--sleekfin-text);
+}
+
+html.sleekfin-main-ui .card[data-type] button.cardOverlayButton:is(.playstatebutton-played, .ratingbutton-withrating):not(:disabled),
+html.sleekfin-main-ui .card[data-type] button.cardOverlayButton:has(> .MuiSvgIcon-colorError):not(:disabled) {
+    background: var(--sleekfin-accent) !important;
+    border-color: var(--sleekfin-accent) !important;
+    color: var(--sleekfin-surface) !important;
+}
+
+html.sleekfin-main-ui .card[data-type] button.cardOverlayButton > .MuiSvgIcon-colorError {
+    color: var(--sleekfin-surface);
+}
+
+html.sleekfin-main-ui .card:is([data-type], .chapterCard):not(.sleekfin-details-episode) .cardText {
+    color: var(--sleekfin-text);
+    font: 500 13px/1.375 var(--sleekfin-font-family);
+}
+
+html.sleekfin-main-ui .card[data-type]:not(.sleekfin-details-episode) .cardText-secondary {
+    color: var(--sleekfin-muted);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+html.sleekfin-main-ui .card[data-type] :is(.cardTextCentered, .cardTextCentered > .textActionButton) {
+    text-align: start !important;
+}
+
+html.sleekfin-main-ui .card[data-type] :is(.countIndicator, .playedIndicator, .mediaSourceIndicator, .videoIndicator) {
+    background: rgba(16, 17, 19, 0.86) !important;
+    border: var(--sleekfin-glass-border);
+    border-radius: var(--sleekfin-card-button-radius);
+    box-shadow: var(--sleekfin-glass-shadow);
+    color: var(--sleekfin-text);
+}
+
+html.sleekfin-main-ui .card[data-type] :is(.missingIndicator, .unairedIndicator) {
+    background: var(--sleekfin-accent);
+    border-radius: var(--sleekfin-card-button-radius);
+    color: #fff;
+}
+
+html.sleekfin-main-ui .card[data-type] .itemProgressBar {
+    background: rgba(150, 154, 161, 0.28);
+    height: 3px;
+}
+
+html.sleekfin-main-ui .card[data-type] .itemProgressBarForeground,
+html.sleekfin-main-ui .card[data-type] .itemLinearProgress .MuiLinearProgress-bar {
+    background: var(--sleekfin-accent) !important;
+}
+
+html.sleekfin-main-ui .card[data-type] .itemLinearProgress {
+    background: rgba(150, 154, 161, 0.28);
+    height: 3px;
+}
+
+html.sleekfin-main-ui[data-sleekfin-cast-crew-shape="Circle"] .card:is(.personCard, [data-type="Person"]) .cardPadder {
+    padding-bottom: 100% !important;
+}
+
+/* Fully rounded artwork needs its controls inset from the clipped corners. */
+html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .card[data-type]:not(.personCard):not([data-type="Person"]) .cardOverlayButton-br:not(button),
+html.sleekfin-main-ui[data-sleekfin-cast-crew-shape="Circle"] .card:is(.personCard, [data-type="Person"]) .cardOverlayButton-br:not(button) {
+    bottom: 15%;
+    right: 50%;
+    top: auto;
+    transform: translateX(50%);
+}
+
+html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .card[data-type]:not(.personCard):not([data-type="Person"]) .cardIndicators,
+html.sleekfin-main-ui[data-sleekfin-cast-crew-shape="Circle"] .card:is(.personCard, [data-type="Person"]) .cardIndicators {
+    right: 50%;
+    top: 15%;
+    transform: translateX(50%);
+}
+
+html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .card[data-type]:not(.personCard):not([data-type="Person"]) .innerCardFooter {
+    bottom: 12%;
+    left: 20%;
+    right: 20%;
+}
+
+html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .sleekfin-details-episode-actions {
+    right: 15%;
+    top: 15%;
+}
+
+html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .sleekfin-details-episode-list[data-view="grid"] .sleekfin-details-episode-number {
+    left: 15%;
+    top: 15%;
+}

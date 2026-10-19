@@ -1648,6 +1648,64 @@
                         </div>
                     </div>
 
+                    <div class="sleekfin-section-container">
+                        <div class="sleekfin-config-section-title">Cards</div>
+                        <div class="sleekfin-card">
+                            <div class="sleekfin-toggle-row">
+                                <div class="sleekfin-toggle-copy">
+                                    <label class="sleekfin-toggle-label" for="sleekFinCardButtonShape">Card buttons</label>
+                                    <div class="sleekfin-field-description">Watched, favorite, more, and status badges on media cards.</div>
+                                </div>
+                                <div class="sleekfin-toggle-actions">
+                                    <select id="sleekFinCardButtonShape" class="sleekfin-input">
+                                        <option value="Square">Square (slightly rounded)</option>
+                                        <option value="Squircle" selected>Squircle</option>
+                                        <option value="Circle">Circle</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="sleekfin-toggle-row">
+                                <div class="sleekfin-toggle-copy">
+                                    <label class="sleekfin-toggle-label" for="sleekFinPlayButtonShape">Play button</label>
+                                    <div class="sleekfin-field-description">The large Play button centered on media cards.</div>
+                                </div>
+                                <div class="sleekfin-toggle-actions">
+                                    <select id="sleekFinPlayButtonShape" class="sleekfin-input">
+                                        <option value="Square">Square (slightly rounded)</option>
+                                        <option value="Squircle">Squircle</option>
+                                        <option value="Circle" selected>Circle</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="sleekfin-toggle-row">
+                                <div class="sleekfin-toggle-copy">
+                                    <label class="sleekfin-toggle-label" for="sleekFinMediaCardShape">Posters and thumbnails</label>
+                                    <div class="sleekfin-field-description">Movie, series, episode, Next Up, Continue Watching, music, and Live TV artwork. Circle turns rectangular artwork into capsules.</div>
+                                </div>
+                                <div class="sleekfin-toggle-actions">
+                                    <select id="sleekFinMediaCardShape" class="sleekfin-input">
+                                        <option value="Square">Square (slightly rounded)</option>
+                                        <option value="Squircle" selected>Squircle</option>
+                                        <option value="Circle">Circle</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="sleekfin-toggle-row">
+                                <div class="sleekfin-toggle-copy">
+                                    <label class="sleekfin-toggle-label" for="sleekFinCastCrewShape">Cast and crew</label>
+                                    <div class="sleekfin-field-description">Person images on detail pages and people libraries. Circle uses square avatars.</div>
+                                </div>
+                                <div class="sleekfin-toggle-actions">
+                                    <select id="sleekFinCastCrewShape" class="sleekfin-input">
+                                        <option value="Square">Square (slightly rounded)</option>
+                                        <option value="Squircle" selected>Squircle</option>
+                                        <option value="Circle">Circle</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="sleekfin-page-panel" data-sleekfin-panel="ui-builder">
@@ -2180,6 +2238,12 @@
             var detailsCompactEpisodeGridCardsInput = document.getElementById('sleekFinDetailsCompactEpisodeGridCardsEnabled');
             var dropdownStyleInput = document.getElementById('sleekFinDropdownStyle');
             var accentInput = document.getElementById('sleekFinAccentColor');
+            var shapeInputs = {
+                CardButtonShape: document.getElementById('sleekFinCardButtonShape'),
+                PlayButtonShape: document.getElementById('sleekFinPlayButtonShape'),
+                MediaCardShape: document.getElementById('sleekFinMediaCardShape'),
+                CastCrewShape: document.getElementById('sleekFinCastCrewShape')
+            };
             var randomizedInput = document.getElementById('sleekFinHeroRandomized');
             var sources = document.getElementById('sleekFinHeroSources');
             var dependencyStatus = document.getElementById('sleekFinDependencyStatus');
@@ -2375,8 +2439,9 @@
             };
 
             var missingHeroField = Object.keys(heroFields).some(function (name) { return !heroFields[name]; });
+            var missingShapeInput = Object.keys(shapeInputs).some(function (name) { return !shapeInputs[name]; });
 
-            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !detailsTrailerBackgroundInput || !detailsSeasonPostersInput || !detailsCompactEpisodeGridCardsInput || !dropdownStyleInput || !accentInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || !heroPreview || !heroPreviewBackdrop || !heroPreviewLogo || !heroPreviewTitle || !heroPreviewFacts || !heroPreviewDescription || !heroReset || missingHeroField || page.dataset.sleekfinBound === 'true') {
+            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !detailsTrailerBackgroundInput || !detailsSeasonPostersInput || !detailsCompactEpisodeGridCardsInput || !dropdownStyleInput || !accentInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || !heroPreview || !heroPreviewBackdrop || !heroPreviewLogo || !heroPreviewTitle || !heroPreviewFacts || !heroPreviewDescription || !heroReset || missingHeroField || missingShapeInput || page.dataset.sleekfinBound === 'true') {
                 return;
             }
 
@@ -3759,6 +3824,11 @@
                         var dropdownStyle = readValue(configuration, 'DropdownStyle');
                         dropdownStyleInput.value = ['Jellyfin', 'SeerrFin', 'Native'].indexOf(dropdownStyle) !== -1 ? dropdownStyle : dropdownStyle === undefined && readValue(configuration, 'DetailsSeasonPickerEnabled') === true ? 'SeerrFin' : 'Jellyfin';
                         accentInput.value = readValue(configuration, 'AccentColor') || accentInput.defaultValue;
+                        Object.keys(shapeInputs).forEach(function (name) {
+                            var value = readValue(configuration, name);
+                            var input = shapeInputs[name];
+                            input.value = ['Square', 'Squircle', 'Circle'].indexOf(value) !== -1 ? value : Array.prototype.filter.call(input.options, function (option) { return option.defaultSelected; })[0].value;
+                        });
                         applyHeroConfiguration(configuration);
                         applyBuilderConfiguration(configuration);
                         loadPreviewServerName(request);
@@ -3835,6 +3905,9 @@
                         configuration.DropdownStyle = dropdownStyleInput.value;
                         configuration.DetailsSeasonPickerEnabled = dropdownStyleInput.value === 'SeerrFin';
                         configuration.AccentColor = accentInput.value;
+                        Object.keys(shapeInputs).forEach(function (name) {
+                            configuration[name] = shapeInputs[name].value;
+                        });
                         saveHeroConfiguration(configuration, contentOrder);
                         saveBuilderConfiguration(configuration);
                         return ApiClient.updatePluginConfiguration(PLUGIN_ID, configuration);

@@ -200,7 +200,7 @@
 .sleekfin-details-episode.card {
     aspect-ratio: 16 / 9;
     border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 16px;
+    border-radius: var(--sleekfin-compact-card-radius);
     box-sizing: border-box;
     overflow: hidden;
     position: relative;
@@ -268,7 +268,7 @@
 
 .sleekfin-details-episode-number {
     align-items: center;
-    border-radius: 12px;
+    border-radius: var(--sleekfin-card-button-radius);
     color: var(--sleekfin-muted);
     display: inline-flex;
     font: 400 14px/20px var(--sleekfin-font-family);
@@ -385,14 +385,14 @@
 .sleekfin-details-episode-expanded > .cardBox {
     aspect-ratio: 16 / 9;
     border: 1px solid var(--sleekfin-border);
-    border-radius: 10px;
+    border-radius: var(--sleekfin-card-radius);
     box-sizing: border-box;
     height: auto;
     overflow: hidden;
 }
 
 .sleekfin-details-episode-expanded .sleekfin-details-episode-action {
-    border-radius: 9px;
+    border-radius: var(--sleekfin-card-inner-radius);
 }
 
 .sleekfin-details-episode-text {

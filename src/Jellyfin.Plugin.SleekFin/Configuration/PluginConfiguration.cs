@@ -6,8 +6,14 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 {
     public const string DefaultAccentColor = "#dc2626";
     public const string DefaultDropdownStyle = "Jellyfin";
+    public const string DefaultCardShape = "Squircle";
+    public const string DefaultPlayButtonShape = "Circle";
 
     private string _accentColor = DefaultAccentColor;
+    private string _cardButtonShape = DefaultCardShape;
+    private string _playButtonShape = DefaultPlayButtonShape;
+    private string _mediaCardShape = DefaultCardShape;
+    private string _castCrewShape = DefaultCardShape;
     private string? _dropdownStyle;
 
     public string AccentColor
@@ -20,6 +26,30 @@ public sealed class PluginConfiguration : BasePluginConfiguration
                 ? color.ToLowerInvariant()
                 : DefaultAccentColor;
         }
+    }
+
+    public string CardButtonShape
+    {
+        get => _cardButtonShape;
+        set => _cardButtonShape = NormalizeShape(value, DefaultCardShape);
+    }
+
+    public string PlayButtonShape
+    {
+        get => _playButtonShape;
+        set => _playButtonShape = NormalizeShape(value, DefaultPlayButtonShape);
+    }
+
+    public string MediaCardShape
+    {
+        get => _mediaCardShape;
+        set => _mediaCardShape = NormalizeShape(value, DefaultCardShape);
+    }
+
+    public string CastCrewShape
+    {
+        get => _castCrewShape;
+        set => _castCrewShape = NormalizeShape(value, DefaultCardShape);
     }
 
     public bool HeaderEnabled { get; set; } = true;
@@ -150,4 +180,12 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     public string HeroContentOrder { get; set; } = "ContinueWatching,NextUp,LatestMovies,LatestShows,Favorites";
 
     public bool HeroRandomized { get; set; }
+
+    private static string NormalizeShape(string? value, string fallback) => value?.Trim().ToLowerInvariant() switch
+    {
+        "square" => "Square",
+        "squircle" => "Squircle",
+        "circle" => "Circle",
+        _ => fallback
+    };
 }

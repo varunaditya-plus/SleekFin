@@ -41,7 +41,7 @@ html.sleekfin-details-mounted #similarCollapsible .cardPadder {
  * Jellyfin renders its own run dates here as "1966 - 1969". The meta line below each
  * card already reports the year, so hide this rather than repeat it.
  */
-html.sleekfin-details-mounted #similarCollapsible :is(.cardOverlayContainer, .cardText-secondary, .blurhash-canvas) {
+html.sleekfin-details-mounted #similarCollapsible :is(.cardText-secondary, .blurhash-canvas) {
     display: none !important;
 }
 

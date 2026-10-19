@@ -214,7 +214,8 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
     margin-inline-end: 12px !important;
 }
 
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:is(.overflowBackdropCard, .overflowSmallBackdropCard, .backdropCard) {
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card.backdropCard,
+html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:is(.overflowBackdropCard, .overflowSmallBackdropCard):is([data-type="CollectionFolder"], [data-type="UserView"]) {
     max-width: 320px;
 }
 
@@ -229,7 +230,7 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardScalable {
     background: var(--sleekfin-surface);
     border: 1px solid var(--sleekfin-border);
-    border-radius: 10px;
+    border-radius: var(--sleekfin-card-radius);
     box-sizing: border-box;
     overflow: hidden;
     transition: border-color 220ms ease;
@@ -253,7 +254,7 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
 }
 
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) {
-    border-radius: 9px;
+    border-radius: var(--sleekfin-card-inner-radius);
 }
 
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardContent {
@@ -273,7 +274,7 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .visualCardBox {
     background: var(--sleekfin-surface) !important;
     border: 1px solid var(--sleekfin-border) !important;
-    border-radius: 10px;
+    border-radius: var(--sleekfin-card-radius);
     box-shadow: none;
     box-sizing: border-box;
     overflow: hidden;
@@ -285,19 +286,11 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
 }
 
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .visualCardBox :is(.cardContent, .cardImageContainer, .cardOverlayContainer, .blurhash-canvas) {
-    border-radius: 9px 9px 0 0;
+    border-radius: var(--sleekfin-card-inner-radius) var(--sleekfin-card-inner-radius) 0 0;
 }
 
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardOverlayContainer {
     background: transparent;
-}
-
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) :is(.cardOverlayButtonIcon, .cardOverlayButton-centered, .cardOverlayFab-primary) {
-    -webkit-backdrop-filter: blur(14px) saturate(130%);
-    backdrop-filter: blur(14px) saturate(130%);
-    background: rgba(16, 17, 19, 0.82) !important;
-    border-color: rgba(241, 242, 244, 0.24);
-    color: var(--sleekfin-text);
 }
 
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .cardText {
@@ -349,13 +342,6 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
 
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .itemProgressBarForeground {
     background: var(--sleekfin-accent) !important;
-}
-
-html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) :is(.countIndicator, .playedIndicator, .mediaSourceIndicator) {
-    background: rgba(16, 17, 19, 0.86) !important;
-    border: 1px solid rgba(241, 242, 244, 0.18);
-    box-shadow: none;
-    color: var(--sleekfin-text);
 }
 
 .mdl-spinner__layer-1,

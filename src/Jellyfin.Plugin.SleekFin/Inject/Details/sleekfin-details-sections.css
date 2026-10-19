@@ -79,18 +79,9 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details].sleekfin-de
 
 .sleekfin-details-season-card.card :is(.cardOverlayButton, .je-hide-btn),
 .sleekfin-details-season-card.card :is(.cardOverlayButton, .je-hide-btn):hover {
-    border-radius: 12px;
-    color: var(--sleekfin-muted);
-    height: 32px;
     margin: 0;
     opacity: 1;
-    padding: 0;
     transform: none;
-    width: 32px;
-}
-
-.sleekfin-details-season-card.card :is(.cardOverlayButton, .je-hide-btn):hover {
-    color: var(--sleekfin-text);
 }
 
 .sleekfin-details-season-card :is(.cardOverlayButton, .je-hide-btn) .material-icons {
@@ -105,14 +96,6 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details].sleekfin-de
     right: auto;
     top: 10px;
     z-index: 2;
-}
-
-/* Jellyfin's hover icons have important sizing and a second circular background. */
-.sleekfin-details-season-card .cardOverlayButtonIcon {
-    background-color: transparent !important;
-    font-size: 18px !important;
-    height: 18px !important;
-    width: 18px !important;
 }
 
 .sleekfin-details-season-card .cardIndicators {
@@ -148,13 +131,13 @@ html.layout-tv .sleekfin-details-season-card:focus-within .cardScalable {
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailVerticalSection .cardScalable {
     background: var(--sleekfin-surface);
     border: 1px solid var(--sleekfin-border);
-    border-radius: 10px;
+    border-radius: var(--sleekfin-card-radius);
     box-sizing: border-box;
     overflow: hidden;
 }
 
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailVerticalSection :is(.cardContent, .cardImageContainer, .blurhash-canvas) {
-    border-radius: 9px;
+    border-radius: var(--sleekfin-card-inner-radius);
 }
 
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailVerticalSection .cardText {
@@ -200,8 +183,11 @@ html.sleekfin-details-mounted #castCollapsible .cardPadder {
     padding-bottom: 133.333% !important;
 }
 
+html.sleekfin-details-mounted[data-sleekfin-cast-crew-shape="Circle"] #castCollapsible .cardPadder {
+    padding-bottom: 100% !important;
+}
+
 html.sleekfin-details-mounted #castCollapsible .cardOverlayContainer {
-    border-radius: 9px;
     background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.64));
 }
 

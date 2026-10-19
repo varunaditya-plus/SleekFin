@@ -1,4 +1,5 @@
-.sleekfin-control-3d {
+.sleekfin-control-3d,
+html.sleekfin-main-ui .card[data-type] :is(button.cardOverlayButton, button.je-hide-btn) {
     -webkit-backdrop-filter: var(--sleekfin-glass-filter);
     backdrop-filter: var(--sleekfin-glass-filter);
     background: linear-gradient(rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.01)), rgba(22, 22, 24, 0.82) !important;
@@ -21,7 +22,8 @@ input[type="range"].mdl-slider:is(.osdVolumeSlider, .osdPositionSlider)::-moz-ra
 }
 
 @media (hover: hover) {
-    .sleekfin-control-3d:is(button, a):hover {
+    .sleekfin-control-3d:is(button, a):hover,
+    html.sleekfin-main-ui .card[data-type] :is(button.cardOverlayButton, button.je-hide-btn):hover {
         background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)), rgba(36, 36, 40, 0.9) !important;
         border-color: rgba(255, 255, 255, 0.16) !important;
         box-shadow: inset 0 1px rgba(255, 255, 255, 0.14), 0 8px 18px -6px rgba(0, 0, 0, 0.55);
