@@ -90,8 +90,10 @@ export function createActions(container, page) {
     buttons.forEach((element) => {
       const isFavorite = element.classList.contains('btnUserRating');
       const isDownload = element.classList.contains('btnDownload');
-      const icon = isFavorite ? (element.dataset.isfavorite === 'true' ? 'bookmarkCheck' : 'bookmark') : isDownload ? 'download' : 'play';
-      const label = isFavorite ? (element.dataset.isfavorite === 'true' ? 'In watchlist' : 'Add to watchlist') : isDownload ? 'Download' : element.title || 'Play';
+      // Jellyfin only shows Replay beside Resume. Replay and Favorite keep their native glyphs, matching the card hearts.
+      const isReplay = element.classList.contains('btnReplay');
+      const icon = isFavorite ? 'favorite' : isDownload ? 'download' : isReplay ? 'replay' : 'play';
+      const label = isFavorite ? element.title : isDownload ? 'Download' : isReplay ? 'Start from beginning' : element.title || 'Play';
 
       decorateNativeButton(element, {
         content: element.querySelector('.detailButton-content') || element,

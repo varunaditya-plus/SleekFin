@@ -125,7 +125,7 @@
     height: auto;
 }
 
-.sleekfin-details-stack > .mainDetailButtons .sleekfin-button .detailButton-content .material-icons {
+.sleekfin-details-stack > .mainDetailButtons .sleekfin-button:not(.btnReplay):not(.btnUserRating) .detailButton-content .material-icons {
     display: none !important;
 }
 
