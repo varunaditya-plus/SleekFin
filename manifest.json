@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.5.3.0",
+        "changelog": "Updated episode grid cards with to show titles, descriptions, ratings and runtimes below. Also added an optional compact layout setting in configuration to restore the previous cards",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.5.3.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "4C2DACFB2C0324D1811345E8E883B4DD",
+        "timestamp": "2026-10-19T00:00:12.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.5.2.0",
         "changelog": "Updated search results rows and cards to match SleekFin's style",
         "targetAbi": "12.0.0.0",

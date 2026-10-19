@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Updated search results rows and cards to match SleekFin's style",
+  "changelog": "Updated episode grid cards with to show titles, descriptions, ratings and runtimes below. Also added an optional compact layout setting in configuration to restore the previous cards",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-18T19:42:54.0000000Z",
-  "version": "1.5.2.0",
+  "timestamp": "2026-10-19T00:00:12.0000000Z",
+  "version": "1.5.3.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
