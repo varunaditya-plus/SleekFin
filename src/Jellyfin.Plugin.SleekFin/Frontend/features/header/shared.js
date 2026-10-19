@@ -112,7 +112,9 @@ export function move(mount, element, destination) {
 }
 
 export function updateScrolledState(mount) {
-  mark(mount, mount.header, 'data-sleekfin-scrolled', window.scrollY > 20 ? 'true' : 'false');
+  // Jellyfin detail pages scroll their page element instead of the window.
+  const offset = Math.max(window.scrollY, ...Array.from(document.querySelectorAll('.page:not(.hide)'), (page) => page.scrollTop));
+  mark(mount, mount.header, 'data-sleekfin-scrolled', offset > 20 ? 'true' : 'false');
 }
 
 function restoreOwnedAttributes(mount) {

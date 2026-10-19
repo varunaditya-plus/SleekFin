@@ -31,11 +31,10 @@ function observationRoot() {
 export function watchSpa(callback, options) {
   const settings = options || {};
   const eventNames = settings.events || [];
-  const passiveEvents = new Set(settings.passiveEvents || []);
   const observer = new MutationObserver(callback);
   observer.observe(observationRoot(), { childList: true, subtree: true });
   eventNames.forEach((eventName) => {
-    window.addEventListener(eventName, callback, passiveEvents.has(eventName) ? { passive: true } : false);
+    window.addEventListener(eventName, callback);
   });
   if (settings.viewshow) {
     document.addEventListener('viewshow', callback);

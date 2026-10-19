@@ -11,7 +11,7 @@ const ROOT_CLASS = 'sleekfin-header-mounted';
 const ROOT_LOADING_CLASS = 'sleekfin-header-loading';
 const SOURCE_CACHE_KEY = 'sleekfin:header-sources:v2';
 const SETTINGS_CHANGED_EVENT = 'sleekfin:header-settings-changed';
-const WINDOW_EVENTS = ['hashchange', 'pageshow', 'popstate', 'resize', 'scroll'];
+const WINDOW_EVENTS = ['hashchange', 'pageshow', 'popstate', 'resize'];
 const PUBLIC_PATHS = new Set(['/addserver', '/selectserver', '/login', '/forgotpassword', '/forgotpasswordpin', '/wizardremoteaccess', '/wizardfinish', '/wizardlibrary', '/wizardsettings', '/wizardstart', '/wizarduser']);
 const DISABLED_SETTINGS = Object.freeze({ ...DEFAULT_SETTINGS, enabled: false });
 const PUBLIC_SETTINGS = Object.freeze(normalizeSettings({
@@ -373,14 +373,19 @@ function createHeaderFeature() {
     if (scopeChanged || (!state.settingsResolved && (event?.type === 'pageshow' || event?.type === 'viewshow'))) requestSettings();
   }
 
+  // Scroll does not bubble, so capture it to also see pages that scroll inside their own element.
+  function onScroll(event) {
+    if (event.target === document || event.target.classList.contains('page')) watchHeader(event);
+  }
+
   function start() {
     if (state.started || !document.body) return;
 
     state.started = true;
     window.addEventListener(SETTINGS_CHANGED_EVENT, requestSettings);
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
     state.stopWatching = dom.watchSpa(watchHeader, {
       events: WINDOW_EVENTS,
-      passiveEvents: ['scroll'],
       viewshow: true,
     });
     requestSettings();
@@ -397,6 +402,7 @@ function createHeaderFeature() {
     state.settingsRetryTimer = 0;
     state.settingsRequest += 1;
     window.removeEventListener(SETTINGS_CHANGED_EVENT, requestSettings);
+    document.removeEventListener('scroll', onScroll, true);
     state.stopWatching?.();
     state.stopWatching = null;
     unmount();
