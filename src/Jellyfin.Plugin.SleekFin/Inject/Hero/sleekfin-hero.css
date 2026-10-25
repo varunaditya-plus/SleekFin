@@ -98,6 +98,15 @@ html.sleekfin-header-mounted .sleekfin-hero {
     margin-top: calc(-1 * var(--sleekfin-header-height));
 }
 
+/* Modern reserves the measured AppBar height, which can exceed the configured header height. */
+html:is(.sleekfin-hero-boot-loading, .sleekfin-hero-loading, .sleekfin-hero-mounted):is(.sleekfin-header-boot-loading, .sleekfin-header-loading, .sleekfin-header-mounted) header.MuiAppBar-root + div[aria-hidden="true"] {
+    height: 0 !important;
+}
+
+html:is(.sleekfin-header-boot-loading, .sleekfin-header-loading, .sleekfin-header-mounted) header.MuiAppBar-root ~ main .sleekfin-hero {
+    margin-top: 0;
+}
+
 @media (min-width: 768px) {
     html:is(.sleekfin-hero-boot-loading, .sleekfin-hero-loading) #indexPage #homeTab.is-active > .sections::before,
     .sleekfin-hero {
