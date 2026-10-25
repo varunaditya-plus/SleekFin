@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.5.9.0",
+        "changelog": "Added a button to reset header defaults",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.5.9.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "6F36D2C1D9FF9079041F08C5DE6C5D5D",
+        "timestamp": "2026-10-25T20:35:13.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.5.8.0",
         "changelog": "Added a Start from beginning button to movie pages, and favorite icon on the right of the Mark as watched button",
         "targetAbi": "12.0.0.0",
