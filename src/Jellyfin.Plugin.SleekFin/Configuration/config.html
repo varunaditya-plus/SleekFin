@@ -1406,7 +1406,8 @@
             margin-top: 0.25em;
         }
 
-        #sleekFinConfigurationPage .sleekfin-hero-editor-footer {
+        #sleekFinConfigurationPage .sleekfin-hero-editor-footer,
+        #sleekFinConfigurationPage .sleekfin-header-editor-footer {
             align-items: center;
             display: flex;
             gap: 1em;
@@ -1414,7 +1415,8 @@
             margin-top: 1.25em;
         }
 
-        #sleekFinConfigurationPage .sleekfin-hero-reset {
+        #sleekFinConfigurationPage .sleekfin-hero-reset,
+        #sleekFinConfigurationPage .sleekfin-header-reset {
             background: var(--cardBackground, rgba(255, 255, 255, 0.08));
             border: 1px solid var(--divider, rgba(255, 255, 255, 0.25));
             color: inherit;
@@ -1527,12 +1529,14 @@
                 width: 100%;
             }
 
-            #sleekFinConfigurationPage .sleekfin-hero-editor-footer {
+            #sleekFinConfigurationPage .sleekfin-hero-editor-footer,
+            #sleekFinConfigurationPage .sleekfin-header-editor-footer {
                 align-items: stretch;
                 flex-direction: column;
             }
 
-            #sleekFinConfigurationPage .sleekfin-hero-reset {
+            #sleekFinConfigurationPage .sleekfin-hero-reset,
+            #sleekFinConfigurationPage .sleekfin-header-reset {
                 width: 100%;
             }
 
@@ -2208,6 +2212,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="sleekfin-header-editor-footer">
+                            <button id="sleekFinHeaderReset" class="sleekfin-header-reset" type="button">Reset header defaults</button>
+                        </div>
                         </div>
                     </div>
                     </div>
@@ -2261,6 +2268,7 @@
             var heroPreviewFacts = document.getElementById('sleekFinHeroPreviewFacts');
             var heroPreviewDescription = document.getElementById('sleekFinHeroPreviewDescription');
             var heroReset = document.getElementById('sleekFinHeroReset');
+            var headerReset = document.getElementById('sleekFinHeaderReset');
             var sourceLabels = {
                 ContinueWatching: 'Continue watching',
                 NextUp: 'Next up',
@@ -2441,7 +2449,7 @@
             var missingHeroField = Object.keys(heroFields).some(function (name) { return !heroFields[name]; });
             var missingShapeInput = Object.keys(shapeInputs).some(function (name) { return !shapeInputs[name]; });
 
-            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !detailsTrailerBackgroundInput || !detailsSeasonPostersInput || !detailsCompactEpisodeGridCardsInput || !dropdownStyleInput || !accentInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || !heroPreview || !heroPreviewBackdrop || !heroPreviewLogo || !heroPreviewTitle || !heroPreviewFacts || !heroPreviewDescription || !heroReset || missingHeroField || missingShapeInput || page.dataset.sleekfinBound === 'true') {
+            if (!page || !form || !enabledInput || !heroEnabledInput || !detailsEnabledInput || !detailsTrailerBackgroundInput || !detailsSeasonPostersInput || !detailsCompactEpisodeGridCardsInput || !dropdownStyleInput || !accentInput || !randomizedInput || !sources || !dependencyStatus || !preview || !previewBar || !palette || !previewBrand || !previewMenu || !previewDrawer || !heroPreview || !heroPreviewBackdrop || !heroPreviewLogo || !heroPreviewTitle || !heroPreviewFacts || !heroPreviewDescription || !heroReset || !headerReset || missingHeroField || missingShapeInput || page.dataset.sleekfinBound === 'true') {
                 return;
             }
 
@@ -3805,6 +3813,11 @@
                 refreshBuilderCatalog();
             }
 
+            function resetHeaderDefaults() {
+                previewDrawerOpen = false;
+                applyBuilderConfiguration({});
+            }
+
             function loadConfiguration() {
                 var request = ++loadRequest;
                 Dashboard.showLoadingMsg();
@@ -3956,6 +3969,7 @@
             });
 
             heroReset.addEventListener('click', resetHeroDefaults);
+            headerReset.addEventListener('click', resetHeaderDefaults);
 
             Array.prototype.forEach.call(form.querySelectorAll('input[name^="sleekFinHeader"]'), function (input) {
                 input.addEventListener('change', updatePreviewStyles);
