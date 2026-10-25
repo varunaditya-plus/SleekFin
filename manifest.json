@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.5.10.0",
+        "changelog": "Fixed false header overflow caused by hidden native controls",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.5.10.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "064D52F8F7FAE1FF5E945994A4B11B62",
+        "timestamp": "2026-10-25T21:02:09.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.5.9.0",
         "changelog": "Added a button to reset header defaults",
         "targetAbi": "12.0.0.0",
