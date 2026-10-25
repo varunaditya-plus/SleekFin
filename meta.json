@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Fixed false header overflow caused by hidden native controls",
+  "changelog": "Fixed Modern home hero gaps caused by mismatched header offsets",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-25T21:02:09.0000000Z",
-  "version": "1.5.10.0",
+  "timestamp": "2026-10-25T22:15:44.0000000Z",
+  "version": "1.5.10.1",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
