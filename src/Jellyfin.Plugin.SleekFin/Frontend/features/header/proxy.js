@@ -192,7 +192,7 @@ function proxyContentOverflows(mount) {
     parent = parent.parentElement;
   }
   const children = [...mount.proxyEntries.map((entry) => entry.element), mount.overflowToggle].filter(
-    (element) => element.getAttribute('data-sleekfin-header-overflowed') !== 'true' && element.getAttribute('data-sleekfin-header-overflow-hidden') !== 'true',
+    (element) => element.getAttribute('data-sleekfin-header-overflowed') !== 'true' && element.getAttribute('data-sleekfin-header-overflow-hidden') !== 'true' && dom.isVisible(element),
   );
   return mount.proxy.scrollWidth > mount.proxy.clientWidth + 1 || children.some((element) => {
     const bounds = element.getBoundingClientRect();
@@ -215,7 +215,8 @@ function updateOverflow(mount) {
   mount.proxy.setAttribute('data-sleekfin-header-overflow-active', 'true');
   mount.overflowToggle.setAttribute('data-sleekfin-header-overflow-hidden', 'false');
   for (let index = mount.proxyEntries.length - 1; index >= 0 && proxyContentOverflows(mount); index -= 1) {
-    mount.proxyEntries[index].element.setAttribute('data-sleekfin-header-overflowed', 'true');
+    const element = mount.proxyEntries[index].element;
+    if (dom.isVisible(element)) element.setAttribute('data-sleekfin-header-overflowed', 'true');
   }
   const records = mount.proxyEntries.filter((entry) => entry.element.getAttribute('data-sleekfin-header-overflowed') === 'true').map((entry) => entry.record);
   const hasItems = records.some((record) => record.source);
