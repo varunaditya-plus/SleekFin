@@ -358,6 +358,51 @@
             color: var(--accent, #52b2fa);
         }
 
+        .sleekfin-builder-nav {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .sleekfin-builder-nav > .sleekfin-page-nav-button {
+            width: 100%;
+        }
+
+        .sleekfin-builder-subnav {
+            display: none;
+        }
+
+        .sleekfin-builder-nav.is-active > .sleekfin-page-nav-button {
+            display: none;
+        }
+
+        .sleekfin-builder-nav.is-active > .sleekfin-builder-subnav {
+            display: flex;
+        }
+
+        .sleekfin-builder-subnav-item {
+            flex: 1;
+            border: 1px solid var(--divider, rgba(255, 255, 255, 0.2));
+            padding: 0.4em 0.75em;
+            line-height: 1.3;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .sleekfin-builder-subnav-item + .sleekfin-builder-subnav-item {
+            margin-left: -1px;
+        }
+
+        .sleekfin-builder-subnav-item:hover {
+            color: #fff;
+        }
+
+        .sleekfin-builder-subnav-item.is-active {
+            position: relative;
+            z-index: 1;
+            border-color: var(--accent, #00a4dc);
+            color: var(--accent, #52b2fa);
+        }
+
         .sleekfin-page-panel {
             display: none;
         }
@@ -1552,7 +1597,13 @@
 
             <nav class="sleekfin-page-nav">
                 <button type="button" class="sleekfin-page-nav-button is-active" data-sleekfin-panel="overview">Overview</button>
-                <button type="button" class="sleekfin-page-nav-button" data-sleekfin-panel="ui-builder">UI Builder</button>
+                <div class="sleekfin-builder-nav">
+                    <button type="button" class="sleekfin-page-nav-button" data-sleekfin-panel="ui-builder">UI Builder</button>
+                    <div class="sleekfin-builder-subnav">
+                        <div class="sleekfin-builder-subnav-item is-active" data-sleekfin-builder-panel="home">Home</div>
+                        <div class="sleekfin-builder-subnav-item" data-sleekfin-builder-panel="details">Detail pages</div>
+                    </div>
+                </div>
             </nav>
 
             <form id="sleekFinConfigurationForm" class="sleekFinConfigurationForm">
@@ -1712,7 +1763,7 @@
 
                 </div>
 
-                <div class="sleekfin-page-panel" data-sleekfin-panel="ui-builder">
+                <div class="sleekfin-page-panel" data-sleekfin-panel="ui-builder" data-sleekfin-builder-panel="home">
                     <div class="sleekfin-section-container sleekfin-hero-builder-section">
                         <div class="sleekfin-config-section-title">Hero carousel</div>
                         <div class="sleekfin-hero-builder-shell">
@@ -2218,8 +2269,12 @@
                         </div>
                     </div>
                     </div>
+                </div>
+
+                <div class="sleekfin-page-panel" data-sleekfin-panel="ui-builder" data-sleekfin-builder-panel="details">
                     <div class="sleekfin-section-container">
-                        <div class="sleekfin-config-section-title">Detail pages (coming soon)</div>
+                        <div class="sleekfin-config-section-title">Detail page hero</div>
+                        <div id="sleekFinDetailsBuilder"></div>
                     </div>
                 </div>
 
@@ -2270,6 +2325,66 @@
             var heroPreviewDescription = document.getElementById('sleekFinHeroPreviewDescription');
             var heroReset = document.getElementById('sleekFinHeroReset');
             var headerReset = document.getElementById('sleekFinHeaderReset');
+            var detailsBuilder = null;
+            var detailsBuilderPromise = null;
+            var detailsProviderAvailability = {};
+            var detailsBuilderAssets = {};
+            var configurationSavePromise = null;
+
+            function loadDetailsBuilder() {
+                if (detailsBuilder) return Promise.resolve(detailsBuilder);
+                if (detailsBuilderPromise) return detailsBuilderPromise;
+                var mountRequest = loadRequest;
+                var runtimeScript = document.querySelector('script[data-sleekfin-asset="sleekfin-runtime.js"]');
+                var query = runtimeScript && runtimeScript.src.indexOf('?') !== -1 ? runtimeScript.src.slice(runtimeScript.src.indexOf('?')) : '?b=' + Date.now();
+                function asset(fileName, style) {
+                    if (detailsBuilderAssets[fileName]) return detailsBuilderAssets[fileName];
+                    var existing = document.querySelector('[data-sleekfin-asset="' + fileName + '"]');
+                    if (existing && style && existing.sheet) return Promise.resolve();
+                    detailsBuilderAssets[fileName] = new Promise(function (resolve, reject) {
+                        var element = existing || document.createElement(style ? 'link' : 'script');
+                        function cleanup() {
+                            element.removeEventListener('load', loaded);
+                            element.removeEventListener('error', failed);
+                        }
+                        function loaded() { cleanup(); resolve(); }
+                        function failed() {
+                            cleanup();
+                            element.remove();
+                            delete detailsBuilderAssets[fileName];
+                            reject(new Error('Could not load ' + fileName));
+                        }
+                        element.addEventListener('load', loaded);
+                        element.addEventListener('error', failed);
+                        if (!existing) {
+                            element.setAttribute('data-sleekfin-asset', fileName);
+                            if (style) {
+                                element.rel = 'stylesheet';
+                                element.href = ApiClient.getUrl('SleekFin/' + fileName) + query;
+                            } else {
+                                element.src = ApiClient.getUrl('SleekFin/' + fileName) + query;
+                            }
+                            document.head.appendChild(element);
+                        }
+                    });
+                    return detailsBuilderAssets[fileName];
+                }
+                detailsBuilderPromise = Promise.all(['sleekfin-details-hero.css', 'sleekfin-details-actions.css', 'sleekfin-details-dropdown.css', 'sleekfin-details-track-picker.css', 'sleekfin-details-builder.css', 'sleekfin-details-builder-fields.css', 'sleekfin-details-builder-preview.css', 'sleekfin-details-builder-overflow.css'].map(function (name) { return asset(name, true); }))
+                    .then(function () { return window.SleekFinRuntime ? null : asset('sleekfin-runtime.js', false); })
+                    .then(function () { return window.SleekFin && window.SleekFin.detailsBuilder ? null : asset('sleekfin-details-builder.js', false); })
+                    .then(function () {
+                        if (!currentLoad(mountRequest)) return null;
+                        detailsBuilder = window.SleekFin.detailsBuilder.mount(document.getElementById('sleekFinDetailsBuilder'), {
+                            onSharedChange: function (key, value) {
+                                if (key === 'dropdownStyle') dropdownStyleInput.value = value;
+                                if (key === 'trailerBackgroundEnabled') detailsTrailerBackgroundInput.checked = value;
+                            }
+                        });
+                        detailsBuilder.setProviders(detailsProviderAvailability);
+                        return detailsBuilder;
+                    }).catch(function (error) { detailsBuilderPromise = null; throw error; });
+                return detailsBuilderPromise;
+            }
             var sourceLabels = {
                 ContinueWatching: 'Continue watching',
                 NextUp: 'Next up',
@@ -3050,6 +3165,28 @@
                     setBuilderAvailability('je:recommendations', enhancedActive && nativeFeatureEnabled(enhanced, 'RecommendationsPageEnabled', 'RecommendationsUseNativeTab', false));
                     setBuilderAvailability('je:activity', enhancedActive && nativeFeatureEnabled(enhanced, 'ActivityFeedEnabled', 'ActivityFeedUseNativeTab', false));
 
+                    var detailTypes = ['Movie', 'Series', 'Season', 'Episode'];
+                    var seerrEnabled = enhancedActive && readValue(enhanced, 'JellyseerrEnabled') === true;
+                    detailsProviderAvailability = {
+                        'je:letterboxd': enhancedActive && readValue(enhanced, 'LetterboxdEnabled') === true ? ['Movie'] : [],
+                        'je:seerr': seerrEnabled && readValue(enhanced, 'JellyseerrShowDetailPageLink') === true ? ['Movie', 'Series'] : [],
+                        'je:report': seerrEnabled && readValue(enhanced, 'JellyseerrShowReportButton') === true ? detailTypes : [],
+                        'je:request-more': seerrEnabled && readValue(enhanced, 'JellyseerrShowRequestMoreOnSeries') !== false ? ['Series'] : [],
+                        'je:spoiler': enhancedActive && readValue(enhanced, 'SpoilerBlurEnabled') === true ? detailTypes : []
+                    };
+                    detailsProviderAvailability['je:tag:*'] = enhancedActive && readValue(enhanced, 'ArrTagsShowAsLinks') === true ? detailTypes : [];
+                    detailsProviderAvailability.tagRules = {
+                        prefix: readValue(enhanced, 'ArrTagsPrefix') || 'JE Arr Tag: ',
+                        allowed: readValue(enhanced, 'ArrTagsLinksFilter') || '',
+                        hidden: readValue(enhanced, 'ArrTagsLinksHideFilter') || ''
+                    };
+                    ['Radarr', 'Sonarr', 'Bazarr'].forEach(function (provider) {
+                        var instances = readValue(enhanced, provider + 'Instances');
+                        var configured = readValue(enhanced, provider + 'Url') || Array.isArray(instances) && instances.some(function (instance) { return readValue(instance, 'Enabled') !== false; });
+                        detailsProviderAvailability['je:' + provider.toLowerCase()] = enhancedActive && readValue(enhanced, 'ArrLinksEnabled') === true && configured ? provider === 'Radarr' ? ['Movie'] : provider === 'Bazarr' ? ['Movie', 'Series'] : ['Series'] : [];
+                    });
+                    if (detailsBuilder) detailsBuilder.setProviders(detailsProviderAvailability);
+
                     ['movies', 'tv', 'requests', 'letterboxd'].forEach(function (tabId) {
                         tab = null;
                         for (tabIndex = 0; Array.isArray(tabs) && tabIndex < tabs.length; tabIndex++) {
@@ -3827,11 +3964,13 @@
                 var request = ++loadRequest;
                 savedConfigurationState = null;
                 updateUnsavedChanges();
-                Dashboard.showLoadingMsg();
-
-                return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins()])
+                return (configurationSavePromise || Promise.resolve()).then(function () {
+                    if (!currentLoad(request)) return null;
+                    Dashboard.showLoadingMsg();
+                    return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins()]);
+                })
                     .then(function (results) {
-                        if (!currentLoad(request)) {
+                        if (!results || !currentLoad(request)) {
                             return null;
                         }
                         var configuration = results[0];
@@ -3853,7 +3992,14 @@
                         applyBuilderConfiguration(configuration);
                         loadPreviewServerName(request);
                         loadPreviewBackdrop(request);
-                        return updateProviderAvailability(results[1], ++providerRequest);
+                        return Promise.all([
+                            updateProviderAvailability(results[1], ++providerRequest),
+                            loadDetailsBuilder().then(function (builder) {
+                                if (!builder || !currentLoad(request)) return;
+                                builder.load(configuration);
+                                if (page.querySelector('.sleekfin-page-panel.is-active[data-sleekfin-builder-panel="details"]')) builder.show();
+                            })
+                        ]);
                     })
                     .then(function () {
                         if (currentLoad(request)) {
@@ -3913,6 +4059,8 @@
                 var contentOrder = selectedSources();
                 var request = loadRequest;
                 var savedState;
+                if (configurationSavePromise) return;
+                var client = ApiClient;
                 if (heroEnabledInput.checked && !contentOrder.length) {
                     Dashboard.alert('Select at least one hero content source.');
                     return;
@@ -3920,26 +4068,29 @@
                 if (!validateColors()) {
                     return;
                 }
+                if (!detailsBuilder || !detailsBuilder.validate()) return;
+                var changes = {
+                    HeaderEnabled: enabledInput.checked,
+                    HeroEnabled: heroEnabledInput.checked,
+                    DetailsEnabled: detailsEnabledInput.checked,
+                    DetailsTrailerBackgroundEnabled: detailsTrailerBackgroundInput.checked,
+                    DetailsSeasonPostersEnabled: detailsSeasonPostersInput.checked,
+                    DetailsCompactEpisodeGridCardsEnabled: detailsCompactEpisodeGridCardsInput.checked,
+                    DropdownStyle: dropdownStyleInput.value,
+                    DetailsSeasonPickerEnabled: dropdownStyleInput.value === 'SeerrFin',
+                    AccentColor: accentInput.value
+                };
+                Object.keys(shapeInputs).forEach(function (name) { changes[name] = shapeInputs[name].value; });
+                saveHeroConfiguration(changes, contentOrder);
+                saveBuilderConfiguration(changes);
+                changes = detailsBuilder.write(changes);
+                savedState = configurationState(contentOrder);
                 Dashboard.showLoadingMsg();
 
-                ApiClient.getPluginConfiguration(PLUGIN_ID)
+                configurationSavePromise = client.getPluginConfiguration(PLUGIN_ID)
                     .then(function (configuration) {
-                        configuration.HeaderEnabled = enabledInput.checked;
-                        configuration.HeroEnabled = heroEnabledInput.checked;
-                        configuration.DetailsEnabled = detailsEnabledInput.checked;
-                        configuration.DetailsTrailerBackgroundEnabled = detailsTrailerBackgroundInput.checked;
-                        configuration.DetailsSeasonPostersEnabled = detailsSeasonPostersInput.checked;
-                        configuration.DetailsCompactEpisodeGridCardsEnabled = detailsCompactEpisodeGridCardsInput.checked;
-                        configuration.DropdownStyle = dropdownStyleInput.value;
-                        configuration.DetailsSeasonPickerEnabled = dropdownStyleInput.value === 'SeerrFin';
-                        configuration.AccentColor = accentInput.value;
-                        Object.keys(shapeInputs).forEach(function (name) {
-                            configuration[name] = shapeInputs[name].value;
-                        });
-                        saveHeroConfiguration(configuration, contentOrder);
-                        saveBuilderConfiguration(configuration);
-                        savedState = configurationState(contentOrder);
-                        return ApiClient.updatePluginConfiguration(PLUGIN_ID, configuration);
+                        Object.keys(changes).forEach(function (name) { configuration[name] = changes[name]; });
+                        return client.updatePluginConfiguration(PLUGIN_ID, configuration);
                     })
                     .then(function (result) {
                         if (currentLoad(request)) {
@@ -3957,6 +4108,7 @@
                         Dashboard.alert('SleekFin could not save its configuration.');
                     })
                     .finally(function () {
+                        configurationSavePromise = null;
                         Dashboard.hideLoadingMsg();
                     });
             }
@@ -3973,18 +4125,39 @@
                 if (bannerTitle.textContent !== title) bannerTitle.textContent = title;
             }
 
+            function selectBuilderPanel(panel) {
+                Array.prototype.forEach.call(page.querySelectorAll('[data-sleekfin-builder-panel]'), function (element) {
+                    element.classList.toggle('is-active', element.dataset.sleekfinBuilderPanel === panel);
+                });
+                if (panel === 'home') {
+                    updatePreviewMeasurements();
+                    updateHeroPreview();
+                }
+                if (detailsBuilder) {
+                    if (panel === 'details') detailsBuilder.show();
+                    else detailsBuilder.hide();
+                }
+            }
+
+            Array.prototype.forEach.call(page.querySelectorAll('.sleekfin-builder-subnav-item'), function (item) {
+                item.addEventListener('click', function () {
+                    selectBuilderPanel(item.dataset.sleekfinBuilderPanel);
+                });
+            });
+
             Array.prototype.forEach.call(page.querySelectorAll('.sleekfin-page-nav-button'), function (button) {
                 button.addEventListener('click', function () {
                     var panel = button.dataset.sleekfinPanel;
                     Array.prototype.forEach.call(page.querySelectorAll('.sleekfin-page-nav-button, .sleekfin-page-panel'), function (element) {
                         element.classList.toggle('is-active', element.dataset.sleekfinPanel === panel);
                     });
+                    page.querySelector('.sleekfin-builder-nav').classList.toggle('is-active', panel === 'ui-builder');
+                    if (panel !== 'ui-builder' && detailsBuilder) detailsBuilder.hide();
                     if (panel === 'ui-builder') {
                         Array.prototype.forEach.call(page.querySelectorAll('.sleekfin-hero-accordion[open]'), function (section) {
                             section.open = false;
                         });
-                        updatePreviewMeasurements();
-                        updateHeroPreview();
+                        selectBuilderPanel('home');
                     }
                 });
             });
@@ -4002,6 +4175,9 @@
 
             heroReset.addEventListener('click', resetHeroDefaults);
             headerReset.addEventListener('click', resetHeaderDefaults);
+            dropdownStyleInput.addEventListener('change', function () { if (detailsBuilder) detailsBuilder.setSharedSetting('dropdownStyle', dropdownStyleInput.value); });
+            detailsTrailerBackgroundInput.addEventListener('change', function () { if (detailsBuilder) detailsBuilder.setSharedSetting('trailerBackgroundEnabled', detailsTrailerBackgroundInput.checked); });
+            accentInput.addEventListener('input', function () { if (detailsBuilder) detailsBuilder.setAccent(accentInput.value); });
 
             Array.prototype.forEach.call(form.querySelectorAll('input[name^="sleekFinHeader"]'), function (input) {
                 input.addEventListener('change', updatePreviewStyles);
@@ -4096,6 +4272,11 @@
                 window.removeEventListener('focus', handleProviderRefresh);
                 document.removeEventListener('visibilitychange', handleProviderRefresh);
                 stopPreviewMeasurements();
+                loadRequest += 1;
+                Dashboard.hideLoadingMsg();
+                if (detailsBuilder) detailsBuilder.destroy();
+                detailsBuilder = null;
+                detailsBuilderPromise = null;
             }
 
             window.addEventListener('sleekfin:header-catalog-changed', handleHeaderCatalogChanged);

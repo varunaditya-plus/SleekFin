@@ -175,7 +175,219 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     public bool DetailsCompactEpisodeGridCardsEnabled { get; set; } = false;
 
-    public bool DetailsTrailerBackgroundEnabled { get; set; } = false;
+    public bool DetailsTrailerBackgroundEnabled { get; set; } = DetailsConfiguration.DefaultTrailerBackgroundEnabled;
+
+    public int DetailsDesktopHeight { get; set; } = DetailsConfiguration.DefaultDesktopHeight;
+
+    public int DetailsMobileHeight { get; set; } = DetailsConfiguration.DefaultMobileHeight;
+
+    public int DetailsMobileMinHeight { get; set; } = DetailsConfiguration.DefaultMobileMinHeight;
+
+    public string DetailsContentAlignment { get; set; } = DetailsConfiguration.DefaultContentAlignment;
+
+    public string DetailsVerticalAlignment { get; set; } = DetailsConfiguration.DefaultVerticalAlignment;
+
+    public string DetailsDesktopSideInset { get; set; } = DetailsConfiguration.DefaultDesktopSideInset;
+
+    public string DetailsMobileSideInset { get; set; } = DetailsConfiguration.DefaultMobileSideInset;
+
+    public int DetailsDesktopBottomSpacing { get; set; } = DetailsConfiguration.DefaultDesktopBottomSpacing;
+
+    public int DetailsMobileBottomSpacing { get; set; } = DetailsConfiguration.DefaultMobileBottomSpacing;
+
+    public int DetailsContentMaxWidth { get; set; } = DetailsConfiguration.DefaultContentMaxWidth;
+
+    public string DetailsButtonGroupSpacing { get; set; } = DetailsConfiguration.DefaultButtonGroupSpacing;
+
+    public int DetailsTitleMetadataSpacing { get; set; } = DetailsConfiguration.DefaultTitleMetadataSpacing;
+
+    public int DetailsMetadataGenresSpacing { get; set; } = DetailsConfiguration.DefaultMetadataGenresSpacing;
+
+    public int DetailsGenresDescriptionSpacing { get; set; } = DetailsConfiguration.DefaultGenresDescriptionSpacing;
+
+    public int DetailsDescriptionButtonSpacing { get; set; } = DetailsConfiguration.DefaultDescriptionButtonSpacing;
+
+    public string DetailsBackdropFit { get; set; } = DetailsConfiguration.DefaultBackdropFit;
+
+    public int DetailsBackdropFocusX { get; set; } = DetailsConfiguration.DefaultBackdropFocusX;
+
+    public int DetailsBackdropFocusY { get; set; } = DetailsConfiguration.DefaultBackdropFocusY;
+
+    public int DetailsBackdropOpacity { get; set; } = DetailsConfiguration.DefaultBackdropOpacity;
+
+    public int DetailsSideShading { get; set; } = DetailsConfiguration.DefaultSideShading;
+
+    public int DetailsBottomFade { get; set; } = DetailsConfiguration.DefaultBottomFade;
+
+    public int DetailsFadeHeight { get; set; } = DetailsConfiguration.DefaultFadeHeight;
+
+    public int DetailsBackdropBlur { get; set; } = DetailsConfiguration.DefaultBackdropBlur;
+
+    public double DetailsTrailerStartDelaySeconds { get; set; } = DetailsConfiguration.DefaultTrailerStartDelaySeconds;
+
+    public string DetailsTrailerAudio { get; set; } = DetailsConfiguration.DefaultTrailerAudio;
+
+    public string DetailsTrailerEndBehavior { get; set; } = DetailsConfiguration.DefaultTrailerEndBehavior;
+
+    public bool DetailsBackdropPauseEnabled { get; set; } = DetailsConfiguration.DefaultBackdropPauseEnabled;
+
+    public string DetailsTitleTreatment { get; set; } = DetailsConfiguration.DefaultTitleTreatment;
+
+    public bool DetailsShowTitle { get; set; } = DetailsConfiguration.DefaultShowTitle;
+
+    public int DetailsDesktopLogoMaxWidth { get; set; } = DetailsConfiguration.DefaultDesktopLogoMaxWidth;
+
+    public int DetailsMobileLogoMaxWidth { get; set; } = DetailsConfiguration.DefaultMobileLogoMaxWidth;
+
+    public int DetailsDesktopLogoHeight { get; set; } = DetailsConfiguration.DefaultDesktopLogoHeight;
+
+    public int DetailsMobileLogoHeight { get; set; } = DetailsConfiguration.DefaultMobileLogoHeight;
+
+    public int DetailsDesktopTitleSize { get; set; } = DetailsConfiguration.DefaultDesktopTitleSize;
+
+    public int DetailsMobileTitleSize { get; set; } = DetailsConfiguration.DefaultMobileTitleSize;
+
+    public int DetailsTitleWeight { get; set; } = DetailsConfiguration.DefaultTitleWeight;
+
+    public string DetailsTitleCase { get; set; } = DetailsConfiguration.DefaultTitleCase;
+
+    public string DetailsTitleColor { get; set; } = DetailsConfiguration.DefaultTitleColor;
+
+    public int DetailsTitleLineHeight { get; set; } = DetailsConfiguration.DefaultTitleLineHeight;
+
+    public int DetailsTitleLetterSpacing { get; set; } = DetailsConfiguration.DefaultTitleLetterSpacing;
+
+    public int DetailsTitleShadow { get; set; } = DetailsConfiguration.DefaultTitleShadow;
+
+    public string DetailsOriginalTitleMode { get; set; } = DetailsConfiguration.DefaultOriginalTitleMode;
+
+    public int DetailsOriginalTitleSize { get; set; } = DetailsConfiguration.DefaultOriginalTitleSize;
+
+    public string DetailsOriginalTitleColor { get; set; } = DetailsConfiguration.DefaultOriginalTitleColor;
+
+    public bool DetailsShowParentTitle { get; set; } = DetailsConfiguration.DefaultShowParentTitle;
+
+    public int DetailsParentTitleSize { get; set; } = DetailsConfiguration.DefaultParentTitleSize;
+
+    public string DetailsParentTitleColor { get; set; } = DetailsConfiguration.DefaultParentTitleColor;
+
+    public int DetailsDesktopChildHeadingSize { get; set; } = DetailsConfiguration.DefaultDesktopChildHeadingSize;
+
+    public int DetailsMobileChildHeadingSize { get; set; } = DetailsConfiguration.DefaultMobileChildHeadingSize;
+
+    public int DetailsChildHeadingWeight { get; set; } = DetailsConfiguration.DefaultChildHeadingWeight;
+
+    public int DetailsChildHeadingLines { get; set; } = DetailsConfiguration.DefaultChildHeadingLines;
+
+    public string DetailsChildHeadingColor { get; set; } = DetailsConfiguration.DefaultChildHeadingColor;
+
+    public bool DetailsShowRating { get; set; } = DetailsConfiguration.DefaultShowRating;
+
+    public bool DetailsShowYear { get; set; } = DetailsConfiguration.DefaultShowYear;
+
+    public bool DetailsShowRuntime { get; set; } = DetailsConfiguration.DefaultShowRuntime;
+
+    public bool DetailsShowCertification { get; set; } = DetailsConfiguration.DefaultShowCertification;
+
+    public bool DetailsShowAudioLanguages { get; set; } = DetailsConfiguration.DefaultShowAudioLanguages;
+
+    public bool DetailsShowGenres { get; set; } = DetailsConfiguration.DefaultShowGenres;
+
+    public int DetailsDesktopMetadataSize { get; set; } = DetailsConfiguration.DefaultDesktopMetadataSize;
+
+    public int DetailsMobileMetadataSize { get; set; } = DetailsConfiguration.DefaultMobileMetadataSize;
+
+    public int DetailsMetadataWeight { get; set; } = DetailsConfiguration.DefaultMetadataWeight;
+
+    public string DetailsMetadataColor { get; set; } = DetailsConfiguration.DefaultMetadataColor;
+
+    public string DetailsRatingColor { get; set; } = DetailsConfiguration.DefaultRatingColor;
+
+    public string DetailsGenresColor { get; set; } = DetailsConfiguration.DefaultGenresColor;
+
+    public string DetailsFactSeparator { get; set; } = DetailsConfiguration.DefaultFactSeparator;
+
+    public bool DetailsShowDescription { get; set; } = DetailsConfiguration.DefaultShowDescription;
+
+    public int DetailsDesktopDescriptionSize { get; set; } = DetailsConfiguration.DefaultDesktopDescriptionSize;
+
+    public int DetailsMobileDescriptionSize { get; set; } = DetailsConfiguration.DefaultMobileDescriptionSize;
+
+    public int DetailsDescriptionWidth { get; set; } = DetailsConfiguration.DefaultDescriptionWidth;
+
+    public int DetailsDescriptionLines { get; set; } = DetailsConfiguration.DefaultDescriptionLines;
+
+    public string DetailsDescriptionColor { get; set; } = DetailsConfiguration.DefaultDescriptionColor;
+
+    public int DetailsDescriptionWeight { get; set; } = DetailsConfiguration.DefaultDescriptionWeight;
+
+    public int DetailsDescriptionLineHeight { get; set; } = DetailsConfiguration.DefaultDescriptionLineHeight;
+
+    public bool DetailsDescriptionExpandEnabled { get; set; } = DetailsConfiguration.DefaultDescriptionExpandEnabled;
+
+    public int DetailsDesktopButtonHeight { get; set; } = DetailsConfiguration.DefaultDesktopButtonHeight;
+
+    public int DetailsMobileButtonHeight { get; set; } = DetailsConfiguration.DefaultMobileButtonHeight;
+
+    public int DetailsButtonSpacing { get; set; } = DetailsConfiguration.DefaultButtonSpacing;
+
+    public string DetailsButtonContent { get; set; } = DetailsConfiguration.DefaultButtonContent;
+
+    public string DetailsButtonCornerStyle { get; set; } = DetailsConfiguration.DefaultButtonCornerStyle;
+
+    public string DetailsIconButtonCornerStyle { get; set; } = DetailsConfiguration.DefaultIconButtonCornerStyle;
+
+    public string DetailsPrimaryButtonBackgroundColor { get; set; } = DetailsConfiguration.DefaultPrimaryButtonBackgroundColor;
+
+    public string DetailsPrimaryButtonTextColor { get; set; } = DetailsConfiguration.DefaultPrimaryButtonTextColor;
+
+    public int DetailsPrimaryButtonOpacity { get; set; } = DetailsConfiguration.DefaultPrimaryButtonOpacity;
+
+    public string DetailsSecondaryButtonBackgroundColor { get; set; } = DetailsConfiguration.DefaultSecondaryButtonBackgroundColor;
+
+    public string DetailsSecondaryButtonTextColor { get; set; } = DetailsConfiguration.DefaultSecondaryButtonTextColor;
+
+    public int DetailsSecondaryButtonOpacity { get; set; } = DetailsConfiguration.DefaultSecondaryButtonOpacity;
+
+    public int DetailsDesktopPlayIconSize { get; set; } = DetailsConfiguration.DefaultDesktopPlayIconSize;
+
+    public int DetailsMobilePlayIconSize { get; set; } = DetailsConfiguration.DefaultMobilePlayIconSize;
+
+    public int DetailsButtonBlur { get; set; } = DetailsConfiguration.DefaultButtonBlur;
+
+    public int DetailsControlIconSize { get; set; } = DetailsConfiguration.DefaultControlIconSize;
+
+    public int DetailsExternalIconSize { get; set; } = DetailsConfiguration.DefaultExternalIconSize;
+
+    public int DetailsButtonHoverOpacity { get; set; } = DetailsConfiguration.DefaultButtonHoverOpacity;
+
+    public int DetailsButtonHoverLift { get; set; } = DetailsConfiguration.DefaultButtonHoverLift;
+
+    public string DetailsButtonActiveColor { get; set; } = DetailsConfiguration.DefaultButtonActiveColor;
+
+    public string DetailsMobileActionGroups { get; set; } = DetailsConfiguration.DefaultMobileActionGroups;
+
+    public string DetailsButtonOverflow { get; set; } = DetailsConfiguration.DefaultButtonOverflow;
+
+    public int DetailsInfoPanelMaxWidth { get; set; } = DetailsConfiguration.DefaultInfoPanelMaxWidth;
+
+    public bool DetailsShowVersionPicker { get; set; } = DetailsConfiguration.DefaultShowVersionPicker;
+
+    public bool DetailsShowVideoDetails { get; set; } = DetailsConfiguration.DefaultShowVideoDetails;
+
+    public bool DetailsShowAudioPicker { get; set; } = DetailsConfiguration.DefaultShowAudioPicker;
+
+    public bool DetailsShowSubtitlePicker { get; set; } = DetailsConfiguration.DefaultShowSubtitlePicker;
+
+    public bool DetailsShowItemMetadata { get; set; } = DetailsConfiguration.DefaultShowItemMetadata;
+
+    public bool DetailsShowExternalLinks { get; set; } = DetailsConfiguration.DefaultShowExternalLinks;
+
+    public string DetailsLeftActions { get; set; } = DetailsConfiguration.DefaultLeftActions;
+
+    public string DetailsRightActions { get; set; } = DetailsConfiguration.DefaultRightActions;
+
+    public string DetailsHiddenActions { get; set; } = DetailsConfiguration.DefaultHiddenActions;
 
     public string HeroContentOrder { get; set; } = "ContinueWatching,NextUp,LatestMovies,LatestShows,Favorites";
 

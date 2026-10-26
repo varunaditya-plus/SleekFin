@@ -58,7 +58,13 @@ public static class FrontendAssets
         new("sleekfin-details.js", "Build", Feature.Details)
     ];
 
-    public static IReadOnlyDictionary<string, Asset> ByFileName { get; } = Ordered.ToDictionary(
+    public static IReadOnlyDictionary<string, Asset> ByFileName { get; } = Ordered.Concat([
+        new Asset("sleekfin-details-builder.js", "Build"),
+        new Asset("sleekfin-details-builder.css", "Configuration"),
+        new Asset("sleekfin-details-builder-fields.css", "Configuration"),
+        new Asset("sleekfin-details-builder-preview.css", "Configuration"),
+        new Asset("sleekfin-details-builder-overflow.css", "Configuration")
+    ]).ToDictionary(
         asset => asset.FileName,
         StringComparer.Ordinal);
 }

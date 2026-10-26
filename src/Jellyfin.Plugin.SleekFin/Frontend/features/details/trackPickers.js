@@ -1,12 +1,12 @@
 import { dom } from '../../shared/runtime.js';
 import { createDropdown } from './dropdown.js';
 
-const FIELDS = ['selectSource', 'selectVideo', 'selectAudio', 'selectSubtitles'];
+const FIELDS = { selectSource: 'showVersionPicker', selectVideo: 'showVideoDetails', selectAudio: 'showAudioPicker', selectSubtitles: 'showSubtitlePicker' };
 
-export function createTrackPickers(page, actions, loadDropdownSetting, onSourceChange) {
+export function createTrackPickers(page, actions, initialSettings, loadSettings, onSourceChange) {
   const form = page.querySelector('form.trackSelections');
   const metadataNodes = Array.from(page.querySelectorAll('.detailSectionContent, .itemDetailsGroup'));
-  if (!form && !metadataNodes.length) return { reconcile() {}, destroy() {} };
+  if (!form && !metadataNodes.length) return { reconcile() {}, update() {}, open() {}, destroy() {} };
   const button = dom.element('<button type="button" class="sleekfin-icon-button sleekfin-control-3d sleekfin-details-track-settings" title="Info"><span class="material-icons info_outline"></span></button>');
   actions.appendChild(button);
   let dialog = null;
@@ -15,6 +15,7 @@ export function createTrackPickers(page, actions, loadDropdownSetting, onSourceC
   let sourceId = '';
   let destroyed = false;
   let timer = 0;
+  let settings = initialSettings;
 
   function destroyFields() {
     fields.forEach(({ dropdown }) => dropdown?.destroy());
@@ -30,13 +31,16 @@ export function createTrackPickers(page, actions, loadDropdownSetting, onSourceC
     metadata = [];
   }
 
-  async function open() {
+  async function open(trigger = button) {
     const helper = window.Dashboard?.dialogHelper;
-    if (destroyed || dialog || button.disabled || !helper || !dom.isVisible(button)) return;
+    if (destroyed || dialog || button.disabled || button.hidden || !helper || !dom.isVisible(trigger)) return;
     button.disabled = true;
-    const style = await loadDropdownSetting();
+    const previousSettings = settings;
+    const loadedSettings = await loadSettings();
+    if (settings === previousSettings) settings = loadedSettings;
     button.disabled = false;
-    if (destroyed || !dom.isVisible(button)) return;
+    if (destroyed || button.hidden || !dom.isVisible(trigger)) return;
+    const style = settings.dropdownStyle;
     // No modal history entry: navigation already destroys this page's Info dialog.
     // A hidden or detached owning page cannot emit the exit animation's completion event.
     const dlg = helper.createDialog({ removeOnClose: true, scrollY: false, enableHistory: false, exitAnimation: 'none' });
@@ -71,7 +75,7 @@ export function createTrackPickers(page, actions, loadDropdownSetting, onSourceC
       return record;
     });
     
-    fields = FIELDS.map((className) => {
+    fields = Object.keys(FIELDS).map((className) => {
       const select = form?.querySelector(`.${className}`);
       const container = select?.closest('.selectContainer');
       if (!container) return null;
@@ -109,7 +113,7 @@ export function createTrackPickers(page, actions, loadDropdownSetting, onSourceC
         } });
       }
       content.insertBefore(field, divider);
-      return { container, control, dropdown, field, label, nativeLabel, select, trigger, value };
+      return { className, container, control, dropdown, field, label, nativeLabel, select, trigger, value };
     }).filter(Boolean);
     sync();
   }
@@ -120,12 +124,14 @@ export function createTrackPickers(page, actions, loadDropdownSetting, onSourceC
       result.parentElement.classList.toggle('sleekfin-details-availability-updated', result.childElementCount > 0);
     });
     const hidden = !form || form.classList.contains('hide');
-    button.hidden = !metadataNodes.length && (hidden || !FIELDS.some((className) => {
+    const hasMetadata = settings.showItemMetadata && metadataNodes.some((element) => element.matches('.itemDetailsGroup') ? element.textContent.trim() : Array.from(element.children).some((child) => !child.matches('.itemExternalLinks, .hide') && child.textContent.trim()));
+    const hasExternalLinks = settings.showExternalLinks && metadataNodes.some((element) => element.querySelector('.itemExternalLinks:not(.hide)')?.textContent.trim());
+    button.hidden = !hasMetadata && !hasExternalLinks && (hidden || !Object.keys(FIELDS).some((className) => {
       const container = form?.querySelector(`.${className}`)?.closest('.selectContainer');
-      return container && !container.classList.contains('hide');
+      return settings[FIELDS[className]] && container && !container.classList.contains('hide');
     }));
-    fields.forEach(({ container, control, dropdown, field, label, nativeLabel, select, trigger, value }) => {
-      field.classList.toggle('hide', hidden || container.classList.contains('hide'));
+    fields.forEach(({ className, container, control, dropdown, field, label, nativeLabel, select, trigger, value }) => {
+      field.classList.toggle('hide', !settings[FIELDS[className]] || hidden || container.classList.contains('hide'));
       if (control.innerHTML !== select.innerHTML) control.replaceChildren(...Array.from(select.options, (option) => option.cloneNode(true)));
       control.disabled = select.disabled || select.options.length <= 1;
       control.value = select.value;
@@ -138,7 +144,7 @@ export function createTrackPickers(page, actions, loadDropdownSetting, onSourceC
       if (value.textContent !== valueText) value.textContent = valueText;
       dropdown.update(Array.from(select.options, (option) => ({ value: option.value, label: option.text })), select.value);
     });
-    dialog?.querySelector('.sleekfin-details-info-divider')?.classList.toggle('hide', !fields.some(({ field }) => !field.classList.contains('hide')));
+    dialog?.querySelector('.sleekfin-details-info-divider')?.classList.toggle('hide', !(hasMetadata || hasExternalLinks) || !fields.some(({ field }) => !field.classList.contains('hide')));
     if (button.hidden && dialog) window.Dashboard.dialogHelper.close(dialog);
     const selectedSource = form?.querySelector('.selectSource')?.value || '';
     if (selectedSource !== sourceId) {
@@ -160,11 +166,18 @@ export function createTrackPickers(page, actions, loadDropdownSetting, onSourceC
   }
   document.addEventListener('click', refreshAvailability);
   form?.addEventListener('change', sync);
-  button.addEventListener('click', open);
+  const onClick = () => open();
+  button.addEventListener('click', onClick);
   sync();
 
   return {
     reconcile: sync,
+    open,
+    update(nextSettings) {
+      if (dialog && settings.dropdownStyle !== nextSettings.dropdownStyle) window.Dashboard.dialogHelper.close(dialog);
+      settings = nextSettings;
+      sync();
+    },
     destroy() {
       if (destroyed) return;
       destroyed = true;
@@ -172,7 +185,7 @@ export function createTrackPickers(page, actions, loadDropdownSetting, onSourceC
       window.clearTimeout(timer);
       form?.removeEventListener('change', sync);
       document.removeEventListener('click', refreshAvailability);
-      button.removeEventListener('click', open);
+      button.removeEventListener('click', onClick);
       button.remove();
       destroyFields();
       if (dialog) {

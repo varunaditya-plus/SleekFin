@@ -68,31 +68,45 @@ function loadYoutubeApi() {
   return promise;
 }
 
-export function createYoutubePreview(iframe, { onPlaying, onEnded, onError }) {
+export function createYoutubePreview(iframe, { muted = true, loop = false, onPlaying, onEnded, onError }) {
   let cancelled = false;
   let player = null;
+  let mutedFallback = false;
+  function applyAudio(target) {
+    if (muted || mutedFallback) target.mute();
+    else target.unMute();
+    target.setVolume(muted || mutedFallback ? 0 : 100);
+  }
   loadYoutubeApi().then((api) => {
     if (cancelled || !iframe.isConnected) return;
     player = new api.Player(iframe, {
       events: {
         onReady(event) {
           if (cancelled) return;
-          event.target.mute();
-          event.target.setVolume(0);
+          applyAudio(event.target);
           event.target.playVideo();
         },
         onStateChange(event) {
           if (cancelled) return;
           if (event.data === 1) {
-            event.target.mute();
             onPlaying();
-          } else if (event.data === 0) onEnded();
+          } else if (event.data === 0) {
+            if (loop) {
+              event.target.seekTo(0, true);
+              event.target.playVideo();
+            } else onEnded();
+          }
         },
         onError() {
           if (!cancelled) onError();
         },
-        onAutoplayBlocked() {
-          if (!cancelled) onError();
+        onAutoplayBlocked(event) {
+          if (cancelled) return;
+          if (!muted && !mutedFallback) {
+            mutedFallback = true;
+            applyAudio(event.target);
+            event.target.playVideo();
+          } else onError();
         },
       },
     });
@@ -107,7 +121,12 @@ export function createYoutubePreview(iframe, { onPlaying, onEnded, onError }) {
       player = null;
     },
     togglePlayback() {
-      if (player.getPlayerState() === window.YT.PlayerState.PAUSED) player.playVideo();
+      if (!player) return;
+      if (player.getPlayerState() === window.YT.PlayerState.PAUSED) {
+        mutedFallback = false;
+        applyAudio(player);
+        player.playVideo();
+      }
       else player.pauseVideo();
     },
   };

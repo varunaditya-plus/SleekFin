@@ -1,0 +1,50 @@
+#sleekFinConfigurationPage .sleekfin-details-builder .sleekfin-hero-builder-content {
+    padding: 0;
+}
+
+.sleekfin-details-builder .sleekfin-details-builder-color {
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sleekfin-details-builder .sleekfin-details-builder-color > .sleekfin-input {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 0;
+}
+
+.sleekfin-details-builder .sleekfin-details-builder-color-picker {
+    background: var(--cardBackground, rgba(255, 255, 255, 0.08));
+    border: 2px solid var(--cardBackground, transparent);
+    box-sizing: border-box;
+    cursor: pointer;
+    flex: 0 0 42px;
+    height: 44px;
+    padding: 4px;
+    width: 42px;
+}
+
+.sleekfin-details-builder .sleekfin-details-builder-inline-grid > .sleekfin-hero-setting-row {
+    gap: 0.75em;
+}
+
+.sleekfin-details-builder .sleekfin-details-builder-inline-grid .sleekfin-hero-setting-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+@media (max-width: 1100px) {
+    #sleekFinConfigurationPage .sleekfin-details-builder .sleekfin-hero-setting-grid--4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    #sleekFinConfigurationPage .sleekfin-details-builder .sleekfin-hero-setting-grid--2,
+    #sleekFinConfigurationPage .sleekfin-details-builder .sleekfin-hero-setting-grid--3,
+    #sleekFinConfigurationPage .sleekfin-details-builder .sleekfin-hero-setting-grid--4 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+}

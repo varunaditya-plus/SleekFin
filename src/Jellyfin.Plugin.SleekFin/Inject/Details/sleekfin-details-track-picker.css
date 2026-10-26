@@ -3,23 +3,27 @@ select.sleekfin-details-track-native {
 }
 
 /* Info must sit above navigation and below MUI, JE and native child dialogs. */
-html.sleekfin-main-ui .sleekfin-details-info-backdrop {
+html.sleekfin-main-ui .sleekfin-details-info-backdrop,
+.sleekfin-details-preview .sleekfin-details-info-backdrop {
     z-index: 1199 !important;
 }
 
-html.sleekfin-main-ui .sleekfin-details-info-container {
+html.sleekfin-main-ui .sleekfin-details-info-container,
+.sleekfin-details-preview .sleekfin-details-info-container {
     z-index: 1200 !important;
 }
 
-html.sleekfin-main-ui .dialog.sleekfin-details-track-dialog {
+html.sleekfin-main-ui .dialog.sleekfin-details-track-dialog,
+.sleekfin-details-preview .dialog.sleekfin-details-track-dialog {
     --sleekfin-glass-border: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
-    max-width: 560px;
+    max-width: var(--sleekfin-details-info-panel-max-width, 560px);
     width: calc(100% - 32px);
 }
 
-html.sleekfin-main-ui .sleekfin-details-track-dialog :not(.material-icons) {
+html.sleekfin-main-ui .sleekfin-details-track-dialog :not(.material-icons),
+.sleekfin-details-preview .sleekfin-details-track-dialog :not(.material-icons) {
     font-family: var(--sleekfin-font-family);
 }
 
@@ -84,7 +88,14 @@ html.sleekfin-main-ui .sleekfin-details-track-dialog :not(.material-icons) {
     display: contents;
 }
 
-html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .sleekfin-details-info-metadata .itemDetailsGroup {
+[data-sleekfin-details-show-item-metadata="false"] .sleekfin-details-info-metadata .itemDetailsGroup,
+[data-sleekfin-details-show-item-metadata="false"] .sleekfin-details-info-metadata > .detailSectionContent > :not(.itemExternalLinks),
+[data-sleekfin-details-show-external-links="false"] .sleekfin-details-info-metadata .itemExternalLinks {
+    display: none !important;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .sleekfin-details-info-metadata .itemDetailsGroup,
+.sleekfin-details-preview .sleekfin-details-info-metadata .itemDetailsGroup {
     margin: 0 0 12px;
     order: -1;
 }

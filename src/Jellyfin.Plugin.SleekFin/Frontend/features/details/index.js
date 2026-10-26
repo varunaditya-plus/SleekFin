@@ -3,7 +3,7 @@ import { createActions } from './actions.js';
 import { createEpisodes } from './episodes.jsx';
 import { createHero } from './hero.jsx';
 import { createSections } from './sections.jsx';
-import { loadSettings } from './settings.js';
+import { DEFAULT_SETTINGS, loadSettings } from './settings.js';
 import { createSimilar } from './similar.jsx';
 import { createTrackPickers } from './trackPickers.js';
 
@@ -17,7 +17,6 @@ const SUPPORTED_TYPES = ['Movie', 'Series', 'Season', 'Episode'];
 const VIEW_EVENTS = ['viewinit', 'viewbeforeshow', 'viewshow'];
 const WINDOW_EVENTS = ['hashchange', 'popstate', 'pageshow', 'je-hidden-content-changed'];
 const SETTINGS_EVENT = 'sleekfin:details-settings-changed';
-const DEFAULT_SETTINGS = Object.freeze({ compactEpisodeGridCardsEnabled: false, dropdownStyle: 'Jellyfin', seasonPostersEnabled: false, trailerBackgroundEnabled: false });
 const features = (window.SleekFinFeatures = window.SleekFinFeatures || {});
 
 features.details?.stop?.();
@@ -165,6 +164,31 @@ function loadDetailsSettings(client) {
 function reloadSettings() {
   detailsSettings = null;
   settingsRevision += 1;
+  const generation = state.generation;
+  const revision = settingsRevision;
+  loadDetailsSettings(routeClient(state.currentServerId)).then((settings) => {
+    if (!state.started || generation !== state.generation || revision !== settingsRevision) return;
+    applyDetailsSettings(settings);
+    scheduleReconcile();
+  });
+}
+
+function applyDetailsSettings(settings) {
+  const episodesChanged = state.settings.compactEpisodeGridCardsEnabled !== settings.compactEpisodeGridCardsEnabled || state.settings.dropdownStyle !== settings.dropdownStyle;
+  state.settings = settings;
+  if (!state.mount) return;
+  const seasonPosters = state.item.Type === 'Series' && settings.seasonPostersEnabled;
+  state.page.classList.toggle('sleekfin-details-season-posters', seasonPosters);
+  state.mount.hero.render(state.item, state.seasons, settings);
+  state.mount.actions.update(settings);
+  state.mount.trackPickers.update(settings);
+  if (state.mount.episodes && (episodesChanged || seasonPosters)) {
+    state.mount.episodes.destroy();
+    state.mount.episodes = null;
+  }
+  if (!seasonPosters && !state.mount.episodes && ['Series', 'Season', 'Episode'].includes(state.item.Type) && state.seasons.length) {
+    state.mount.episodes = createEpisodes(state.page, state.item, state.seasons, settings.dropdownStyle, settings.compactEpisodeGridCardsEnabled);
+  }
 }
 
 function loadSeasons(client, userId, mediaItem, settingsPromise) {
@@ -201,13 +225,13 @@ function mount() {
     revealNativePage();
     return;
   }
-  const actions = createActions(hero.actions, state.page);
+  const actions = createActions(hero.actions, state.page, state.settings);
   const seasonPosters = state.item.Type === 'Series' && state.settings.seasonPostersEnabled;
   state.page.dataset.sleekfinItemType = state.item.Type;
   state.page.classList.toggle('sleekfin-details-season-posters', seasonPosters);
   const sections = createSections(state.page, state.seasons);
   const similar = createSimilar(state.page);
-  const trackPickers = createTrackPickers(state.page, hero.actions, () => loadDetailsSettings(routeClient(state.currentServerId)).then((settings) => settings.dropdownStyle), (id) => {
+  const trackPickers = createTrackPickers(state.page, hero.actions, state.settings, () => loadDetailsSettings(routeClient(state.currentServerId)), (id) => {
     if (!state.item?.MediaSources?.some((source) => source.Id === id)) return;
     if ((id !== state.item?.Id || state.loadingId) && id !== state.loadingId) load(id, state.currentServerId, state.page.querySelector('.selectSource'));
   });
@@ -224,7 +248,7 @@ function mount() {
   };
   state.page.dataset.sleekfinDetails = 'true';
   document.documentElement.classList.add('sleekfin-details-mounted');
-  hero.render(state.item, state.seasons, state.settings.trailerBackgroundEnabled);
+  hero.render(state.item, state.seasons, state.settings);
   actions.reconcile();
   similar.render();
   // Revealed once Jellyfin has hidden the page it is leaving, which the observer below waits for.
@@ -255,17 +279,7 @@ function load(id, serverId, sourceSelect = null) {
   state.loadingId = id;
   const settingsPromise = loadDetailsSettings(client).then((settings) => {
     if (!isCurrent() || revision !== settingsRevision) return;
-    const compactEpisodeGridChanged = state.settings.compactEpisodeGridCardsEnabled !== settings.compactEpisodeGridCardsEnabled;
-    state.settings = settings;
-    if (state.mount) {
-      const seasonPosters = state.item.Type === 'Series' && settings.seasonPostersEnabled;
-      state.page.classList.toggle('sleekfin-details-season-posters', seasonPosters);
-      state.mount.hero.render(state.item, state.seasons, settings.trailerBackgroundEnabled);
-      if (compactEpisodeGridChanged && state.mount.episodes) {
-        state.mount.episodes.destroy();
-        state.mount.episodes = createEpisodes(state.page, state.item, state.seasons, settings.dropdownStyle, settings.compactEpisodeGridCardsEnabled);
-      }
-    }
+    applyDetailsSettings(settings);
     scheduleReconcile();
   });
   client.getItem(userId, id)
@@ -289,7 +303,7 @@ function load(id, serverId, sourceSelect = null) {
           if (state.mount) {
             const seasonPosters = state.item.Type === 'Series' && state.settings.seasonPostersEnabled;
             state.page.classList.toggle('sleekfin-details-season-posters', seasonPosters);
-            state.mount.hero.render(state.item, state.seasons, state.settings.trailerBackgroundEnabled);
+            state.mount.hero.render(state.item, state.seasons, state.settings);
             if (!seasonPosters && !state.mount.episodes && ['Series', 'Season', 'Episode'].includes(state.item.Type) && state.seasons.length) {
               state.mount.episodes = createEpisodes(state.page, state.item, state.seasons, state.settings.dropdownStyle, state.settings.compactEpisodeGridCardsEnabled);
             }

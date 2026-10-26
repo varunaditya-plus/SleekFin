@@ -1,157 +1,260 @@
-.sleekfin-details-stack > .mainDetailButtons {
+.mainDetailButtons.sleekfin-details-actions {
     align-items: center;
+    align-self: stretch;
     display: flex !important;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: var(--sleekfin-details-button-spacing, 12px);
     justify-content: flex-start;
-    margin: 18px 0 0 !important;
-    padding: 0 0 52px !important;
+    margin: var(--sleekfin-details-description-to-buttons, 18px) 0 0 !important;
+    min-width: 0;
+    padding: 0 !important;
     position: relative;
+    width: 100%;
 }
 
-.sleekfin-details-stack > .mainDetailButtons > * {
-    order: 6;
-}
-
-.sleekfin-details-stack > .mainDetailButtons > :not(.hide):not([hidden]) {
-    display: inline-flex !important;
+.mainDetailButtons.sleekfin-details-actions [data-sleekfin-action-id] {
+    flex: 0 0 auto;
     margin: 0 !important;
+    max-width: 100%;
 }
 
-.sleekfin-details-stack > .mainDetailButtons > [hidden] {
-    display: none !important;
-}
-
-/* Jellyfin keeps video downloads in More even when the item permits downloading. */
-.sleekfin-details-stack > .mainDetailButtons[data-sleekfin-can-download="true"] > .btnDownload.hide:not([hidden]) {
+.mainDetailButtons.sleekfin-details-actions > [data-sleekfin-action-id]:not(.hide):not([hidden]):not([data-sleekfin-action-hidden="true"]) {
     display: inline-flex !important;
-    margin: 0 !important;
 }
 
-.sleekfin-details-stack > .mainDetailButtons > :is(.btnPlay, .btnReplay) {
-    order: 1;
-}
-
-.sleekfin-details-stack > .mainDetailButtons > .btnDownload {
-    order: 2;
-}
-
-.sleekfin-details-stack > .mainDetailButtons > .btnUserRating {
-    order: 3;
-}
-
-.sleekfin-details-stack > .mainDetailButtons > .btnPlayTrailer {
-    order: 4;
-}
-
-.sleekfin-details-stack > .mainDetailButtons > .sleekfin-details-enhanced-action {
-    order: 5;
-}
-
+.mainDetailButtons.sleekfin-details-actions [data-sleekfin-action-hidden="true"],
+.mainDetailButtons.sleekfin-details-actions [hidden],
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control.hide,
 [data-sleekfin-details] [data-sleekfin-enhanced-source] {
     display: none !important;
 }
 
-.sleekfin-details-stack .sleekfin-details-enhanced-action:not(.arr-dropdown) {
+/* Jellyfin keeps video downloads in More even when the item permits downloading. */
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-can-download="true"] .btnDownload.hide:not([hidden]):not([data-sleekfin-action-hidden="true"]) {
+    display: inline-flex !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control {
     align-items: center;
-    border-radius: 50% !important;
+    backdrop-filter: blur(var(--sleekfin-details-button-blur, 18px)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--sleekfin-details-button-blur, 18px)) saturate(140%);
+    background: linear-gradient(rgba(255, 255, 255, .055), rgba(255, 255, 255, .01)), var(--sleekfin-details-secondary-button-fill, rgba(22, 22, 24, .82)) !important;
+    border-radius: var(--sleekfin-details-icon-button-radius, 50%) !important;
+    box-sizing: border-box;
+    color: var(--sleekfin-details-secondary-button-text-color, #f1f2f4) !important;
     display: inline-flex;
     flex: 0 0 auto;
-    font-size: 0 !important;
-    height: 40px;
+    font-family: inherit !important;
+    font-size: 13px !important;
+    font-weight: 500;
+    height: var(--sleekfin-details-button-height, 44px) !important;
     justify-content: center;
+    line-height: 1.5;
     margin: 0 !important;
-    min-width: 0;
+    min-height: 0 !important;
+    min-width: 0 !important;
     padding: 0 !important;
-    width: 40px;
+    text-decoration: none;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease;
+    width: var(--sleekfin-details-button-height, 44px) !important;
 }
 
-.sleekfin-details-stack .sleekfin-details-enhanced-action :is(img, .arr-tag-link-icon, .arr-tag-link-icon svg),
-.sleekfin-details-stack .sleekfin-details-enhanced-action.letterboxd-link-icon::before {
-    height: 22px !important;
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control.sleekfin-button {
+    border-radius: var(--sleekfin-details-button-radius, 999px) !important;
+    padding: 0 var(--sleekfin-details-main-button-padding, 24px) !important;
+    width: auto !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control.sleekfin-button-primary {
+    background: var(--sleekfin-details-primary-button-fill, #f1f2f4) !important;
+    color: var(--sleekfin-details-primary-button-text-color, #05070a) !important;
+    padding: 0 var(--sleekfin-details-primary-button-padding, 28px) !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control:hover {
+    background: linear-gradient(rgba(255, 255, 255, .055), rgba(255, 255, 255, .01)), var(--sleekfin-details-secondary-button-hover-fill, #161618) !important;
+    transform: translateY(calc(-1 * var(--sleekfin-details-button-hover-lift, 0px)));
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control.sleekfin-button-primary:hover {
+    background: var(--sleekfin-details-primary-button-hover-fill, #f1f2f4) !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control:active {
+    transform: translateY(calc(-1 * var(--sleekfin-details-button-hover-lift, 0px))) scale(.98);
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control:is(.ratingbutton-withrating, .playstatebutton-played, [data-isfavorite="true"]) {
+    background: var(--sleekfin-details-button-active-color, var(--sleekfin-accent)) !important;
+    border-color: var(--sleekfin-details-button-active-color, var(--sleekfin-accent)) !important;
+    color: var(--sleekfin-surface, #161618) !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control:is(.ratingbutton-withrating, .playstatebutton-played, [data-isfavorite="true"]) .material-icons {
+    color: inherit !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions .detailButton-content {
+    align-items: center;
+    display: inline-flex;
+    flex-direction: row !important;
+    gap: 8px;
+    height: auto;
+    justify-content: center;
+    min-width: 0;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-control :is(.sleekfin-icon, .material-icons) {
+    color: inherit !important;
+    flex: 0 0 auto;
+    font-size: var(--sleekfin-details-control-icon-size, 18px) !important;
+    height: var(--sleekfin-details-control-icon-size, 18px) !important;
+    line-height: 1;
     margin: 0 !important;
-    width: 22px !important;
+    width: var(--sleekfin-details-control-icon-size, 18px) !important;
 }
 
-.sleekfin-details-stack .sleekfin-details-enhanced-action .material-icons {
-    font-size: 22px !important;
-    margin: 0 !important;
+.mainDetailButtons.sleekfin-details-actions .sleekfin-button-primary .sleekfin-icon {
+    height: var(--sleekfin-details-play-icon-size, 22px) !important;
+    width: var(--sleekfin-details-play-icon-size, 22px) !important;
 }
 
-.sleekfin-details-stack .sleekfin-details-enhanced-action :is(.detailButton-icon-text, .arr-tag-link-text),
-.sleekfin-details-stack .sleekfin-details-enhanced-action.arr-link > span,
-.sleekfin-details-stack .sleekfin-details-enhanced-action.je-series-request-more-btn > span:not(.material-icons) {
+.mainDetailButtons.sleekfin-details-actions .sleekfin-button:not(.btnReplay):not(.btnUserRating) .detailButton-content .material-icons,
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-label,
+.mainDetailButtons.sleekfin-details-actions .detailButton-icon-text,
+.mainDetailButtons.sleekfin-details-actions .arr-tag-link-text {
     display: none !important;
 }
 
-.sleekfin-details-stack .sleekfin-details-enhanced-action.arr-dropdown .arr-dropdown-menu {
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-enhanced-action:not(.arr-dropdown) {
+    font-size: 0 !important;
+    gap: 0 !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-enhanced-action :is(img, .arr-tag-link-icon, .arr-tag-link-icon svg, .material-icons),
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-enhanced-action.letterboxd-link-icon::before {
+    flex: 0 0 auto;
+    font-size: var(--sleekfin-details-external-icon-size, 22px) !important;
+    height: var(--sleekfin-details-external-icon-size, 22px) !important;
+    margin: 0 !important;
+    object-fit: contain;
+    width: var(--sleekfin-details-external-icon-size, 22px) !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-enhanced-action.arr-link > span:not(.sleekfin-details-action-label):not(.detailButton-content),
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-enhanced-action.je-series-request-more-btn > span:not(.material-icons):not(.sleekfin-details-action-label):not(.detailButton-content) {
+    display: none !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-button-content="Icons"] .sleekfin-button-label {
+    display: none !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-button-content="Icons"] .sleekfin-details-action-control.sleekfin-button {
+    border-radius: var(--sleekfin-details-icon-button-radius, 50%) !important;
+    padding: 0 !important;
+    width: var(--sleekfin-details-button-height, 44px) !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-button-content="Labels"] .sleekfin-details-action-control:not(.sleekfin-details-action-overflow-trigger) {
+    border-radius: var(--sleekfin-details-button-radius, 999px) !important;
+    font-size: 13px !important;
+    padding: 0 20px !important;
+    width: auto !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-button-content="Labels"] .sleekfin-details-action-control:not(.sleekfin-details-action-overflow-trigger) :is(.sleekfin-icon, .material-icons, img, .arr-tag-link-icon),
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-button-content="Labels"] .letterboxd-link-icon::before {
+    display: none !important;
+}
+
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-button-content="Labels"] .sleekfin-details-action-control .sleekfin-details-action-label {
+    display: inline !important;
+    font-size: 13px;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-spacer {
+    flex: var(--sleekfin-details-button-group-flex, 1 1 0px);
+    margin-inline: var(--sleekfin-details-button-group-margin, 0px);
+    min-width: 0;
+    order: 9999;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-spacer[data-sleekfin-no-left-actions="true"] {
+    flex: 1 1 0px;
+    margin-left: 0;
+    margin-right: calc(-1 * var(--sleekfin-details-button-spacing, 12px));
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-overflow {
+    align-items: center;
+    background: var(--sleekfin-surface, #161618);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .35);
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sleekfin-details-button-spacing, 12px);
+    max-width: min(420px, calc(100vw - 32px));
+    padding: 14px;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: max-content;
+    z-index: 20;
+}
+
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-enhanced-action.arr-dropdown .arr-dropdown-menu {
     box-sizing: border-box;
     max-width: calc(100vw - 32px);
     min-width: min(240px, calc(100vw - 32px));
 }
 
-.sleekfin-details-stack .sleekfin-details-enhanced-action.arr-dropdown .arr-dropdown-item-name {
+.mainDetailButtons.sleekfin-details-actions .sleekfin-details-enhanced-action.arr-dropdown .arr-dropdown-item-name {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.sleekfin-details-stack > .mainDetailButtons > :is(.btnPlaystate, .sleekfin-details-track-settings, .btnMoreCommands) {
-    bottom: 0;
-    position: absolute;
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-action-preview="mobile"][data-sleekfin-details-mobile-action-groups="Stack"] > .sleekfin-details-action-spacer:not([data-sleekfin-no-left-actions="true"]) {
+    flex: 0 0 100%;
+    height: 0;
+    margin-inline: 0;
+    margin-top: 0;
 }
 
-.sleekfin-details-stack > .mainDetailButtons > .btnPlaystate {
-    right: 104px;
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-action-preview="mobile"][data-sleekfin-details-mobile-action-groups="Stack"] > [data-sleekfin-action-first-row="true"] {
+    margin-top: calc(var(--sleekfin-details-button-group-block-gap, 12px) - 2 * var(--sleekfin-details-button-spacing, 12px)) !important;
 }
 
-.sleekfin-details-stack > .mainDetailButtons > .sleekfin-details-track-settings {
-    right: 52px;
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-action-preview="mobile"][data-sleekfin-details-mobile-action-groups="Stack"] > [data-sleekfin-action-first-right="true"] {
+    margin-left: auto !important;
 }
 
-.sleekfin-details-stack > .mainDetailButtons > .btnMoreCommands {
-    right: 0;
+.mainDetailButtons.sleekfin-details-actions[data-sleekfin-details-action-preview="mobile"] {
+    --sleekfin-details-main-button-padding: 16px;
+    --sleekfin-details-primary-button-padding: 16px;
 }
 
-.sleekfin-details-stack > .mainDetailButtons > .detailButton:not(.sleekfin-button) {
-    border-radius: 50%;
-    flex: 0 0 auto;
-    height: 40px;
-    width: 40px;
-}
-
-.sleekfin-details-stack > .mainDetailButtons .detailButton-content {
-    flex-direction: row !important;
-    height: auto;
-}
-
-.sleekfin-details-stack > .mainDetailButtons .sleekfin-button:not(.btnReplay):not(.btnUserRating) .detailButton-content .material-icons {
-    display: none !important;
-}
-
-.sleekfin-details-stack > .mainDetailButtons > .sleekfin-details-track-settings:not([hidden]) {
-    border-radius: 50%;
-    color: #fff;
-    height: 40px;
-    width: 40px;
-}
-
-@media (min-width: 768px) {
-    .sleekfin-details-stack > .mainDetailButtons {
-        padding: 0 168px 0 0 !important;
+@media (max-width: 767px) {
+    .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"])[data-sleekfin-details-mobile-action-groups="Stack"] > .sleekfin-details-action-spacer:not([data-sleekfin-no-left-actions="true"]) {
+        flex: 0 0 100%;
+        height: 0;
+        margin-inline: 0;
+        margin-top: 0;
     }
 
-    .sleekfin-details-stack > .mainDetailButtons > .btnPlaystate {
-        right: 112px;
+    .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"])[data-sleekfin-details-mobile-action-groups="Stack"] > [data-sleekfin-action-first-row="true"] {
+        margin-top: calc(var(--sleekfin-details-button-group-block-gap, 12px) - 2 * var(--sleekfin-details-button-spacing, 12px)) !important;
     }
 
-    .sleekfin-details-stack > .mainDetailButtons > .sleekfin-details-track-settings {
-        right: 56px;
+    .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"])[data-sleekfin-details-mobile-action-groups="Stack"] > [data-sleekfin-action-first-right="true"] {
+        margin-left: auto !important;
     }
 
-    .sleekfin-details-stack > .mainDetailButtons > :is(.detailButton:not(.sleekfin-button), .sleekfin-details-track-settings),
-    .sleekfin-details-stack .sleekfin-details-enhanced-action:not(.arr-dropdown) {
-        height: 44px;
-        width: 44px;
+    .mainDetailButtons.sleekfin-details-actions:not([data-sleekfin-details-action-preview="desktop"]) {
+        --sleekfin-details-main-button-padding: 16px;
+        --sleekfin-details-primary-button-padding: 16px;
     }
 }

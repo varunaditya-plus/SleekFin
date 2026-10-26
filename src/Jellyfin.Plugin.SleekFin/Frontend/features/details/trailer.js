@@ -1,7 +1,6 @@
 import { dom } from '../../shared/runtime.js';
 import { createYoutubePreview, youtubeId } from './youtube.js';
 
-const START_DELAY_MS = 2500;
 const START_TIMEOUT_MS = 12000;
 
 function previewProfile() {
@@ -62,6 +61,7 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
   let candidates = [];
   let encoding = null;
   let youtube = null;
+  let settings = null;
 
   function isCurrent(token) {
     return token === generation && enabled;
@@ -125,9 +125,10 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
     video = element;
     element.className = 'sleekfin-details-trailer';
     element.autoplay = true;
-    element.defaultMuted = true;
-    element.muted = true;
-    element.volume = 0;
+    element.defaultMuted = settings.trailerAudio !== 'Sound';
+    element.muted = element.defaultMuted;
+    element.volume = 1;
+    element.loop = settings.trailerEndBehavior === 'Loop';
     element.preload = 'metadata';
     element.setAttribute('playsinline', '');
     element.addEventListener('playing', () => markPlaying(token));
@@ -135,16 +136,15 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
     element.addEventListener('error', () => nextCandidate(token));
     nativeBackdrop.appendChild(element);
     element.src = url;
-    try {
-      const result = element.play();
-      if (result && typeof result.catch === 'function') {
-        result.catch(() => {
-          if (isCurrent(token) && element.dataset.playing !== 'true') nextCandidate(token);
-        });
-      }
-    } catch {
-      nextCandidate(token);
-    }
+    const failed = (error) => {
+      if (!isCurrent(token) || element.dataset.playing === 'true') return;
+      // Browsers can reject sound autoplay even when the administrator enabled it.
+      if (!element.muted && error?.name === 'NotAllowedError') {
+        element.muted = true;
+        element.play()?.catch(() => nextCandidate(token));
+      } else nextCandidate(token);
+    };
+    try { element.play()?.catch(failed); } catch (error) { failed(error); }
   }
 
   function playYoutube(id, token) {
@@ -157,15 +157,18 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
     nativeBackdrop.appendChild(iframe);
     sizeYoutube();
     window.addEventListener('resize', sizeYoutube);
-    youtube = createYoutubePreview(iframe, { onPlaying: () => markPlaying(token), onEnded: () => finish(token), onError: () => nextCandidate(token) });
+    youtube = createYoutubePreview(iframe, { muted: settings.trailerAudio !== 'Sound', loop: settings.trailerEndBehavior === 'Loop', onPlaying: () => markPlaying(token), onEnded: () => finish(token), onError: () => nextCandidate(token) });
   }
 
   function sizeYoutube() {
     if (video?.tagName !== 'IFRAME') return;
     const bounds = nativeBackdrop.getBoundingClientRect();
-    const width = Math.ceil(Math.max(bounds.width, bounds.height * 16 / 9));
+    const fit = settings.backdropFit === 'Contain' ? Math.min : Math.max;
+    const width = Math.ceil(fit(bounds.width, bounds.height * 16 / 9));
     video.style.width = `${width}px`;
     video.style.height = `${width * 9 / 16}px`;
+    video.style.left = `${(bounds.width - width) * settings.backdropFocusX / 100}px`;
+    video.style.top = `${(bounds.height - width * 9 / 16) * settings.backdropFocusY / 100}px`;
   }
 
   function nextCandidate(token) {
@@ -230,25 +233,29 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
     const token = clearAttempt();
     candidates = (currentItem.RemoteTrailers || []).map((trailer) => ({ url: remoteUrl(trailer.Url) })).filter((candidate) => candidate.url);
     if (!(Number(currentItem.LocalTrailerCount) > 0) && !candidates.length) return;
-    attemptTimer = window.setTimeout(() => nextCandidate(token), START_DELAY_MS + START_TIMEOUT_MS);
-    startTimer = window.setTimeout(() => startAttempt(token), START_DELAY_MS);
+    const delay = settings.trailerStartDelaySeconds * 1000;
+    attemptTimer = window.setTimeout(() => nextCandidate(token), delay + START_TIMEOUT_MS);
+    startTimer = window.setTimeout(() => startAttempt(token), delay);
   }
 
-  function update(item, nextEnabled) {
+  function update(item, nextSettings) {
     const itemChanged = currentItem?.Id !== item?.Id || currentItem?.ServerId !== item?.ServerId;
     const wasEnabled = enabled;
+    const playbackChanged = settings && ['trailerStartDelaySeconds', 'trailerAudio', 'trailerEndBehavior'].some((key) => settings[key] !== nextSettings[key]);
+    settings = nextSettings;
     if (itemChanged) {
       clearAttempt();
       currentItem = item;
     }
 
-    enabled = nextEnabled === true;
+    enabled = settings.trailerBackgroundEnabled === true;
     if (!enabled) {
       if (wasEnabled || startTimer || attemptTimer || video) clearAttempt();
       return;
     }
 
-    if (!wasEnabled || itemChanged) schedule();
+    if (!wasEnabled || itemChanged || playbackChanged) schedule();
+    else sizeYoutube();
   }
 
   function onActionClick(event) {
@@ -265,9 +272,12 @@ export function createTrailerPreview(page, nativeBackdrop, actions) {
   }
 
   function togglePlayback() {
-    if (video?.dataset.playing !== 'true') return;
+    if (!settings.backdropPauseEnabled || video?.dataset.playing !== 'true') return;
     if (video.tagName === 'IFRAME') youtube?.togglePlayback();
-    else if (video.paused) video.play()?.catch(() => {});
+    else if (video.paused) {
+      video.muted = settings.trailerAudio !== 'Sound';
+      video.play()?.catch(() => {});
+    }
     else video.pause();
   }
 
