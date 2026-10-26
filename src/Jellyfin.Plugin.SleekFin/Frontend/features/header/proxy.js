@@ -242,7 +242,7 @@ function markEmptySegments(mount) {
         !source.closest('[data-sleekfin-header-proxy]') &&
         !source.matches('[data-sleekfin-header-brand], .je-header-more-toggle, .mainDrawerButton'),
     );
-    mark(mount, segment, 'data-sleekfin-header-all-proxied', controls.every((source) => sources.has(source)) ? 'true' : 'false');
+    mark(mount, segment, 'data-sleekfin-header-all-proxied', controls.every((source) => sources.has(source) || !dom.isVisible(source)) ? 'true' : 'false');
   };
   markSegment(mount.nav);
   markSegment(mount.actions);

@@ -41,8 +41,9 @@ function isHomeRoute() {
   const match = window.location.hash.match(/^#\/(?:home)?(?:\?([^#]*))?$/);
   if (!match) return false;
 
-  const tab = new URLSearchParams(match[1] || '').get('tab');
-  return !tab || tab === '0';
+  const query = new URLSearchParams(match[1] || '');
+  const tab = query.get('tab');
+  return !query.get('seerrfinTab') && (!tab || tab === '0');
 }
 
 function findHost() {

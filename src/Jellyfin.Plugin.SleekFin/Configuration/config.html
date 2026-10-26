@@ -1455,13 +1455,15 @@
         #sleekFinConfigurationPage .sleekfin-header-editor-footer {
             align-items: center;
             display: flex;
+            flex-wrap: wrap;
             gap: 1em;
             justify-content: flex-end;
             margin-top: 1.25em;
         }
 
         #sleekFinConfigurationPage .sleekfin-hero-reset,
-        #sleekFinConfigurationPage .sleekfin-header-reset {
+        #sleekFinConfigurationPage .sleekfin-header-reset,
+        #sleekFinConfigurationPage .sleekfin-builder-config-button {
             background: var(--cardBackground, rgba(255, 255, 255, 0.08));
             border: 1px solid var(--divider, rgba(255, 255, 255, 0.25));
             color: inherit;
@@ -1469,6 +1471,42 @@
             flex: 0 0 auto;
             font: inherit;
             padding: 0.55em 0.85em;
+        }
+
+        #sleekFinConfigurationPage .dialog.sleekfin-builder-config-dialog {
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: calc(100% - 32px);
+            max-width: 720px;
+            padding: 20px;
+            width: calc(100% - 32px);
+        }
+
+        #sleekFinConfigurationPage .sleekfin-builder-config-dialog h3 {
+            font-size: 1.05em;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-builder-config-text {
+            flex: 1 1 auto;
+            font: 13px/1.5 monospace;
+            min-height: 240px;
+            min-width: 0;
+            overflow: auto;
+            padding: 12px;
+            resize: vertical;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-builder-config-error {
+            color: #ff5252;
+            margin: 0;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-builder-config-dialog .sleekfin-header-editor-footer {
+            margin-top: 0;
         }
 
         @media (max-width: 768px) {
@@ -1581,7 +1619,8 @@
             }
 
             #sleekFinConfigurationPage .sleekfin-hero-reset,
-            #sleekFinConfigurationPage .sleekfin-header-reset {
+            #sleekFinConfigurationPage .sleekfin-header-reset,
+            #sleekFinConfigurationPage .sleekfin-builder-config-button {
                 width: 100%;
             }
 
@@ -2082,6 +2121,8 @@
                                 </details>
 
                                 <div class="sleekfin-hero-editor-footer">
+                                    <button class="sleekfin-builder-config-button" type="button" data-sleekfin-config-action="enter" data-sleekfin-config-builder="hero">Enter configuration</button>
+                                    <button class="sleekfin-builder-config-button" type="button" data-sleekfin-config-action="view" data-sleekfin-config-builder="hero">View configuration</button>
                                     <button id="sleekFinHeroReset" class="sleekfin-hero-reset" type="button">Reset hero defaults</button>
                                 </div>
                             </div>
@@ -2264,6 +2305,8 @@
                             </div>
                         </div>
                         <div class="sleekfin-header-editor-footer">
+                            <button class="sleekfin-builder-config-button" type="button" data-sleekfin-config-action="enter" data-sleekfin-config-builder="header">Enter configuration</button>
+                            <button class="sleekfin-builder-config-button" type="button" data-sleekfin-config-action="view" data-sleekfin-config-builder="header">View configuration</button>
                             <button id="sleekFinHeaderReset" class="sleekfin-header-reset" type="button">Reset header defaults</button>
                         </div>
                         </div>
@@ -2330,6 +2373,7 @@
             var detailsProviderAvailability = {};
             var detailsBuilderAssets = {};
             var configurationSavePromise = null;
+            var configurationDialog = null;
 
             function loadDetailsBuilder() {
                 if (detailsBuilder) return Promise.resolve(detailsBuilder);
@@ -3627,7 +3671,7 @@
             function createPreviewEmpty() {
                 var empty = document.createElement('span');
                 empty.className = 'sleekfin-builder-preview-empty';
-                empty.textContent = 'Native order — drag an item here to customize';
+                empty.textContent = 'Your header is empty :(';
                 return empty;
             }
 
@@ -4054,6 +4098,104 @@
                 });
             }
 
+            function builderConfiguration(builder) {
+                var configuration = {};
+                if (builder === 'details') return detailsBuilder.write(configuration);
+                if (builder === 'hero') saveHeroConfiguration(configuration, selectedSources());
+                else saveBuilderConfiguration(configuration);
+                return configuration;
+            }
+
+            function applyBuilderShare(builder, payload) {
+                if (!payload || payload.builder !== builder || !payload.settings || typeof payload.settings !== 'object' || Array.isArray(payload.settings)) {
+                    throw new Error('Enter a configuration exported from this UI builder.');
+                }
+                var configuration = builderConfiguration(builder);
+                var keys = Object.keys(payload.settings);
+                if (!keys.length) throw new Error('The configuration has no settings.');
+                keys.forEach(function (name) {
+                    var value = payload.settings[name];
+                    if (!Object.prototype.hasOwnProperty.call(configuration, name)) throw new Error('Unknown setting: ' + name);
+                    if (typeof value !== typeof configuration[name] || typeof value === 'number' && !isFinite(value)) throw new Error('Invalid value for ' + name + '.');
+                    if (/Color$/.test(name) && !validColor(value) && !(builder === 'details' && /^theme (accent|muted)$/i.test(value.trim()))) throw new Error('Invalid color for ' + name + '.');
+                    configuration[name] = value;
+                });
+                if (builder === 'details') {
+                    configuration.AccentColor = accentInput.value;
+                    detailsBuilder.load(configuration);
+                    configuration = detailsBuilder.write({});
+                    dropdownStyleInput.value = configuration.DropdownStyle;
+                    detailsTrailerBackgroundInput.checked = configuration.DetailsTrailerBackgroundEnabled;
+                } else if (builder === 'hero') {
+                    applyHeroConfiguration(configuration);
+                } else {
+                    applyBuilderConfiguration(configuration);
+                    Object.keys(builderFields).forEach(function (name) {
+                        var input = builderFields[name];
+                        if (input.type === 'number') input.value = String(boundedValue(input, builderDefaults[name]));
+                    });
+                }
+                updateUnsavedChanges();
+            }
+
+            function openBuilderConfiguration(event) {
+                var trigger = event.target.closest('[data-sleekfin-config-action]');
+                if (!trigger || configurationDialog) return;
+                var builder = trigger.dataset.sleekfinConfigBuilder;
+                var names = { hero: 'Hero carousel', header: 'Header bar', details: 'Detail page hero' };
+                var viewing = trigger.dataset.sleekfinConfigAction === 'view';
+                var helper = Dashboard.dialogHelper;
+                var dlg = helper.createDialog({ removeOnClose: true, scrollY: false, enableHistory: false, exitAnimation: 'none' });
+                configurationDialog = dlg;
+                dlg.classList.add('sleekfin-builder-config-dialog');
+                dlg.innerHTML = '<h3></h3><textarea class="sleekfin-input sleekfin-builder-config-text" rows="14" spellcheck="false"></textarea><p class="sleekfin-builder-config-error" hidden></p><div class="sleekfin-header-editor-footer"><button type="button" class="sleekfin-builder-config-button sleekfin-builder-config-close"></button><button type="button" class="sleekfin-builder-config-button sleekfin-builder-config-apply"></button></div>';
+                dlg.querySelector('h3').textContent = (viewing ? 'View configuration: ' : 'Enter configuration: ') + names[builder];
+                var text = dlg.querySelector('textarea');
+                var error = dlg.querySelector('.sleekfin-builder-config-error');
+                var close = dlg.querySelector('.sleekfin-builder-config-close');
+                var action = dlg.querySelector('.sleekfin-builder-config-apply');
+                text.readOnly = viewing;
+                text.value = viewing ? JSON.stringify({ builder: builder, settings: builderConfiguration(builder) }, null, 2) : '';
+                text.setSelectionRange(0, 0);
+                close.textContent = viewing ? 'Close' : 'Cancel';
+                action.textContent = viewing ? 'Copy' : 'Apply';
+                close.addEventListener('click', function () { helper.close(dlg); });
+                dlg.addEventListener('close', function () { if (configurationDialog === dlg) configurationDialog = null; });
+                action.addEventListener('click', function () {
+                    error.hidden = true;
+                    if (!viewing) {
+                        try {
+                            var payload;
+                            try { payload = JSON.parse(text.value); }
+                            catch (parseError) { throw new Error('Enter valid JSON configuration.'); }
+                            applyBuilderShare(builder, payload);
+                            helper.close(dlg);
+                        } catch (failure) {
+                            error.textContent = failure.message;
+                            error.hidden = false;
+                        }
+                        return;
+                    }
+                    function copied() { if (configurationDialog === dlg) action.textContent = 'Copied'; }
+                    function fallbackCopy() {
+                        if (configurationDialog !== dlg) return;
+                        text.focus();
+                        text.select();
+                        text.setSelectionRange(0, text.value.length);
+                        try {
+                            if (document.execCommand('copy')) { copied(); return; }
+                        } catch (copyError) {}
+                        error.textContent = 'Select the configuration text and copy it manually.';
+                        error.hidden = false;
+                    }
+                    if (navigator.clipboard) navigator.clipboard.writeText(text.value).then(copied, fallbackCopy);
+                    else fallbackCopy();
+                });
+                helper.open(dlg);
+                page.appendChild(dlg.backdrop);
+                page.appendChild(dlg.dialogContainer);
+            }
+
             function saveConfiguration(event) {
                 event.preventDefault();
                 var contentOrder = selectedSources();
@@ -4274,6 +4416,7 @@
                 stopPreviewMeasurements();
                 loadRequest += 1;
                 Dashboard.hideLoadingMsg();
+                if (configurationDialog) Dashboard.dialogHelper.close(configurationDialog);
                 if (detailsBuilder) detailsBuilder.destroy();
                 detailsBuilder = null;
                 detailsBuilderPromise = null;
@@ -4283,6 +4426,7 @@
             page.addEventListener('viewshow', showConfigurationPage);
             page.addEventListener('viewhide', hideConfigurationPage);
             form.addEventListener('submit', saveConfiguration);
+            form.addEventListener('click', openBuilderConfiguration);
             form.addEventListener('input', updateUnsavedChanges);
             form.addEventListener('change', updateUnsavedChanges);
             startPreviewMeasurements();
