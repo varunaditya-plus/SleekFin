@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added an unsaved changes indicator to the settings banner",
+  "changelog": "Added detail page hero UI Builder with for movies, series, seasons, and episodes, Jellyfin/JE actions, layout, artwork, trailer, typography, metadata, button, and Info settings. Also added UI builder sub tabs",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-25T22:27:22.0000000Z",
-  "version": "1.5.11.0",
+  "timestamp": "2026-10-26T11:00:10.0000000Z",
+  "version": "1.6.0.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
