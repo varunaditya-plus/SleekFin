@@ -23,6 +23,20 @@ The ultimate customisation plugin for Jellyfin, which fully reskins Jellyfin to 
 
 ---
 
+## Screenshots
+<table>
+  <tr>
+    <td><img width="1720" height="720" alt="Home screen" src="https://github.com/user-attachments/assets/db8e2443-35f1-47d0-a734-c36cd41fd587" /></td>
+  </tr>
+  <tr>
+	  <td><img width="1720" height="720" alt="Movie page" src="https://github.com/user-attachments/assets/c4fb2cef-969e-47f2-93cd-2db019179ddc" /></td>
+  </tr>
+  <tr>
+    <td><img width="1720" height="720" alt="Series page" src="https://github.com/user-attachments/assets/28a00655-4b2a-46ef-99a0-6d8b8e111b22" /></td>
+    <!-- <td><img width="1720" height="720" alt="Configuration page" src="" /></td> -->
+  </tr>
+</table>
+
 ## Features
 
 - **Complete reskin:** Applies a fully black interface with dark surfaces, red accents (configurable), and uses Inter across the main UI, dialogs, lists, and cards.
@@ -31,10 +45,8 @@ The ultimate customisation plugin for Jellyfin, which fully reskins Jellyfin to 
 - **Configurable home hero:** Adds a full-width hero section above rows on the home page to display your library's content more nicely.
 - **Redesigned home, library, and search pages:** Restyles the carousels, library pages, and search result rows and cards to show content more clearly with consistent spacing and concise info under posters.
 - **Consistent media cards:** Native movie, series, episode, Next Up, Continue Watching, music, and Live TV cards share SleekFin icon controls, status badges, and progress bars. Card buttons, the centered Play button, posters/thumbnails, and cast/crew have separate Square, Squircle, and Circle shape settings under **Cards**.
-- **Updated detail pages:** Redesigns Jellyfin's Movie, Series, Season, and Episode pages with full-page backdrop heroes, title art, and richer metadata. Media settings open from the three-dot action button. Disable the replacement in plugin settings to keep Jellyfin's native detail pages. Optional custom SleekFin dropdowns can replace the native season and media settings selectors. The Hero carousel UI Builder can enable muted trailer backgrounds on detail pages: local trailers use Jellyfin's direct playback or transcoding, with remote-video and YouTube trailers as fallbacks. Static artwork remains when no trailer can play. Clicking the hero pauses or resumes a playing trailer. Background playback is off by default.
-- **Expandable descriptions:** Cut-off descriptions in the home hero, detail page hero, and episode cards expand and collapse smoothly in place when clicked.
+- **Updated detail pages:** Redesigns Jellyfin's Movie, Series, Season, and Episode pages with full-page backdrop heroes, title art, and richer metadata. Media settings open from the three-dot action button. The Hero carousel UI Builder can enable trailer backgrounds on detail pages.
 - **Upgraded cast and recommendations:** Restyles cast into a clean horizontal row and turns similar titles into a dedicated **You may like** section with backdrop/poster imagery, ratings, years, and media types.
-- **Responsive layouts:** Adapts the header, hero, media rows, detail pages, controls, typography, and spacing across mobile, tablet, desktop, and ultrawide browser sizes.
 
 ## Installation
 
@@ -53,20 +65,6 @@ https://raw.githubusercontent.com/varunaditya-plus/SleekFin/main/manifest.json
 
 ### Configuration
 After installation, go to **Dashboard → SleekFin**. The **Overview** tab groups feature toggles and the SleekFin accent colour picker under **General options**. Save and refresh Jellyfin to apply an accent colour change. Our **UI Builder** gives you live editors for the elements we reskin, letting you tweak them to your liking.
-
-## Screenshots
-<table>
-  <tr>
-    <td><img width="1720" height="720" alt="Home screen" src="https://github.com/user-attachments/assets/db8e2443-35f1-47d0-a734-c36cd41fd587" /></td>
-  </tr>
-  <tr>
-	  <td><img width="1720" height="720" alt="Movie page" src="https://github.com/user-attachments/assets/c4fb2cef-969e-47f2-93cd-2db019179ddc" /></td>
-  </tr>
-  <tr>
-    <td><img width="1720" height="720" alt="Series page" src="https://github.com/user-attachments/assets/28a00655-4b2a-46ef-99a0-6d8b8e111b22" /></td>
-    <!-- <td><img width="1720" height="720" alt="Configuration page" src="" /></td> -->
-  </tr>
-</table>
 
 ## Downloads
 
