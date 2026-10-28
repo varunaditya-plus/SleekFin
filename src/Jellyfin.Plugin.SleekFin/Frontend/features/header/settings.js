@@ -20,7 +20,7 @@ const HEX_COLOR_PATTERN = /^#(?:[\da-f]{3}|[\da-f]{4}|[\da-f]{6}|[\da-f]{8})$/i;
 const RGB_COLOR_PATTERN = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i;
 const RGBA_COLOR_PATTERN = /^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(0(?:\.\d+)?|1(?:\.0+)?)\s*\)$/i;
 const POSITIONS = new Set(['Left', 'Center', 'Right']);
-const BRAND_DISPLAYS = new Set(['Logo', 'ServerName', 'Both']);
+const BRAND_DISPLAYS = new Set(['None', 'Logo', 'ServerName', 'Both']);
 
 export const DEFAULT_SETTINGS = Object.freeze({
   activeItemBackgroundColor: 'rgba(255, 255, 255, 0.12)',

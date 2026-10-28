@@ -521,7 +521,8 @@
             transform: none;
         }
 
-        #sleekFinConfigurationPage .sleekfin-builder-preview.is-brand-hidden .sleekfin-builder-preview-brand {
+        #sleekFinConfigurationPage .sleekfin-builder-preview.is-brand-hidden .sleekfin-builder-preview-brand,
+        #sleekFinConfigurationPage .sleekfin-builder-preview[data-brand-display="None"] .sleekfin-builder-preview-brand {
             display: none;
         }
 
@@ -2150,6 +2151,7 @@
                         <div class="sleekfin-toggle-row">
                             <div class="sleekfin-toggle-copy"><span class="sleekfin-toggle-label">Show logo/server name</span></div>
                             <div class="sleekfin-toggle-actions sleekfin-choice-group">
+                                <label class="sleekfin-choice"><input type="radio" name="sleekFinHeaderBrandDisplay" value="None" /><span>None</span></label>
                                 <label class="sleekfin-choice"><input type="radio" name="sleekFinHeaderBrandDisplay" value="Logo" /><span>Logo</span></label>
                                 <label class="sleekfin-choice"><input type="radio" name="sleekFinHeaderBrandDisplay" value="ServerName" /><span>Server name</span></label>
                                 <label class="sleekfin-choice"><input type="radio" name="sleekFinHeaderBrandDisplay" value="Both" checked /><span>Both</span></label>
@@ -2464,7 +2466,7 @@
             ];
             builderItems.forEach(function (item) {
                 item.providerEnabled = !/^(?:je|sf):/.test(item.id);
-                item.available = item.structural === true;
+                item.available = item.structural === true || item.id === 'jellyfin:home';
             });
             var selectedBuilderItems = [];
             var hiddenBuilderItems = [];
@@ -3146,7 +3148,7 @@
                 paletteNote.innerHTML = descriptors.length ? '*If an item is <span>red</span>, that means it is not enabled in the plugin it is from (and will not show)' : '*Visit Home once to load native Jellyfin and plugin header items';
                 builderItems.forEach(function (item) {
                     item.current = false;
-                    item.available = item.structural === true;
+                    item.available = item.structural === true || item.id === 'jellyfin:home';
                 });
                 descriptors.forEach(function (descriptor) {
                     var id = String(descriptor.id || '').toLowerCase();
@@ -3158,7 +3160,7 @@
                     item.caption = descriptor.caption || item.caption;
                     item.shape = descriptor.shape || item.shape || 'text-only';
                     item.current = descriptor.current === true;
-                    item.available = /^(?:je|sf):/.test(item.id) ? item.providerEnabled !== false : descriptor.available === true && Boolean(cloneHeaderItem(id));
+                    item.available = item.id === 'jellyfin:home' || (/^(?:je|sf):/.test(item.id) ? item.providerEnabled !== false : descriptor.available === true && Boolean(cloneHeaderItem(id)));
                     if (descriptor.inline) {
                         discovered.push(id);
                     }

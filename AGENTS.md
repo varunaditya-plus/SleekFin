@@ -74,7 +74,6 @@ Keep plugin production code under `src/Jellyfin.Plugin.SleekFin/`, keep the fron
 - Keep `build.js` at the repository root. Keep `Inject/Build/` gitignored and generate it through the frontend, .NET, and release builds; never edit or commit generated bundles directly.
 - Split the authored frontend by cohesive components and features with matching, narrowly scoped `sleekfin-*.css` assets. Do not collapse distinct responsibilities back into monolithic JavaScript or CSS files.
 - Do not give frontend modules independent version constants or markers. Use the plugin release version only where a version is actually required.
-- Update the README only when user-visible behavior, prerequisites, installation, configuration, compatibility, or troubleshooting changes. When its feature set changes, keep the Features section comprehensive. Credit libraries, bundled dependencies, assets, designs, or upstream code that SleekFin uses, adapts, or must attribute; do not add speculative or unrelated credits.
 
 ## C# conventions
 

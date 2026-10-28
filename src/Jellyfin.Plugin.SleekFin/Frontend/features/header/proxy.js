@@ -1,6 +1,6 @@
 import { dom, h, render } from '../../shared/runtime.js';
 import { HeaderOverflowDrawer } from './HeaderOverflowDrawer.jsx';
-import { cloneSourceTemplate, currentSource, discoverHeaderControls, legacyAlias, refreshRecordVisual } from './inventory.js';
+import { LABELS, cloneSourceTemplate, currentSource, discoverHeaderControls, legacyAlias, refreshRecordVisual } from './inventory.js';
 import { mark, setStyle } from './shared.js';
 
 function recordForKey(key, discoveries) {
@@ -58,7 +58,8 @@ function createStructuralItem(key) {
 }
 
 function sourceTitle(record) {
-  return record.source.getAttribute('title')?.trim() || record.source.getAttribute('aria-label')?.trim() || record.caption;
+  const title = record.source.getAttribute('title')?.trim() || record.source.getAttribute('aria-label')?.trim() || record.caption;
+  return LABELS[title] || title;
 }
 
 function sourceDisabled(record) {
@@ -78,6 +79,10 @@ function renderProxyVisual(record) {
 }
 
 function activateSource(mount, record) {
+  if (record.key === 'jellyfin:home') {
+    window.location.hash = '#/';
+    return;
+  }
   const route = (window.location.hash || '').toLowerCase();
   const homeRoute = !route || /^#\/home(?:\.html)?(?:[?]|$)/.test(route);
   if (mount.kind === 'legacy' && !homeRoute && record.key.startsWith('sf:')) {
@@ -102,7 +107,7 @@ function createProxyButton(mount, record) {
   renderProxyVisual(record);
   button.addEventListener('click', (event) => {
     event.stopPropagation();
-    if (dom.isConnected(record.source) && !sourceDisabled(record)) {
+    if ((record.key === 'jellyfin:home' || dom.isConnected(record.source)) && !sourceDisabled(record)) {
       syncPopupAnchors(mount, record, button);
       activateSource(mount, record);
       window.setTimeout(() => {
@@ -138,7 +143,7 @@ function createOverflowController(mount, toggle) {
   }
 
   function activate(record, anchor) {
-    if (!record.source || !dom.isConnected(record.source) || sourceDisabled(record)) return;
+    if (!record.source || (record.key !== 'jellyfin:home' && !dom.isConnected(record.source)) || sourceDisabled(record)) return;
     syncPopupAnchors(mount, record, anchor);
     close();
     activateSource(mount, record);

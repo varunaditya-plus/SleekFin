@@ -38,7 +38,7 @@ internal static class HeaderConfiguration
         "separator"
     ];
 
-    private static readonly string[] BrandDisplays = ["Logo", "ServerName", "Both"];
+    private static readonly string[] BrandDisplays = ["None", "Logo", "ServerName", "Both"];
     private static readonly string[] Positions = ["Left", "Center", "Right"];
 
     public static void Normalize(PluginConfiguration configuration)

@@ -1,6 +1,6 @@
 import { dom } from '../../shared/runtime.js';
 
-const LABELS = {
+export const LABELS = Object.assign(Object.create(null), {
   'jellyfin:audio-player': 'Audio player',
   'jellyfin:back': 'Back',
   'jellyfin:cast': 'Cast to device',
@@ -12,7 +12,9 @@ const LABELS = {
   'jellyfin:user-menu': 'User Menu',
   'je:active-streams': 'Active Streams',
   'je:random': 'Random',
-};
+  'More from Jellyfin Enhanced': 'JE More',
+});
+const HOME_SOURCE = dom.element('<a href="#/"><span class="material-icons home"></span>Home</a>');
 let cloneSequence = 0;
 
 function urlFor(anchor) {
@@ -192,7 +194,7 @@ function modernCandidates(header) {
     .filter((element) => element.matches('button, a[href]') && !element.querySelector('svg[data-testid="MenuIcon"]'))
     .forEach((source) => addCandidate(result, seen, source, 'toolbar'));
   addCandidates(result, seen, nav, 'a[href], button', 'navigation');
-  document.querySelectorAll('.MuiDrawer-paper, #user-view-overflow-menu, .customMenuOptions').forEach((container) => addCandidates(result, seen, container, 'a[href]', 'fallback'));
+  document.querySelectorAll('.MuiDrawer-paper, #user-view-overflow-menu, .customMenuOptions, .jellyfinEnhancedSection').forEach((container) => addCandidates(result, seen, container, container.matches('.jellyfinEnhancedSection') ? 'button, a[href]' : 'a[href]', 'fallback'));
   addCandidates(result, seen, actions, 'button, a[href]', 'actions');
   addCandidates(result, seen, enhancedActions, 'button, a[href]', 'actions');
   addCandidates(result, seen, profile, 'button, a[href]', 'profile');
@@ -208,7 +210,7 @@ function legacyCandidates(surface) {
     .filter((source) => source.matches('button, a[href]') && !source.matches('.mainDrawerButton'))
     .forEach((source) => addCandidate(result, seen, source, 'toolbar'));
   addCandidates(result, seen, header?.querySelector('.headerTabs'), 'button, a[href]', 'navigation');
-  document.querySelectorAll('.mainDrawer-scrollContainer, .mainDrawer, .customMenuOptions').forEach((container) => addCandidates(result, seen, container, 'a[href]', 'fallback'));
+  document.querySelectorAll('.mainDrawer-scrollContainer, .mainDrawer, .customMenuOptions, .jellyfinEnhancedSection').forEach((container) => addCandidates(result, seen, container, container.matches('.jellyfinEnhancedSection') ? 'button, a[href]' : 'a[href]', 'fallback'));
   addCandidates(result, seen, header?.querySelector('.headerRight'), 'button, a[href]', 'actions');
   return result;
 }
@@ -279,8 +281,9 @@ function cleanClone(node) {
 }
 
 function visualNodes(source) {
-  if (source.id === 'je-active-streams') {
-    return Array.from(source.querySelectorAll(':scope > .je-as-icon, :scope > .je-as-sup')).map((node) => {
+  if (providerFor('', source) === 'JE' || source.id === 'randomItemButton') {
+    const nodes = Array.from(source.children).filter((node) => node.matches('svg, img, .material-icons, [aria-hidden="true"]') || node.querySelector('svg, img, .material-icons') || node.style.backgroundImage);
+    if (nodes.length) return nodes.map((node) => {
       const clone = cleanClone(node);
       const color = window.getComputedStyle(node).color;
       if (color) clone.style.color = color;
@@ -337,20 +340,22 @@ function visibleLabel(source) {
 }
 
 function fallbackLabel(key, source) {
-  return LABELS[key] || source.getAttribute('title')?.trim() || source.getAttribute('aria-label')?.trim() || visibleLabel(source) || key;
+  const label = source.getAttribute('data-header-label')?.trim() || LABELS[key] || source.getAttribute('title')?.trim() || source.getAttribute('aria-label')?.trim() || visibleLabel(source) || key;
+  return LABELS[label] || label;
 }
 
-function providerFor(key) {
-  if (key.startsWith('je:')) return 'JE';
+function providerFor(key, source) {
+  if (key.startsWith('je:') || source?.closest('#je-header-buttons-group, .jellyfinEnhancedSection, [id^="je-"], [id^="jellyfinEnhanced"]')) return 'JE';
   if (key.startsWith('sf:')) return 'SeerrFin';
   return 'Jellyfin';
 }
 
 function captionFor(key, source, label) {
-  if (LABELS[key]) return LABELS[key];
-  const provider = providerFor(key);
-  const value = label || source.getAttribute('title')?.trim() || source.getAttribute('aria-label')?.trim() || 'Item';
-  return value.toLowerCase().startsWith(provider.toLowerCase()) ? value : `${provider} ${value}`;
+  const provider = providerFor(key, source);
+  if (provider !== 'JE' && LABELS[key]) return LABELS[key];
+  const value = source.getAttribute('data-header-label')?.trim() || label || LABELS[key] || source.getAttribute('title')?.trim() || source.getAttribute('aria-label')?.trim() || 'Item';
+  if (LABELS[value]) return LABELS[value];
+  return value.toLowerCase() === provider.toLowerCase() || value.toLowerCase().startsWith(`${provider.toLowerCase()} `) ? value : `${provider} ${value}`;
 }
 
 function sourceNativeHidden(source) {
@@ -469,17 +474,23 @@ export function discoverHeaderControls(surface) {
     }
     byKey.set(key, record);
   });
+  const home = byKey.get('jellyfin:home');
+  if (!home || home.nativeHidden) {
+    const record = { caption: 'Home', current: false, fallback: true, inline: false, key: 'jellyfin:home', label: 'Home', nativeHidden: false, popup: false, source: HOME_SOURCE, template: visualTemplate(HOME_SOURCE).template };
+    if (home) records[records.indexOf(home)] = record;
+    else records.push(record);
+  }
   return records;
 }
 
 export function catalogDescriptors(records) {
   return records.map((record) => ({
     available: !record.nativeHidden,
-    caption: record.caption,
+    caption: LABELS[record.label] || record.caption,
     current: record.current,
     id: record.key,
     inline: record.inline,
-    label: record.label,
+    label: LABELS[record.label] || record.label,
     shape: record.template.getAttribute('data-sleekfin-header-source-visual'),
   }));
 }
@@ -491,7 +502,7 @@ export function cloneSourceTemplate(template) {
 }
 
 export function cloneCatalogTemplate(records, key) {
-  const template = records.find((record) => record.key === key)?.template;
+  const template = key === 'jellyfin:home' ? visualTemplate(HOME_SOURCE).template : records.find((record) => record.key === key)?.template;
   return template ? cloneSourceTemplate(template) : null;
 }
 
@@ -515,6 +526,7 @@ export function legacyAlias(key, records) {
 }
 
 export function currentSource(record) {
+  if (record.key === 'jellyfin:home') return /^#\/(?:home(?:\.html)?)?(?:\?tab=0)?$/.test(window.location.hash.toLowerCase());
   if (record.key === 'jellyfin:search') return /#?\/search(?:[?/#]|$)/.test((window.location.hash || window.location.pathname).toLowerCase());
   if (record.key === 'jellyfin:favorites') return /[?&]tab=1(?:&|$)/.test((window.location.hash || '').toLowerCase());
   if (record.key.startsWith('sf:')) return new RegExp(`[?&]seerrfintab=${record.key.slice(3)}(?:&|$)`).test((window.location.hash || '').toLowerCase());

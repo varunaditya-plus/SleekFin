@@ -12,7 +12,9 @@ html.sleekfin-header-mounted .sleekfin-header-fallback-brand {
 }
 
 html.sleekfin-header-mounted [data-sleekfin-header-brand][data-sleekfin-header-overlap-hidden="true"],
-html.sleekfin-header-mounted .sleekfin-header-fallback-brand[data-sleekfin-header-overlap-hidden="true"] {
+html.sleekfin-header-mounted .sleekfin-header-fallback-brand[data-sleekfin-header-overlap-hidden="true"],
+html.sleekfin-header-mounted[data-sleekfin-header-brand-display="none"] [data-sleekfin-header-brand],
+html.sleekfin-header-mounted[data-sleekfin-header-brand-display="none"] .sleekfin-header-fallback-brand {
     display: none !important;
 }
 
