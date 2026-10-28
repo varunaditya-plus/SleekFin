@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added shareable configurations to all UI Builders, fixed SeerrFin page header overlap and flickering, and removed extra header divider at the end",
+  "changelog": "Added None option for header's server icon/text, updated JE label handling",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-26T18:16:58.0000000Z",
-  "version": "1.6.1.0",
+  "timestamp": "2026-10-28T10:02:13.0000000Z",
+  "version": "1.6.2.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
