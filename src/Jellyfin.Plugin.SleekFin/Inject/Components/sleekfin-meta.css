@@ -28,7 +28,8 @@
 }
 
 .sleekfin-meta-accent {
-    color: rgba(220, 38, 38, 0.8);
+    color: var(--sleekfin-accent);
+    opacity: 0.8;
 }
 
 .sleekfin-meta-content > .sleekfin-icon {
