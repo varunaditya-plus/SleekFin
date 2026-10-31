@@ -29,6 +29,7 @@
 
 .sleekfin-meta-accent {
     color: var(--sleekfin-accent);
+    opacity: 0.8;
 }
 
 .sleekfin-meta-content > .sleekfin-icon {
