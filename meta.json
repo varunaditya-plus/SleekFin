@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added None option for header's server icon/text, updated JE label handling",
+  "changelog": "Added support for TV clients which wrap around Jellyfin Web with consistent headers, remote navigation, proper focusing visuals, fixed hero item order, hero scrolling, card zoom and icon encoding",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-28T10:02:13.0000000Z",
-  "version": "1.6.2.0",
+  "timestamp": "2026-10-31T09:58:17.0000000Z",
+  "version": "1.7.0.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
