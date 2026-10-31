@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added support for TV clients which wrap around Jellyfin Web with consistent headers, remote navigation, proper focusing visuals, fixed hero item order, hero scrolling, card zoom and icon encoding",
+  "changelog": "Fix rating badge color to follow accent setting. Changes by @vscod",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-10-31T09:58:17.0000000Z",
-  "version": "1.7.0.0",
+  "timestamp": "2026-10-31T12:18:07.0000000Z",
+  "version": "1.7.0.1",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [

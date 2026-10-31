@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.7.0.1",
+        "changelog": "Fix rating badge color to follow accent setting. Changes by @vscod",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.7.0.1/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "2EC7CFED37B75859F561AC7E5B1D561F",
+        "timestamp": "2026-10-31T12:18:07.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.7.0.0",
         "changelog": "Added support for TV clients which wrap around Jellyfin Web with consistent headers, remote navigation, proper focusing visuals, fixed hero item order, hero scrolling, card zoom and icon encoding",
         "targetAbi": "12.0.0.0",
