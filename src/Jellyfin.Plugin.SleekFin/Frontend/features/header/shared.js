@@ -15,10 +15,12 @@ function findVisibleHeader(selector, childSelector) {
 }
 
 export function findSurface() {
+  const legacy = findVisibleHeader('.skinHeader', '.headerTop');
+  if (isTvLayout() && legacy) return { header: legacy, kind: 'legacy' };
+
   const modern = findVisibleHeader('header.MuiAppBar-root', '.MuiToolbar-root');
   if (modern) return { header: modern, kind: 'modern' };
 
-  const legacy = findVisibleHeader('.skinHeader', '.headerTop');
   return legacy ? { header: legacy, kind: 'legacy' } : null;
 }
 

@@ -266,6 +266,14 @@ html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecomm
     transform: scale(1.06);
 }
 
+html.layout-tv.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage) .card .cardContent {
+    transform: none;
+}
+
+html.layout-tv.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage) .card:focus-within .cardContent {
+    transform: scale(1.06);
+}
+
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:hover .cardBox:not(.visualCardBox) .cardScalable,
 html.sleekfin-media-mounted :is(#indexPage, #moviesPage, #tvshowsPage, #tvRecommendedPage, #searchPage, [data-seerrfin-modern-panel]) .card:hover .visualCardBox {
     border-color: var(--sleekfin-border-hover);

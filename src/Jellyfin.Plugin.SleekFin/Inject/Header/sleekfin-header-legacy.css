@@ -133,6 +133,14 @@ html.sleekfin-header-mounted [data-sleekfin-legacy-top] {
     pointer-events: auto;
 }
 
+html.layout-tv.sleekfin-header-mounted [data-sleekfin-legacy-top] {
+    flex: 0 0 auto !important;
+}
+
+html.layout-tv.sleekfin-header-mounted [data-sleekfin-header="legacy"] .currentTimeText {
+    display: none !important;
+}
+
 html.sleekfin-header-mounted [data-sleekfin-legacy-left] {
     flex: 0 0 auto !important;
     min-width: 0 !important;

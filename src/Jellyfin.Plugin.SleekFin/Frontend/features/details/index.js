@@ -25,12 +25,14 @@ const state = {
   activePage: null,
   currentId: '',
   currentServerId: '',
+  focusedCards: new WeakMap(),
   generation: 0,
   item: null,
   loadingId: '',
   loadRequestId: 0,
   mount: null,
   page: null,
+  pendingCardFocus: null,
   previousPage: null,
   reconcileTimer: 0,
   retryTimer: 0,
@@ -62,6 +64,20 @@ function conceal(concealed) {
 
 function detailPageOf(target) {
   return target && typeof target.closest === 'function' ? target.closest('#itemDetailPage') : null;
+}
+
+function restoreCardFocus() {
+  const pending = state.pendingCardFocus;
+  if (!pending || document.documentElement.classList.contains(CONCEALED_CLASS)) return;
+  state.pendingCardFocus = null;
+  if (!document.documentElement.classList.contains('layout-tv') || pending.page !== state.mount?.page || pending.generation !== state.generation) return;
+  const saved = state.focusedCards.get(pending.page);
+  const currentRoute = route();
+  if (pending.itemId !== currentRoute.id || pending.serverId !== currentRoute.serverId || saved?.itemId !== pending.itemId || saved.serverId !== pending.serverId) return;
+  const focused = document.activeElement;
+  if (focused && focused !== document.body && focused !== document.documentElement && dom.isVisible(focused)) return;
+  const target = saved.element;
+  if (pending.page.contains(target) && dom.isVisible(target) && !target.disabled && target.getAttribute('tabindex') !== '-1') target.focus();
 }
 
 function activePage() {
@@ -329,6 +345,12 @@ function load(id, serverId, sourceSelect = null) {
 
 function select(page, id, serverId) {
   const previousPage = state.mount?.page || state.page || state.previousPage;
+  const focused = document.activeElement;
+  if (document.documentElement.classList.contains('layout-tv') && state.page) {
+    if (state.page.contains(focused) && focused.matches('.card[data-id]')) state.focusedCards.set(state.page, { itemId: state.currentId, serverId: state.currentServerId, element: focused });
+    else state.focusedCards.delete(state.page);
+  }
+  state.pendingCardFocus = null;
   // Concealed before anything else so an in-app navigation hides the incoming native page in the
   // same task as the route change, before Jellyfin appends and paints it.
   conceal(true);
@@ -349,6 +371,8 @@ function select(page, id, serverId) {
 
 function clearState() {
   destroyMount();
+  state.focusedCards = new WeakMap();
+  state.pendingCardFocus = null;
   state.generation += 1;
   state.currentId = '';
   state.currentServerId = '';
@@ -419,6 +443,7 @@ function concealUntilAlone(except) {
       except.addEventListener('animationend', finish);
     }
     conceal(false);
+    restoreCardFocus();
   };
   observeDetailPages(release);
 }
@@ -527,6 +552,11 @@ function onRouteChange(event) {
     state.activePage = page;
   }
   enter();
+  // Native restoration runs while our page is concealed, so retry its preserved card after reveal.
+  if (page && event?.type === 'viewshow' && event.detail?.isRestored && document.documentElement.classList.contains('layout-tv')) {
+    state.pendingCardFocus = { page, itemId: state.currentId, serverId: state.currentServerId, generation: state.generation };
+    restoreCardFocus();
+  }
   scheduleReconcile();
 }
 

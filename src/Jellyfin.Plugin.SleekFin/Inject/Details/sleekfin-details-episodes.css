@@ -242,6 +242,18 @@
     width: 100%;
 }
 
+/* The positioned artwork otherwise covers the button's inset focus outline. */
+html.layout-tv .sleekfin-details-episode-action:focus::after {
+    border: 3px solid var(--sleekfin-accent);
+    border-radius: inherit;
+    box-sizing: border-box;
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 3;
+}
+
 .sleekfin-details-episode-shade {
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.08) 32%, rgba(0, 0, 0, 0.92) 100%);
     inset: 0;
@@ -370,7 +382,8 @@
     background: var(--sleekfin-accent);
 }
 
-.sleekfin-details-episode:hover .sleekfin-details-episode-action > img {
+html:not(.layout-tv) .sleekfin-details-episode:hover .sleekfin-details-episode-action > img,
+html.layout-tv .sleekfin-details-episode:focus-within .sleekfin-details-episode-action > img {
     filter: brightness(1.08);
     transform: scale(1.035);
 }

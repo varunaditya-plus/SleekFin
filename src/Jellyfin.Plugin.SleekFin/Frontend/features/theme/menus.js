@@ -45,7 +45,8 @@ export function createMoreMenuFeature() {
   }
 
   function isActive(trigger, href) {
-    return started && document.documentElement.classList.contains('sleekfin-main-ui') && window.location.href === href && isVisible(trigger);
+    // Jellyfin TV action sheets own fullscreen positioning and remote focus.
+    return started && !document.documentElement.classList.contains('layout-tv') && document.documentElement.classList.contains('sleekfin-main-ui') && window.location.href === href && isVisible(trigger);
   }
 
   function position(event) {

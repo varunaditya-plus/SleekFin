@@ -11,6 +11,7 @@ function downloadEpisode(client, episode) {
 }
 
 function EpisodeCard({ client, episode, expanded, moreLabel }) {
+  const tv = document.documentElement.classList.contains('layout-tv');
   const score = Number(episode.CommunityRating || 0);
   const userData = episode.UserData || {};
   const progress = Math.max(0, Math.min(100, Number(userData.PlayedPercentage || 0)));
@@ -42,7 +43,7 @@ function EpisodeCard({ client, episode, expanded, moreLabel }) {
   }, [episode]);
 
   // Compact and list cards overlay the description on artwork, which leaves no room to expand it.
-  useEffect(() => (expanded && overview.current ? dom.expandableText(overview.current) : undefined), [expanded]);
+  useEffect(() => (expanded && !tv && overview.current ? dom.expandableText(overview.current) : undefined), [expanded, tv]);
 
   const copy = (
     <span class="sleekfin-details-episode-copy">
@@ -86,7 +87,7 @@ function EpisodeCard({ client, episode, expanded, moreLabel }) {
           <button type="button" class="sleekfin-icon-button sleekfin-control-3d itemAction" data-action="menu" title={moreLabel}><span class="material-icons more_vert" /></button>
         </span>
       </div>
-      {expanded && <button data-action={playbackAction} type="button" class="sleekfin-details-episode-text itemAction">{copy}</button>}
+      {expanded && <button data-action={playbackAction} type="button" tabIndex={tv ? -1 : undefined} class="sleekfin-details-episode-text itemAction">{copy}</button>}
     </article>
   );
 }
@@ -95,7 +96,8 @@ function seasonLabel(season) {
   return season.Name || `Season ${season.IndexNumber || ''}`;
 }
 
-function Episodes({ client, compactEpisodeGridCardsEnabled, dropdownStyle, list, mediaItem, moreLabel, seasons }) {
+function Episodes({ client, compactEpisodeGridCardsEnabled, dropdownStyle: configuredDropdownStyle, list, mediaItem, moreLabel, seasons }) {
+  const dropdownStyle = configuredDropdownStyle === 'Native' && document.documentElement.classList.contains('layout-tv') ? 'Jellyfin' : configuredDropdownStyle;
   const seasonPickerEnabled = dropdownStyle === 'SeerrFin';
   const firstSeason = useMemo(() => seasons.filter((season) => Number(season.IndexNumber) > 0)[0] || seasons[0] || null, [seasons]);
   const [episodes, setEpisodes] = useState([]);
@@ -123,9 +125,23 @@ function Episodes({ client, compactEpisodeGridCardsEnabled, dropdownStyle, list,
   }, [list]);
 
   useEffect(() => {
-    if (searchOpen) {
-      searchInput.current?.focus();
+    const input = searchInput.current;
+    if (!searchOpen || !input) return undefined;
+    input.focus();
+    function closeOnBack(event) {
+      if (!document.documentElement.classList.contains('layout-tv') || (event.type === 'command' ? event.detail?.command !== 'back' : event.key !== 'Escape')) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setQuery('');
+      setSearchOpen(false);
+      input.previousElementSibling?.focus();
     }
+    input.addEventListener('keydown', closeOnBack);
+    input.addEventListener('command', closeOnBack);
+    return () => {
+      input.removeEventListener('keydown', closeOnBack);
+      input.removeEventListener('command', closeOnBack);
+    };
   }, [searchOpen]);
 
   useEffect(() => {
@@ -287,6 +303,7 @@ function Episodes({ client, compactEpisodeGridCardsEnabled, dropdownStyle, list,
     setSearchOpen((open) => {
       if (open) {
         setQuery('');
+        searchInput.current?.previousElementSibling?.focus();
       }
       return !open;
     });
@@ -311,7 +328,7 @@ function Episodes({ client, compactEpisodeGridCardsEnabled, dropdownStyle, list,
       <div class="sleekfin-details-episode-controls">
         <div class={`sleekfin-details-search sleekfin-control-3d${searchOpen ? ' sleekfin-details-search-open' : ''}`}>
           <IconButton icon="search" label="Search episodes" onClick={toggleSearch} />
-          <input ref={searchInput} type="search" placeholder="Search episodes" value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+          <input ref={searchInput} type="search" placeholder="Search episodes" value={query} disabled={!searchOpen} onInput={(event) => setQuery(event.currentTarget.value)} />
         </div>
         <IconButton class="sleekfin-details-control" icon={sortDescending ? 'arrowUpAz' : 'arrowDownAz'} label="Reverse episode order" raised data-active={sortDescending ? 'true' : 'false'} onClick={() => setSortDescending((descending) => !descending)} />
         <span class="sleekfin-details-view-controls sleekfin-control-3d">
@@ -341,6 +358,7 @@ export function createEpisodes(page, mediaItem, seasons, dropdownStyle, compactE
 
   const section = dom.element('<section class="sleekfin-details-episodes"><div class="sleekfin-details-episodes-header"></div></section>');
   const header = section.firstElementChild;
+  if (document.documentElement.classList.contains('layout-tv')) header.classList.add('focuscontainer-x');
   const list = document.createElement('div', 'emby-itemscontainer');
   list.classList.add('sleekfin-details-episode-list');
   list.dataset.monitor = 'videoplayback';
@@ -348,16 +366,66 @@ export function createEpisodes(page, mediaItem, seasons, dropdownStyle, compactE
   list.dataset.view = 'grid';
   section.appendChild(list);
   let destroyed = false;
+  let returnEpisode = null;
   const moreLabel = page.querySelector('.btnMoreCommands')?.title || '';
   render(<Episodes client={client} compactEpisodeGridCardsEnabled={compactEpisodeGridCardsEnabled} dropdownStyle={dropdownStyle} list={list} mediaItem={mediaItem} moreLabel={moreLabel} seasons={seasons} />, header);
   wrapper.insertBefore(section, secondary);
   window.CustomElements?.upgradeAll?.(section, true);
   page.classList.add('sleekfin-details-has-episodes');
 
+  function firstControl(root) {
+    return root && Array.from(root.querySelectorAll('button:not(:disabled):not([tabindex="-1"]), a[href]:not([tabindex="-1"]), select:not(:disabled):not([tabindex="-1"]), .focusable')).find(dom.isVisible);
+  }
+
+  function navigateEpisodes(event) {
+    if (event.defaultPrevented || !document.documentElement.classList.contains('layout-tv') || !dom.isVisible(section)) return;
+    const key = event.type === 'command' ? event.detail?.command : event.key;
+    const down = key === 'ArrowDown' || key === 'down';
+    const up = key === 'ArrowUp' || key === 'up';
+    const horizontal = key === 'ArrowLeft' || key === 'left' ? -1 : key === 'ArrowRight' || key === 'right' ? 1 : 0;
+    const source = event.target;
+    const card = source.closest('.sleekfin-details-episode');
+    const actions = source.closest('.sleekfin-details-episode-actions');
+    let target;
+    if (up && secondary.contains(source) && source.closest('.detailVerticalSection') === firstControl(secondary)?.closest('.detailVerticalSection')) {
+      target = dom.isVisible(returnEpisode) ? returnEpisode : firstControl(list);
+    } else if (down && header.contains(source)) {
+      const bounds = list.getBoundingClientRect();
+      const visibleCard = Array.from(list.children).find((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.right > bounds.left && rect.left < bounds.right;
+      });
+      target = firstControl(visibleCard?.querySelector('.sleekfin-details-episode-actions'));
+    } else if (actions) {
+      if (down) target = card.querySelector('.sleekfin-details-episode-action');
+      else if (up) target = list.dataset.view === 'list' && card.previousElementSibling ? card.previousElementSibling.querySelector('.sleekfin-details-episode-action') : firstControl(header);
+      else if (horizontal) {
+        const buttons = Array.from(list.querySelectorAll('.sleekfin-details-episode-actions button:not(:disabled)')).filter(dom.isVisible);
+        const direction = getComputedStyle(list).direction === 'rtl' ? -horizontal : horizontal;
+        target = buttons[buttons.indexOf(source) + direction] || source;
+      }
+    } else if (source.matches('.sleekfin-details-episode-action')) {
+      if (up) target = firstControl(card.querySelector('.sleekfin-details-episode-actions'));
+      else if (down) {
+        target = firstControl(list.dataset.view === 'list' && card.nextElementSibling ? card.nextElementSibling.querySelector('.sleekfin-details-episode-actions') : secondary);
+        if (target && secondary.contains(target)) returnEpisode = source;
+      }
+    }
+    if (!target) return;
+    event.preventDefault();
+    event.stopPropagation();
+    target.focus();
+  }
+
+  wrapper.addEventListener('keydown', navigateEpisodes);
+  wrapper.addEventListener('command', navigateEpisodes);
+
   return {
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      wrapper.removeEventListener('keydown', navigateEpisodes);
+      wrapper.removeEventListener('command', navigateEpisodes);
       render(null, list);
       render(null, header);
       section.remove();

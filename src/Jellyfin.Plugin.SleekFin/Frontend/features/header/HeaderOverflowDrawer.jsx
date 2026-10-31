@@ -1,6 +1,6 @@
 import { h, useEffect, useRef } from '../../shared/runtime.js';
 import { cloneSourceTemplate } from './inventory.js';
-import { layoutMode } from './shared.js';
+import { isTvLayout, layoutMode } from './shared.js';
 
 function OverflowItemVisual({ record }) {
   const element = useRef(null);
@@ -18,14 +18,24 @@ function OverflowItemVisual({ record }) {
 }
 
 export function HeaderOverflowDrawer({ anchor, onActivate, onClose, records }) {
+  const drawer = useRef(null);
   useEffect(() => {
-    function closeOnEscape(event) {
-      if (event.key === 'Escape') onClose();
+    function closeOnBack(event) {
+      const command = event.type === 'command' && event.detail?.command === 'back';
+      if (!command && event.key !== 'Escape') return;
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
     }
 
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
-  }, [onClose]);
+    if (isTvLayout()) drawer.current?.querySelector('button:not(:disabled)')?.focus();
+    window.addEventListener('keydown', closeOnBack, true);
+    window.addEventListener('command', closeOnBack, true);
+    return () => {
+      window.removeEventListener('keydown', closeOnBack, true);
+      window.removeEventListener('command', closeOnBack, true);
+    };
+  }, [anchor, onClose]);
 
   const bar = anchor.closest('[data-sleekfin-header-proxy]') || anchor;
   const barBounds = bar.getBoundingClientRect();
@@ -37,7 +47,7 @@ export function HeaderOverflowDrawer({ anchor, onActivate, onClose, records }) {
   return (
     <div data-sleekfin-header-overflow-layer>
       <div data-sleekfin-header-overflow-backdrop onClick={onClose} />
-      <div data-sleekfin-header-overflow-drawer onClick={(event) => event.stopPropagation()} style={style}>
+      <div class="focuscontainer" data-sleekfin-header-overflow-drawer onClick={(event) => event.stopPropagation()} ref={drawer} style={style}>
         {records.map((record, index) => {
           if (record.key === 'separator') return <div data-sleekfin-header-overflow-separator key={`${record.key}-${index}`} />;
           if (record.key === 'space') return <div data-sleekfin-header-overflow-space key={`${record.key}-${index}`} />;

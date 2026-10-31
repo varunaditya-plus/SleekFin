@@ -16,6 +16,10 @@ public static class TransformationPatches
         "<script\\b[^>]*\\bdata-sleekfin-(?:(?:[a-z]+-)?asset=\"[^\"]*\"|boot\\b)[^>]*>[\\s\\S]*?</script>",
         RegexOptions.CultureInvariant);
 
+    private static readonly Regex StylesheetLinksWithoutEncoding = new(
+        "<link\\b(?=[^>]*\\srel\\s*=\\s*[\"']stylesheet[\"'])(?![^>]*\\scharset\\s*=)(?<before>[^>]*\\shref\\s*=\\s*[\"'])(?<url>[^\"']*)(?<after>[\"'][^>]*>)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     public static string IndexHtml(PatchRequestPayload payload)
     {
         string contents = payload.Contents ?? string.Empty;
@@ -33,6 +37,23 @@ public static class TransformationPatches
 
         contents = InjectedStyles.Replace(contents, string.Empty);
         contents = InjectedScripts.Replace(contents, string.Empty);
+
+        // Native TV webviews can decode Jellyfin's raw icon glyphs as Windows-1252 without an explicit link encoding.
+        contents = StylesheetLinksWithoutEncoding.Replace(contents, match =>
+        {
+            string url = match.Groups["url"].Value;
+            if (Uri.TryCreate(url, UriKind.Absolute, out _) || url.StartsWith("//", StringComparison.Ordinal))
+            {
+                return match.Value;
+            }
+
+            int fragmentIndex = url.IndexOf('#');
+            string path = fragmentIndex < 0 ? url : url[..fragmentIndex];
+            string fragment = fragmentIndex < 0 ? string.Empty : url[fragmentIndex..];
+            // A new URL avoids reusing a stylesheet cached with the wrong decoding.
+            string encodedUrl = $"{path}{(path.Contains('?') ? "&amp;" : "?")}sleekfin-charset=utf-8{fragment}";
+            return $"{match.Value[..5]} charset=\"utf-8\"{match.Groups["before"].Value}{encodedUrl}{match.Groups["after"].Value}";
+        });
 
         PluginConfiguration configuration = SleekFinPlugin.Instance.Configuration;
         foreach (FrontendAssets.Asset asset in FrontendAssets.Ordered)

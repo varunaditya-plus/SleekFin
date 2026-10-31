@@ -1,7 +1,7 @@
 import { dom, h, render } from '../../shared/runtime.js';
 import { HeaderOverflowDrawer } from './HeaderOverflowDrawer.jsx';
 import { LABELS, cloneSourceTemplate, currentSource, discoverHeaderControls, legacyAlias, refreshRecordVisual } from './inventory.js';
-import { mark, setStyle } from './shared.js';
+import { isTvLayout, mark, setStyle } from './shared.js';
 
 function recordForKey(key, discoveries) {
   return discoveries.find((record) => record.key === key) || legacyAlias(key, discoveries);
@@ -139,6 +139,7 @@ function createOverflowController(mount, toggle) {
   function close() {
     if (!open) return;
     open = false;
+    if (isTvLayout() && root.contains(document.activeElement) && dom.isVisible(toggle)) toggle.focus();
     render(null, root);
   }
 
@@ -169,8 +170,11 @@ function createOverflowController(mount, toggle) {
   toggle.addEventListener('click', (event) => {
     event.stopPropagation();
     if (!records.length) return;
-    open = !open;
-    draw();
+    if (open) close();
+    else {
+      open = true;
+      draw();
+    }
   });
 
   return {

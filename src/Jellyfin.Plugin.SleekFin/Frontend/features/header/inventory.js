@@ -145,6 +145,10 @@ function keyForSource(source) {
   const seerrFin = seerrFinId(source, internalRoute);
   if (seerrFin) return `sf:${seerrFin}`;
 
+  if (source.matches('.emby-tab-button[data-index="0"], .emby-tab-button[data-index="1"]') && source.closest('.headerTabs') && source.closest('.skinHeader.noHomeButtonHeader')) {
+    return source.dataset.index === '0' ? 'jellyfin:home' : 'jellyfin:favorites';
+  }
+
   if (source.matches('.headerSyncButton, [aria-controls="app-sync-play-menu"]')) return 'jellyfin:syncplay';
   if (source.matches('.headerCastButton, [aria-controls="app-remote-play-menu"], [aria-controls="app-remote-play-active-menu"]')) return 'jellyfin:cast';
   if (source.matches('[aria-controls="user-view-overflow-menu"]')) return 'jellyfin:more';
@@ -520,6 +524,9 @@ export function catalogSignature(records) {
 }
 
 export function legacyAlias(key, records) {
+  if (key.startsWith('source:v1:')) {
+    return records.find((record) => ['jellyfin:home', 'jellyfin:favorites'].includes(record.key) && key === `source:v1:${digest(genericIdentity(record.source, ''))}`) || null;
+  }
   if (key !== 'jellyfin:movies' && key !== 'jellyfin:shows') return null;
   const pattern = key === 'jellyfin:movies' ? /(?:#\/movies|collectiontype=movies)/ : /(?:#\/tv|collectiontype=tvshows)/;
   return records.find((record) => record.source.matches('a[href]') && pattern.test(routeFor(record.source))) || null;

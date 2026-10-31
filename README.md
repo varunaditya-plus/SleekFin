@@ -66,6 +66,12 @@ https://raw.githubusercontent.com/varunaditya-plus/SleekFin/main/manifest.json
 ### Configuration
 After installation, go to **Dashboard → SleekFin**. The **Overview** tab groups feature toggles and the SleekFin accent colour picker under **General options**. Save and refresh Jellyfin to apply an accent colour change. Our **UI Builder** gives you live editors for the elements we reskin, letting you tweak them to your liking.
 
+### TV support
+
+Sleekfin supports TV browsers, and TV clients which directly wrap around Jellyfin Web UI. Select Jellyfin's TV display mode for directional navigation and visible focus outlines. Sleekfin should look the same on TV clients as in the browser. For further specification, scroll down and check the compatibility grid.
+
+We do not currently support Jellyfin for Tizen and any other clients that bundle their own web UI/native interfaces other than Jellyfin Web. This is a work-in-progress. We do not and will not support older browser engines.
+
 ## Downloads
 
 <p align="center">

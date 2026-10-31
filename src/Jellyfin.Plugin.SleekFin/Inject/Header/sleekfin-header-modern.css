@@ -5,6 +5,12 @@ html.sleekfin-header-mounted [data-sleekfin-header="modern"] {
     min-height: var(--sleekfin-header-height);
 }
 
+/* Jellyfin can keep its React AppBar and measured spacer mounted in TV display mode. */
+html.layout-tv.sleekfin-header-mounted:has([data-sleekfin-header="legacy"]) header.MuiAppBar-root,
+html.layout-tv.sleekfin-header-mounted:has([data-sleekfin-header="legacy"]) header.MuiAppBar-root + [aria-hidden="true"] {
+    display: none !important;
+}
+
 html.sleekfin-header-mounted [data-sleekfin-header-toolbar] {
     align-items: center !important;
     box-sizing: border-box !important;

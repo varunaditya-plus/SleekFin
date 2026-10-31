@@ -55,6 +55,14 @@ export function watchSpa(callback, options) {
 export function expandableText(element) {
   let expanded = false;
   let settle = null;
+  const tabIndex = element.getAttribute('tabindex');
+  const focusable = element.classList.contains('focusable');
+
+  function restoreFocus() {
+    element.classList.toggle('focusable', focusable);
+    if (tabIndex === null) element.removeAttribute('tabindex');
+    else element.setAttribute('tabindex', tabIndex);
+  }
 
   function isTruncated() {
     return element.scrollHeight - element.clientHeight > 1;
@@ -65,6 +73,10 @@ export function expandableText(element) {
     element.style.cursor = active ? 'pointer' : '';
     if (active) element.title = expanded ? 'Click to collapse' : 'Click to expand';
     else element.removeAttribute('title');
+    if (active && element.getClientRects().length && document.documentElement.classList.contains('layout-tv')) {
+      element.classList.add('focusable');
+      element.tabIndex = 0;
+    } else restoreFocus();
   }
 
   function setExpanded(value) {
@@ -121,10 +133,15 @@ export function expandableText(element) {
     toggle();
   }
 
+  function onKeyDown(event) {
+    if (!event.defaultPrevented && event.target === element && element.classList.contains('focusable') && ['Enter', ' '].includes(event.key)) onClick(event);
+  }
+
   const observer = typeof window.ResizeObserver === 'function' ? new window.ResizeObserver(sync) : null;
   observer?.observe(element);
   if (!observer) window.addEventListener('resize', sync);
   element.addEventListener('click', onClick);
+  element.addEventListener('keydown', onKeyDown);
   sync();
 
   return function destroy() {
@@ -132,6 +149,8 @@ export function expandableText(element) {
     observer?.disconnect();
     if (!observer) window.removeEventListener('resize', sync);
     element.removeEventListener('click', onClick);
+    element.removeEventListener('keydown', onKeyDown);
+    restoreFocus();
     setExpanded(false);
     element.style.cursor = '';
     element.removeAttribute('title');

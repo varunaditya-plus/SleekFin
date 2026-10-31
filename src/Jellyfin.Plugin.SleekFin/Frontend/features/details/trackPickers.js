@@ -7,8 +7,9 @@ export function createTrackPickers(page, actions, initialSettings, loadSettings,
   const form = page.querySelector('form.trackSelections');
   const metadataNodes = Array.from(page.querySelectorAll('.detailSectionContent, .itemDetailsGroup'));
   if (!form && !metadataNodes.length) return { reconcile() {}, update() {}, open() {}, destroy() {} };
-  const button = dom.element('<button type="button" class="sleekfin-icon-button sleekfin-control-3d sleekfin-details-track-settings" title="Info"><span class="material-icons info_outline"></span></button>');
+  const button = dom.element('<button is="emby-button" type="button" class="button-flat detailButton sleekfin-details-track-settings" title="Info"><span class="material-icons info_outline"></span></button>');
   actions.appendChild(button);
+  window.CustomElements?.upgradeSubtree(actions);
   let dialog = null;
   let fields = [];
   let metadata = [];
@@ -40,7 +41,9 @@ export function createTrackPickers(page, actions, initialSettings, loadSettings,
     if (settings === previousSettings) settings = loadedSettings;
     button.disabled = false;
     if (destroyed || button.hidden || !dom.isVisible(trigger)) return;
-    const style = settings.dropdownStyle;
+    const tv = document.documentElement.classList.contains('layout-tv');
+    // Jellyfin's TV select handles webOS and Xbox menus through its remote navigation.
+    const style = settings.dropdownStyle === 'Native' && tv ? 'Jellyfin' : settings.dropdownStyle;
     // No modal history entry: navigation already destroys this page's Info dialog.
     // A hidden or detached owning page cannot emit the exit animation's completion event.
     const dlg = helper.createDialog({ removeOnClose: true, scrollY: false, enableHistory: false, exitAnimation: 'none' });
@@ -58,6 +61,7 @@ export function createTrackPickers(page, actions, initialSettings, loadSettings,
       destroyFields();
       if (dialog === dlg) dialog = null;
     });
+    if (tv) trigger.focus();
     helper.open(dlg);
     dlg.backdrop.classList.add('sleekfin-details-info-backdrop');
     dlg.dialogContainer.classList.add('sleekfin-details-info-container');
@@ -116,6 +120,8 @@ export function createTrackPickers(page, actions, initialSettings, loadSettings,
       return { className, container, control, dropdown, field, label, nativeLabel, select, trigger, value };
     }).filter(Boolean);
     sync();
+    // Moving a TV dialog after Jellyfin's synchronous autofocus drops its focused descendant.
+    if (tv) dlg.querySelector('.sleekfin-details-track-close').focus();
   }
 
   function sync() {

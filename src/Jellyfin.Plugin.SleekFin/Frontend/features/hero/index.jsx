@@ -127,6 +127,11 @@ function reconcile() {
 
   const host = findHost();
   if (!host) {
+    document.documentElement.classList.remove(ROOT_MOUNTED_CLASS);
+    // Jellyfin 12 restores the exact focused node from its cached Home page.
+    if (document.documentElement.classList.contains('layout-tv') && state.mount?.dataset.state === 'ready'
+      && dom.isConnected(state.mount.closest('#indexPage[data-dom-cache="true"]'))
+      && (isHomeRoute() || /^#\/details(?:[?&]|$)/.test(window.location.hash))) return;
     unmount();
     return;
   }
@@ -135,7 +140,10 @@ function reconcile() {
     removeMount();
     return;
   }
-  if (state.mount && dom.isConnected(state.mount) && state.mount.nextElementSibling === host) return;
+  if (state.mount && dom.isConnected(state.mount) && state.mount.nextElementSibling === host) {
+    document.documentElement.classList.add(ROOT_MOUNTED_CLASS);
+    return;
+  }
   if (state.failedHost === host) return;
 
   unmount();

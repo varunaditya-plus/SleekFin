@@ -47,6 +47,36 @@ export function createScrollFeature() {
   let restoring = false;
   let started = false;
   let stopNavigation = null;
+  let topSection = null;
+  let previousScrollMode = null;
+
+  function releaseTopSection() {
+    if (!topSection) return;
+    if (topSection.getAttribute('data-scroll-mode-y') === 'custom') {
+      if (previousScrollMode === null) topSection.removeAttribute('data-scroll-mode-y');
+      else topSection.setAttribute('data-scroll-mode-y', previousScrollMode);
+    }
+    topSection = null;
+  }
+
+  function onFocus(event) {
+    releaseTopSection();
+    if (!document.documentElement.classList.contains('layout-tv')) return;
+    const section = event.target.closest('[data-sleekfin-header], .sleekfin-hero, .sleekfin-details-hero');
+    if (!section || !section.getClientRects().length) return;
+    cancelRestore();
+    const scrollTop = window.scrollY + (section.closest('.page')?.scrollTop || 0);
+    // At high zoom the hero can exceed the viewport; let Jellyfin reveal its focused control.
+    if (!section.hasAttribute('data-sleekfin-header') && event.target.getBoundingClientRect().bottom + scrollTop > window.innerHeight) return;
+    topSection = section;
+    previousScrollMode = section.getAttribute('data-scroll-mode-y');
+    // Jellyfin 12's scroll manager otherwise centers each focused hero control independently.
+    section.setAttribute('data-scroll-mode-y', 'custom');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    document.querySelectorAll('.page:not(.hide)').forEach((page) => {
+      if (page.getClientRects().length && page.scrollTop) page.scrollTo({ top: 0, behavior: 'instant' });
+    });
+  }
 
   function remember(key, value) {
     positions.delete(key);
@@ -156,6 +186,7 @@ export function createScrollFeature() {
     positions = new Map();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('popstate', onPopState);
+    document.addEventListener('focusin', onFocus, true);
     watchNavigation();
   }
 
@@ -165,6 +196,8 @@ export function createScrollFeature() {
     cancelRestore();
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('popstate', onPopState);
+    document.removeEventListener('focusin', onFocus, true);
+    releaseTopSection();
     stopNavigation?.();
     stopNavigation = null;
     positions = null;

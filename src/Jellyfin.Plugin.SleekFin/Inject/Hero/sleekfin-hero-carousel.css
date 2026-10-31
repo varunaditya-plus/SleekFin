@@ -28,3 +28,8 @@
     opacity: 1;
     pointer-events: auto;
 }
+
+/* Jellyfin's spatial navigation measures rectangles even when visibility is hidden. */
+html.layout-tv .sleekfin-hero-slide[data-active="false"] {
+    display: none;
+}

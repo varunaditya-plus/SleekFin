@@ -11,6 +11,11 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBack
     z-index: 0;
 }
 
+/* Jellyfin hides the TV backdrop that SleekFin uses for its detail artwork. */
+html.layout-tv.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop {
+    display: block;
+}
+
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop::before,
 html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] > #itemBackdrop::after {
     content: "";

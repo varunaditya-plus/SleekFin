@@ -1,4 +1,4 @@
-import { decorateNativeButton, restoreNativeButton } from '../../shared/runtime.js';
+import { decorateNativeButton, dom, restoreNativeButton } from '../../shared/runtime.js';
 import { actionLabel, identifyAction, publishActionCatalog } from './actionCatalog.js';
 import { DEFAULT_SETTINGS } from './settings.js';
 
@@ -63,10 +63,13 @@ export function applyActionSettings(container, values, { mobile } = {}) {
 export function createActions(container, page, initialSettings) {
   let settings = { ...DEFAULT_SETTINGS, ...initialSettings };
   const records = new Map();
+  const originalOrder = [...container.children];
   let frame = 0;
   let destroyed = false;
   let layoutSignature = '';
-  let restoreSettings = applyActionSettings(container, settings);
+  const tv = document.documentElement.classList.contains('layout-tv');
+  const actionLayout = { mobile: tv ? false : undefined };
+  let restoreSettings = applyActionSettings(container, settings, actionLayout);
   addClass(container, 'sleekfin-details-actions');
   const spacer = document.createElement('span');
   spacer.className = 'sleekfin-details-action-spacer';
@@ -78,7 +81,7 @@ export function createActions(container, page, initialSettings) {
   trigger.innerHTML = '<span class="material-icons more_vert"></span>';
   trigger.hidden = true;
   const overflow = document.createElement('div');
-  overflow.className = 'sleekfin-details-action-overflow';
+  overflow.className = 'sleekfin-details-action-overflow focuscontainer';
   overflow.hidden = true;
   container.append(spacer, trigger, overflow);
 
@@ -182,7 +185,23 @@ export function createActions(container, page, initialSettings) {
     }
   }
 
-  function closeOverflow() { if (!overflow.hidden) overflow.hidden = true; }
+  function closeOverflow(restoreFocus = false) {
+    const focused = overflow.contains(document.activeElement);
+    overflow.hidden = true;
+    if (restoreFocus && focused && document.documentElement.classList.contains('layout-tv') && dom.isVisible(trigger)) trigger.focus();
+  }
+
+  function toggleOverflow() {
+    if (!overflow.hidden) { closeOverflow(true); return; }
+    overflow.hidden = false;
+    requestAnimationFrame(() => {
+      if (destroyed || overflow.hidden) return;
+      positionMenus();
+      if (document.documentElement.classList.contains('layout-tv')) {
+        Array.from(overflow.querySelectorAll('button:not(:disabled), a[href], .focusable')).find(dom.isVisible)?.focus();
+      }
+    });
+  }
 
   function positionMenus() {
     records.forEach(({ unit, menu }) => {
@@ -203,14 +222,14 @@ export function createActions(container, page, initialSettings) {
 
   function layoutOverflow(visible) {
     const width = container.clientWidth;
-    if (settings.buttonOverflow !== 'More' || !width) { trigger.hidden = true; closeOverflow(); return; }
+    if ((!tv && settings.buttonOverflow !== 'More') || !width) { trigger.hidden = true; closeOverflow(); return; }
     const gap = settings.buttonSpacing;
     const mobile = container.dataset.sleekfinDetailsActionPreview === 'mobile' || container.dataset.sleekfinDetailsActionPreview !== 'desktop' && window.innerWidth < 768;
     const stack = mobile && settings.mobileActionGroups === 'Stack';
     const groups = [visible.filter((record) => record.side === 'left'), visible.filter((record) => record.side === 'right')];
     const displaced = [];
     const triggerWidth = mobile ? settings.mobileButtonHeight : settings.desktopButtonHeight;
-    const widths = new Map(visible.map((record) => [record, record.unit.getBoundingClientRect().width]));
+    const widths = new Map(visible.map((record) => [record, record.unit.offsetWidth]));
     const rowWidth = (items, extra = false) => items.reduce((sum, record) => sum + widths.get(record), extra ? triggerWidth : 0) + Math.max(0, items.length + Number(extra) - 1) * gap;
     const removeTail = (items, fits) => {
       for (let index = items.length - 1; index >= 0 && !fits(); index--) {
@@ -275,8 +294,19 @@ export function createActions(container, page, initialSettings) {
       const nextLayout = JSON.stringify([container.clientWidth, window.innerWidth, settings.buttonOverflow, settings.mobileActionGroups, settings.buttonSpacing, settings.buttonGroupSpacing, settings.buttonContent, settings.desktopButtonHeight, settings.mobileButtonHeight, visible.map(({ id, side, unit, control }) => [id, side, unit.style.order, control.title, control.className])]);
       const layoutChanged = nextLayout !== layoutSignature;
       if (layoutChanged) {
-        records.forEach((record) => { if (record.unit.parentNode === overflow) container.appendChild(record.unit); });
+        const focused = container.contains(document.activeElement) ? document.activeElement : null;
+        const ordered = [...records.values()].sort((a, b) => Number(a.unit.style.order) - Number(b.unit.style.order));
+        const units = [...ordered.filter((record) => record.side === 'left').map(({ unit }) => unit), spacer, ...ordered.filter((record) => record.side === 'right').map(({ unit }) => unit), trigger, overflow];
+        let next = null;
+        units.reverse().forEach((unit) => {
+          if (unit.parentNode !== container || unit.nextSibling !== next) container.insertBefore(unit, next);
+          next = unit;
+        });
         layoutOverflow(visible);
+        if (focused) {
+          if (dom.isVisible(focused)) focused.focus();
+          else if (!trigger.hidden) trigger.focus();
+        }
         layoutSignature = nextLayout;
       }
       const inline = visible.filter(({ unit }) => unit.parentNode === container);
@@ -304,16 +334,30 @@ export function createActions(container, page, initialSettings) {
 
   function onClick(event) {
     if (event.target.closest('.arr-dropdown')) requestAnimationFrame(positionMenus);
-    if (event.target.closest('.sleekfin-details-action-overflow-trigger') === trigger) { overflow.hidden = !overflow.hidden; requestAnimationFrame(positionMenus); }
+    if (event.target.closest('.sleekfin-details-action-overflow-trigger') === trigger) toggleOverflow();
     else if (!overflow.contains(event.target)) closeOverflow();
   }
 
   function onOutside(event) { if (!container.contains(event.target)) closeOverflow(); }
-  function onKey(event) { if (event.key === 'Escape') closeOverflow(); }
+  function onKey(event) {
+    if (overflow.hidden || event.target !== trigger && !overflow.contains(event.target)) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      closeOverflow(true);
+    }
+  }
+  function onCommand(event) {
+    if (!document.documentElement.classList.contains('layout-tv') || overflow.hidden || event.detail?.command !== 'back') return;
+    event.preventDefault();
+    event.stopPropagation();
+    closeOverflow(true);
+  }
   const observer = new MutationObserver(queue);
   const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(queue) : null;
   resizeObserver?.observe(container);
   container.addEventListener('click', onClick, true);
+  container.addEventListener('command', onCommand);
   document.addEventListener('click', onOutside);
   document.addEventListener('keydown', onKey);
   window.addEventListener('resize', queue);
@@ -325,7 +369,7 @@ export function createActions(container, page, initialSettings) {
       observer.disconnect();
       restoreSettings();
       settings = { ...DEFAULT_SETTINGS, ...values };
-      restoreSettings = applyActionSettings(container, settings);
+      restoreSettings = applyActionSettings(container, settings, actionLayout);
       layoutSignature = '';
       reconcile();
     },
@@ -336,10 +380,12 @@ export function createActions(container, page, initialSettings) {
       observer.disconnect();
       resizeObserver?.disconnect();
       container.removeEventListener('click', onClick, true);
+      container.removeEventListener('command', onCommand);
       document.removeEventListener('click', onOutside);
       document.removeEventListener('keydown', onKey);
       window.removeEventListener('resize', queue);
       records.forEach((record) => release(record, true));
+      originalOrder.reverse().forEach((unit) => { if (unit.parentNode === container) container.prepend(unit); });
       spacer.remove();
       trigger.remove();
       overflow.remove();

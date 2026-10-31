@@ -154,6 +154,11 @@ html.sleekfin-details-mounted :is(#castCollapsible, #similarCollapsible) > [is="
     padding: 0 !important;
 }
 
+/* SleekFin removes native focus padding, so its compensating margins must go too. */
+html.layout-tv.sleekfin-details-mounted :is(#castCollapsible, #similarCollapsible) > [is="emby-scroller"] {
+    margin-block: 0;
+}
+
 html.sleekfin-details-mounted :is(#castCollapsible, #similarCollapsible) > [is="emby-scroller"]:not(.scrollX) {
     overflow-x: hidden;
 }

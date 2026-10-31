@@ -146,7 +146,16 @@ export function createDropdown({ root, trigger, options = [], value = '', onSele
     if (activeIndex === nextIndex) return;
     activeIndex = nextIndex;
     syncAria();
-    if (open) optionNodes[activeIndex]?.scrollIntoView({ block: 'nearest' });
+    if (open) scrollActiveOption();
+  }
+
+  function scrollActiveOption() {
+    const option = optionNodes[activeIndex];
+    if (!option) return;
+    const top = option.offsetTop;
+    const bottom = top + option.offsetHeight;
+    if (top < menu.scrollTop) menu.scrollTop = top;
+    else if (bottom > menu.scrollTop + menu.clientHeight) menu.scrollTop = bottom - menu.clientHeight;
   }
 
   function stopWatching() {
@@ -189,7 +198,7 @@ export function createDropdown({ root, trigger, options = [], value = '', onSele
     window.addEventListener('resize', position);
     window.addEventListener('scroll', position, true);
     position();
-    optionNodes[activeIndex]?.scrollIntoView({ block: 'nearest' });
+    scrollActiveOption();
   }
 
   function choose(index) {
@@ -232,6 +241,7 @@ export function createDropdown({ root, trigger, options = [], value = '', onSele
 
   function onKeyDown(event) {
     const key = keyFor(event);
+    const tv = document.documentElement.classList.contains('layout-tv');
     if (key === 'Tab') {
       if (open) choose(activeIndex);
       return;
@@ -251,6 +261,7 @@ export function createDropdown({ root, trigger, options = [], value = '', onSele
       return;
     }
     if (key === 'ArrowDown' || key === 'ArrowUp') {
+      if (tv && !open) return;
       event.preventDefault();
       if (open) setActive(activeIndex + (key === 'ArrowDown' ? 1 : -1));
       else openMenu(selectedIndex());
@@ -263,7 +274,12 @@ export function createDropdown({ root, trigger, options = [], value = '', onSele
     }
     if (key === 'Escape' && open) {
       event.preventDefault();
+      event.stopPropagation();
       close();
+      return;
+    }
+    if (tv && open && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+      event.preventDefault();
       return;
     }
     if (key === ' ' && typeahead && currentOptions.some((option) => option.label.toLocaleLowerCase().startsWith(`${typeahead} `))) {
@@ -283,6 +299,16 @@ export function createDropdown({ root, trigger, options = [], value = '', onSele
     }
   }
 
+  function onCommand(event) {
+    if (!document.documentElement.classList.contains('layout-tv') || !open || !['up', 'down', 'left', 'right', 'select', 'back'].includes(event.detail?.command)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const command = event.detail.command;
+    if (command === 'up' || command === 'down') setActive(activeIndex + (command === 'down' ? 1 : -1));
+    else if (command === 'select') choose(activeIndex);
+    else if (command === 'back') close();
+  }
+
   function onFocusOut(event) {
     if (open && (!event.relatedTarget || (!root.contains(event.relatedTarget) && !menu.contains(event.relatedTarget)))) close();
   }
@@ -295,6 +321,7 @@ export function createDropdown({ root, trigger, options = [], value = '', onSele
   trigger.addEventListener('click', onTriggerClick);
   trigger.addEventListener('keydown', onKeyDown);
   trigger.addEventListener('focusout', onFocusOut);
+  trigger.addEventListener('command', onCommand);
 
   function update(nextOptions, nextValue = selectedValue) {
     if (destroyed) return;
@@ -324,6 +351,7 @@ export function createDropdown({ root, trigger, options = [], value = '', onSele
     trigger.removeEventListener('keydown', onKeyDown);
     trigger.removeEventListener('focusout', onFocusOut);
     trigger.removeEventListener('click', onTriggerClick);
+    trigger.removeEventListener('command', onCommand);
     layer.remove();
     window.clearTimeout(typeaheadTimer);
   }

@@ -33,7 +33,8 @@ export function createLegacyAdapter(brand) {
         .filter((element) => element !== menu && element.matches('button, .headerButton, .paper-icon-button-light'))
         .forEach((element) => move(headerMount, element, cluster));
     }
-    if (tabs && headerMount.layoutMode === 'desktop') {
+    // Jellyfin 12 removes native tab handlers on detach without restoring them on reattachment.
+    if (tabs && headerMount.layoutMode === 'desktop' && !headerMount.isTv) {
       move(headerMount, tabs, cluster);
     }
     move(headerMount, right, cluster);

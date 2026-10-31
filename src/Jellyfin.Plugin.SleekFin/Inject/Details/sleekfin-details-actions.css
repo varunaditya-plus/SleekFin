@@ -258,3 +258,12 @@
         --sleekfin-details-primary-button-padding: 16px;
     }
 }
+
+html.layout-tv .mainDetailButtons.sleekfin-details-actions {
+    flex-wrap: nowrap;
+}
+
+html.layout-tv .mainDetailButtons.sleekfin-details-actions .sleekfin-details-action-overflow {
+    max-height: 60vh;
+    overflow-y: auto;
+}

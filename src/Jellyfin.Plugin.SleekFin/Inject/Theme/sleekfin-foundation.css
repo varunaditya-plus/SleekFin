@@ -19,3 +19,14 @@ html.sleekfin-main-ui .cardBox:not(.visualCardBox) .cardPadder {
 html.sleekfin-main-ui .cardPadder .cardImageIcon {
     color: var(--jf-palette-background-paper) !important;
 }
+
+html.sleekfin-main-ui.layout-tv :is(button, a, input, select, textarea, .focusable):not(.card):focus {
+    outline: 3px solid var(--sleekfin-accent) !important;
+    outline-offset: -3px;
+}
+
+/* Jellyfin focuses an invisible input inside its visible checkbox. */
+html.sleekfin-main-ui.layout-tv .emby-checkbox:focus + span + .checkboxOutline {
+    outline: 3px solid var(--sleekfin-accent);
+    outline-offset: 3px;
+}
