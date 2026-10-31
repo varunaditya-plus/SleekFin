@@ -66,9 +66,26 @@ https://raw.githubusercontent.com/varunaditya-plus/SleekFin/main/manifest.json
 ### Configuration
 After installation, go to **Dashboard → SleekFin**. The **Overview** tab groups feature toggles and the SleekFin accent colour picker under **General options**. Save and refresh Jellyfin to apply an accent colour change. Our **UI Builder** gives you live editors for the elements we reskin, letting you tweak them to your liking.
 
+## Compatibility
+
+SleekFin is made for **Jellyfin Web 12.0 on desktop and mobile**, and supports both the Modern and legacy layout. To make sure everything displays properly, use the latest version of Firefox, Chrome, Safari (or variants, like Zen, Brave and Orion). I personally test SleekFin on Zen and Helium, but am willing to fix issues occuring on other browsers if you find one.
+
+The plugin applies its styles and scripts to the Jellyfin Web, so apps that wrap around it can use SleekFin too, as long as their browser engine supports it. We will most likely not support clients like MoonFin, SwiftFin, etc.
+
+### Compatibility grid
+
+| Client | Compatibility | Notes |
+| --- | --- | --- |
+| Jellyfin Web (desktop/mobile) | 🟢 Supported | The main target. Supports both Modern and legacy layouts. |
+| Desktop/mobile apps that wrap around Jellyfin Web | 🟡 Potentially supported | Requires the server's Web 12.0 UI and a modern browser engine. |
+| TV browsers | 🟢 Supported on modern engines | Open your server's web UI and select Jellyfin's **TV** display mode. |
+| Jellyfin for webOS / Xbox | 🟢 Supported on modern engines | Should be supported, but depends on the device and client version. |
+| Jellyfin for Tizen / clients with bundled web UI | 🔴 Not supported | Their interface does not load SleekFin's scripts or styles. |
+| Native or alternative interfaces, like Swiftfin | 🔴 Not supported | These use a different interface from Jellyfin Web. |
+
 ### TV support
 
-Sleekfin supports TV browsers, and TV clients which directly wrap around Jellyfin Web UI. Select Jellyfin's TV display mode for directional navigation and visible focus outlines. Sleekfin should look the same on TV clients as in the browser. For further specification, scroll down and check the compatibility grid.
+Sleekfin supports TV browsers, and TV clients which directly wrap around Jellyfin Web UI. Select Jellyfin's TV display mode for directional navigation and visible focus outlines. Sleekfin should look the same on TV clients as in the browser. For further specification, refer to the compatibility grid above.
 
 We do not currently support Jellyfin for Tizen and any other clients that bundle their own web UI/native interfaces other than Jellyfin Web. This is a work-in-progress. We do not and will not support older browser engines.
 
