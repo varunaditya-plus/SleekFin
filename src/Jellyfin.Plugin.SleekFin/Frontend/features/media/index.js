@@ -133,7 +133,7 @@ function start() {
   if (!state.stopped) return;
 
   state.stopped = false;
-  state.stopWatching = dom.watchSpa(schedule, { events: ['hashchange'] });
+  state.stopWatching = dom.watchSpa(schedule, { events: ['hashchange', 'resize'] });
   schedule();
 }
 

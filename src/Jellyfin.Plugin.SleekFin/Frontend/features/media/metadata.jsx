@@ -79,6 +79,19 @@ function metadataElement(card, source) {
   return element;
 }
 
+function fitMetadata(element) {
+  if (!dom.isVisible(element)) return;
+
+  const entries = Array.from(element.children);
+  entries.forEach((entry) => { entry.style.display = ''; });
+  const bounds = element.getBoundingClientRect();
+  const overflowing = entries.map((entry) => {
+    const entryBounds = entry.getBoundingClientRect();
+    return entryBounds.left < bounds.left || entryBounds.right > bounds.right;
+  });
+  entries.forEach((entry, index) => { entry.style.display = overflowing[index] ? 'none' : ''; });
+}
+
 export function renderMetadata(card, mediaItem) {
   const type = mediaItem?.Type || card.dataset.type || '';
   if (!item.typeLabel(type) || type === 'CollectionFolder') {
@@ -91,4 +104,5 @@ export function renderMetadata(card, mediaItem) {
   if (!dom.isConnected(element)) return;
 
   render(<Meta values={facts(mediaItem, type, source?.textContent.trim() || '')} />, element);
+  fitMetadata(element);
 }
