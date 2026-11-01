@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.7.0.2",
+        "changelog": "Hidden overflowing media card metadata and restored items on resize",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.7.0.2/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "740C45355E856E437E17CBD0C6AE1DE8",
+        "timestamp": "2026-11-01T09:01:44.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.7.0.1",
         "changelog": "Fix rating badge color to follow accent setting. Changes by @vscod",
         "targetAbi": "12.0.0.0",
