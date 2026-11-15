@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Hidden overflowing media card metadata and restored items on resize",
+  "changelog": "Added SleekFin-styled menus and dropdowns with Jellyfin and Native options, adaptive sizing and positioning, TV navigation, and isolated builder previews",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-01T09:01:44.0000000Z",
-  "version": "1.7.0.2",
+  "timestamp": "2026-11-15T02:07:55.0000000Z",
+  "version": "1.7.1.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [

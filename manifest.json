@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.7.1.0",
+        "changelog": "Added SleekFin-styled menus and dropdowns with Jellyfin and Native options, adaptive sizing and positioning, TV navigation, and isolated builder previews",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.7.1.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "67C415756A57B3706C683B67C7565EE8",
+        "timestamp": "2026-11-15T02:07:55.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.7.0.2",
         "changelog": "Hidden overflowing media card metadata and restored items on resize",
         "targetAbi": "12.0.0.0",
