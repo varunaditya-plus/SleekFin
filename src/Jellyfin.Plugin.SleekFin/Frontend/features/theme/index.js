@@ -1,8 +1,9 @@
 import { createScrollFeature } from '../scroll/index.js';
-import { createMoreMenuFeature } from './menus.js';
+import { createMenuFeature } from './menus.js';
+import { createSelectFeature } from './selects.js';
 
 const ROOT_CLASS = 'sleekfin-main-ui';
-const WINDOW_EVENTS = ['hashchange', 'load', 'pageshow', 'popstate'];
+const WINDOW_EVENTS = ['hashchange', 'load', 'pageshow', 'popstate', 'sleekfin:details-settings-changed'];
 const ENHANCED_THEME = {
   name: 'SleekFin',
   uniqueIdentifier: '--sleekfin-accent',
@@ -41,7 +42,8 @@ function createThemeFeature() {
   // Owned here because this bundle is always injected and is not behind a feature toggle, so it is the
   // one place guaranteed to be running on the pages whose scroll position Jellyfin does not restore.
   const scroll = createScrollFeature();
-  const moreMenus = createMoreMenuFeature();
+  const menus = createMenuFeature();
+  const selects = createSelectFeature();
 
   function isDashboardRoute() {
     const route = (window.location.hash.slice(1) || window.location.pathname).split('?')[0].toLowerCase();
@@ -51,6 +53,18 @@ function createThemeFeature() {
   function reconcile() {
     const active = !isDashboardRoute();
     document.documentElement.classList.toggle(ROOT_CLASS, active);
+    const dropdownsEnabled = (document.documentElement.dataset.sleekfinDropdownStyle || 'SleekFin') === 'SleekFin';
+    if (document.documentElement.classList.contains('sleekfin-menu-ui') !== dropdownsEnabled) {
+      if (dropdownsEnabled) {
+        document.documentElement.classList.add('sleekfin-menu-ui');
+        menus.start();
+        selects.start();
+      } else {
+        menus.stop();
+        selects.stop();
+        document.documentElement.classList.remove('sleekfin-menu-ui');
+      }
+    }
     syncEnhancedTheme(active);
     if (!enhancedTimer && !window.JellyfinEnhanced?.initialized && document.querySelector('script[src*="/JellyfinEnhanced/"]')) {
       let checks = 0;
@@ -72,7 +86,6 @@ function createThemeFeature() {
     WINDOW_EVENTS.forEach((eventName) => window.addEventListener(eventName, reconcile));
     reconcile();
     scroll.start();
-    moreMenus.start();
   }
 
   function stop() {
@@ -83,7 +96,9 @@ function createThemeFeature() {
     document.documentElement?.classList.remove(ROOT_CLASS);
     syncEnhancedTheme(false);
     scroll.stop();
-    moreMenus.stop();
+    menus.stop();
+    selects.stop();
+    document.documentElement?.classList.remove('sleekfin-menu-ui');
   }
 
   return { start, stop };

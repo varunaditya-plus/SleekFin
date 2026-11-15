@@ -1723,14 +1723,14 @@
                             </div>
                             <div class="sleekfin-toggle-row">
                                 <div class="sleekfin-toggle-copy">
-                                    <label class="sleekfin-toggle-label" for="sleekFinDropdownStyle">Dropdown style</label> <!-- todo: finish this -->
-                                    <div class="sleekfin-field-description">Choose Jellyfin, SeerrFin, or basic browser dropdowns for season and media selectors.</div>
+                                    <label class="sleekfin-toggle-label" for="sleekFinDropdownStyle">Dropdown/menu style</label>
+                                    <div class="sleekfin-field-description">Use SleekFin menus, Jellyfin controls, or browser-native selectors where available.</div>
                                 </div>
                                 <div class="sleekfin-toggle-actions">
                                     <select id="sleekFinDropdownStyle" class="sleekfin-input">
+                                        <option value="SleekFin" selected>SleekFin</option>
                                         <option value="Jellyfin">Jellyfin</option>
-                                        <option value="SeerrFin">SeerrFin</option>
-                                        <option value="Native">Basic native</option>
+                                        <option value="Native">Native</option>
                                     </select>
                                 </div>
                             </div>
@@ -4026,8 +4026,8 @@
                         detailsTrailerBackgroundInput.checked = readValue(configuration, 'DetailsTrailerBackgroundEnabled') === true;
                         detailsSeasonPostersInput.checked = readValue(configuration, 'DetailsSeasonPostersEnabled') === true;
                         detailsCompactEpisodeGridCardsInput.checked = readValue(configuration, 'DetailsCompactEpisodeGridCardsEnabled') === true;
-                        var dropdownStyle = readValue(configuration, 'DropdownStyle');
-                        dropdownStyleInput.value = ['Jellyfin', 'SeerrFin', 'Native'].indexOf(dropdownStyle) !== -1 ? dropdownStyle : dropdownStyle === undefined && readValue(configuration, 'DetailsSeasonPickerEnabled') === true ? 'SeerrFin' : 'Jellyfin';
+                        var dropdownStyle = String(readValue(configuration, 'DropdownStyle') || '').trim().toLowerCase();
+                        dropdownStyleInput.value = dropdownStyle === 'jellyfin' ? 'Jellyfin' : dropdownStyle === 'native' ? 'Native' : 'SleekFin';
                         accentInput.value = readValue(configuration, 'AccentColor') || accentInput.defaultValue;
                         Object.keys(shapeInputs).forEach(function (name) {
                             var value = readValue(configuration, name);
@@ -4221,7 +4221,6 @@
                     DetailsSeasonPostersEnabled: detailsSeasonPostersInput.checked,
                     DetailsCompactEpisodeGridCardsEnabled: detailsCompactEpisodeGridCardsInput.checked,
                     DropdownStyle: dropdownStyleInput.value,
-                    DetailsSeasonPickerEnabled: dropdownStyleInput.value === 'SeerrFin',
                     AccentColor: accentInput.value
                 };
                 Object.keys(shapeInputs).forEach(function (name) { changes[name] = shapeInputs[name].value; });
@@ -4243,6 +4242,7 @@
                         }
                         Dashboard.processPluginConfigurationUpdateResult(result);
                         if (typeof CustomEvent === 'function') {
+                            document.documentElement.dataset.sleekfinDropdownStyle = changes.DropdownStyle;
                             window.dispatchEvent(new CustomEvent('sleekfin:header-settings-changed'));
                             window.dispatchEvent(new CustomEvent('sleekfin:hero-settings-changed'));
                             window.dispatchEvent(new CustomEvent('sleekfin:details-settings-changed'));

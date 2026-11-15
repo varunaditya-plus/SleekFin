@@ -1,0 +1,369 @@
+html:root .sleekfin-menu-host > :not(.sleekfin-menu-popup),
+html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu)[hidden] {
+    display: none !important;
+}
+
+html:root .sleekfin-menu-host,
+html:root .dialog.sleekfin-popup-host {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    contain: none !important;
+    height: auto !important;
+    max-height: none !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    pointer-events: none;
+    transform: none !important;
+    width: max-content !important;
+    will-change: auto !important;
+    transition-duration: 1ms !important;
+    transition-property: opacity !important;
+}
+
+html:root .sleekfin-menu-host.actionSheet,
+html:root .dialog.sleekfin-popup-host {
+    /* Jellyfin settles legacy dialog history and focus on animationend. */
+    animation-duration: 1ms !important;
+    animation-name: sleekfin-menu-settle !important;
+}
+
+html:root .sleekfin-menu-host > .sleekfin-menu-popup {
+    left: auto;
+    position: relative;
+    top: auto;
+    z-index: auto;
+}
+
+html:root .sleekfin-menu-host.actionsheet-fullscreen {
+    inset: auto !important;
+    position: static !important;
+}
+
+html:root .dialog.sleekfin-popup-host {
+    height: 0 !important;
+    width: 0 !important;
+}
+
+.sleekfin-popup-layer {
+    animation: none;
+    contain: none;
+    inset: 0;
+    pointer-events: none;
+    position: fixed;
+    transform: none;
+    will-change: auto;
+    z-index: 1000001;
+}
+
+html:root .sleekfin-popup-layer > :is(.sleekfin-select-menu, .sleekfin-details-dropdown-menu) {
+    position: absolute;
+}
+
+@keyframes sleekfin-menu-settle {
+    from { opacity: 1; }
+    to { opacity: 1; }
+}
+
+html:root .sleekfin-menu-host.sleekfin-menu-closing {
+    animation-name: sleekfin-menu-settle-close !important;
+}
+
+@keyframes sleekfin-menu-settle-close {
+    from { opacity: 1; }
+    to { opacity: 1; }
+}
+
+html:root .sleekfin-menu-backdrop {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: transparent !important;
+}
+
+html:root :is(.sleekfin-menu-dismissed, .sleekfin-menu-dismissed *, .sleekfin-menu-backdrop-closing) {
+    pointer-events: none !important;
+}
+
+html:root .sleekfin-menu-dismissed {
+    visibility: hidden;
+}
+
+html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: linear-gradient(rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.01)), #161618 !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 12px;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.075), 0 16px 40px -12px rgba(0, 0, 0, 0.72), 0 4px 10px rgba(0, 0, 0, 0.22);
+    box-sizing: border-box;
+    color: var(--sleekfin-text, #f1f2f4);
+    display: flex;
+    flex-direction: column;
+    font: 450 13px/20px var(--sleekfin-font-family, Inter, "Noto Sans", sans-serif);
+    gap: 0;
+    letter-spacing: -0.2px;
+    max-height: calc(100vh - 24px);
+    max-width: calc(100vw - 24px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 4px;
+    pointer-events: auto;
+    scrollbar-color: rgba(241, 242, 244, 0.22) transparent;
+    scrollbar-width: thin;
+    touch-action: manipulation;
+    width: max-content;
+    z-index: 20;
+}
+
+html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu) {
+    animation: sleekfin-menu-enter 110ms ease-out;
+}
+
+html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu)::-webkit-scrollbar {
+    display: block;
+    height: 6px;
+    width: 6px;
+}
+
+html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu)::-webkit-scrollbar-thumb {
+    background: rgba(241, 242, 244, 0.22);
+    border-radius: 6px;
+}
+
+html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option) {
+    align-items: center;
+    align-self: stretch;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    box-shadow: none;
+    box-sizing: border-box;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    flex: 0 0 auto;
+    font: inherit;
+    gap: 11px;
+    margin: 0;
+    min-height: 34px;
+    min-width: 0;
+    outline: none;
+    padding: 6px 10px;
+    text-align: start;
+    text-transform: none;
+    transition: background-color 70ms ease, color 70ms ease;
+    user-select: none;
+    white-space: normal;
+    width: 100%;
+}
+
+html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option)[data-selected="true"] {
+    background: rgba(255, 255, 255, 0.035);
+}
+
+html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option):not(:disabled, [aria-disabled="true"]):is(:hover, :focus, [data-active="true"]) {
+    background: rgba(255, 255, 255, 0.065);
+    color: #fff;
+}
+
+html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option):is(:disabled, [aria-disabled="true"]) {
+    cursor: default;
+    opacity: 0.4;
+}
+
+html:root .sleekfin-menu-icon {
+    align-items: center;
+    color: #aaaab1;
+    display: inline-flex;
+    flex: 0 0 18px;
+    height: 18px;
+    justify-content: center;
+    line-height: 18px;
+    width: 18px;
+}
+
+html:root .sleekfin-menu-icon > :is(svg, img, span) {
+    background: transparent;
+    flex-shrink: 0;
+    font-size: 18px;
+    height: 18px;
+    line-height: 18px;
+    margin: 0;
+    max-width: 18px;
+    padding: 0;
+    width: 18px;
+}
+
+html:root .sleekfin-menu-item:is(:hover, :focus) .sleekfin-menu-icon {
+    color: #dedee4;
+}
+
+html:root .sleekfin-menu-copy {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+}
+
+html:root :is(.sleekfin-menu-primary, .sleekfin-menu-secondary) {
+    display: block;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+html:root :is(.sleekfin-menu-secondary, .sleekfin-menu-aside) {
+    color: var(--sleekfin-muted, #969aa1);
+    font-size: 10px;
+    line-height: 16px;
+}
+
+html:root .sleekfin-menu-aside {
+    margin-inline-start: auto;
+    text-align: end;
+    white-space: nowrap;
+}
+
+html:root .sleekfin-menu-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+html:root :is(.sleekfin-menu-label, .sleekfin-select-group) {
+    background: transparent;
+    color: var(--sleekfin-muted, #969aa1);
+    font: 500 10px/20px var(--sleekfin-font-family, Inter, "Noto Sans", sans-serif);
+    margin: 0;
+    padding: 6px 10px 9px;
+}
+
+html:root .sleekfin-menu-description {
+    color: var(--sleekfin-muted, #969aa1);
+    font: inherit;
+    margin: 0;
+    padding: 6px 10px;
+}
+
+html:root .sleekfin-menu-input {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 6px;
+    box-sizing: border-box;
+    color: inherit;
+    font: inherit;
+    min-width: 0;
+    padding: 6px 10px;
+    width: 100%;
+}
+
+html:root .sleekfin-menu-separator {
+    background: rgba(255, 255, 255, 0.065);
+    border: 0;
+    flex: 0 0 1px;
+    height: 1px;
+    margin: 4px 6px;
+}
+
+html:root .sleekfin-menu-control {
+    align-items: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: 10px;
+    min-height: 34px;
+    min-width: 0;
+    padding: 6px 10px;
+}
+
+html:root .sleekfin-menu-popup .sleekfin-menu-item > .sleekfin-menu-control {
+    flex: 1;
+    min-height: 0;
+    padding: 0;
+}
+
+html:root .sleekfin-menu-toggle {
+    accent-color: var(--sleekfin-accent, #dc2626);
+    flex: 0 0 16px;
+    height: 16px;
+    margin: 0;
+    width: 16px;
+}
+
+html:root .sleekfin-menu-tool {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 28px;
+    font: inherit;
+    height: 28px;
+    justify-content: center;
+    margin: 0;
+    margin-inline-start: auto;
+    padding: 5px;
+    width: 28px;
+}
+
+html:root .sleekfin-menu-tool > :is(svg, img, span) {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+}
+
+html:root .sleekfin-menu-tool:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.065);
+}
+
+html:root :is(.sleekfin-select-option, .sleekfin-details-dropdown-option) > span:not(.sleekfin-menu-check) {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+html:root .sleekfin-menu-check {
+    flex: 0 0 18px;
+    font-size: 18px;
+    line-height: 18px;
+    margin-inline-start: auto;
+    visibility: hidden;
+}
+
+html:root [data-selected="true"] > .sleekfin-menu-check {
+    visibility: visible;
+}
+
+html:root.layout-tv :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu) {
+    font-size: 18px;
+}
+
+html:root.layout-tv :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option, .sleekfin-menu-control) {
+    min-height: 48px;
+    padding: 10px 14px;
+}
+
+html:root.layout-tv :is(.sleekfin-menu-secondary, .sleekfin-menu-aside, .sleekfin-menu-label, .sleekfin-select-group) {
+    font-size: 14px;
+    line-height: 20px;
+}
+
+@keyframes sleekfin-menu-enter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

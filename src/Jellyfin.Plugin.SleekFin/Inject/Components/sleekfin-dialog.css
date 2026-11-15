@@ -1,5 +1,4 @@
 html.sleekfin-main-ui .dialog:not(.actionSheet, .je-launcher-panel),
-html.sleekfin-main-ui .dialog.sleekfin-more-menu,
 html.sleekfin-main-ui .MuiDialog-paper,
 html.sleekfin-main-ui :is(.je-hidden-management-panel, .je-hide-confirm-dialog, .je-bm-library-modal-container, .je-bm-player-modal-container, .jellyseerr-season-content, .je-more-info-modal .modal-container),
 html.sleekfin-main-ui #streaming-settings-modal > div {
@@ -14,7 +13,6 @@ html.sleekfin-main-ui #streaming-settings-modal > div {
 }
 
 html.sleekfin-main-ui .dialog:not(.actionSheet, .je-launcher-panel),
-html.sleekfin-main-ui .dialog.sleekfin-more-menu,
 html.sleekfin-main-ui .MuiDialog-paper {
     box-sizing: border-box;
     max-height: calc(100% - 32px);
@@ -44,7 +42,7 @@ html.sleekfin-main-ui .dialog:not(.actionSheet, .je-launcher-panel).dialog-fulls
     }
 }
 
-html.sleekfin-main-ui :is(.dialogBackdrop, .MuiBackdrop-root, .je-hidden-management-overlay, .je-hide-confirm-overlay, .je-bm-library-modal-overlay, .je-bm-player-modal-overlay, .jellyseerr-season-modal, .je-more-info-modal, #streaming-settings-modal) {
+html.sleekfin-main-ui :is(.dialogBackdrop, .MuiBackdrop-root, .je-hidden-management-overlay, .je-hide-confirm-overlay, .je-bm-library-modal-overlay, .je-bm-player-modal-overlay, .jellyseerr-season-modal, .je-more-info-modal, #streaming-settings-modal):not(.sleekfin-menu-backdrop, .MuiBackdrop-invisible) {
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
     background-color: rgba(0, 0, 0, 0.65) !important;
@@ -108,62 +106,4 @@ html.sleekfin-main-ui .dialog .formDialogHeader .paper-icon-button-light:hover,
 html.sleekfin-main-ui :is(.je-hidden-management-close, .je-bm-library-modal-close, .je-bookmark-modal-close, .je-more-info-modal .modal-close, .je-more-info-modal .modal-refresh):hover {
     background: rgba(255, 255, 255, 0.06) !important;
     color: rgba(255, 255, 255, 0.7) !important;
-}
-
-html.sleekfin-main-ui .dialog.sleekfin-more-menu {
-    background-color: rgba(22, 22, 24, 0.82) !important;
-    border: var(--sleekfin-glass-border) !important;
-    border-radius: 12px !important;
-    flex-direction: column;
-    font: 500 13px/1 var(--sleekfin-font-family);
-    height: auto;
-    min-width: 200px;
-    width: max-content;
-}
-
-html.sleekfin-main-ui .sleekfin-more-menu .actionSheetContent {
-    align-items: stretch;
-    padding: 6px !important;
-    text-align: start;
-}
-
-html.sleekfin-main-ui .sleekfin-more-menu .actionSheetScroller {
-    gap: 2px;
-    max-height: none;
-    max-width: none;
-    scrollbar-width: none;
-    width: 100%;
-}
-
-html.sleekfin-main-ui .sleekfin-more-menu .actionSheetScroller::-webkit-scrollbar {
-    display: none;
-}
-
-html.sleekfin-main-ui .sleekfin-more-menu .actionSheetMenuItem {
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.7);
-    font: inherit;
-    min-height: 38px;
-    padding: 0 10px;
-}
-
-html.sleekfin-main-ui .sleekfin-more-menu .actionSheetMenuItem:is(:hover, :focus) {
-    background: rgba(255, 255, 255, 0.12);
-    color: var(--sleekfin-text);
-}
-
-html.sleekfin-main-ui .sleekfin-more-menu .actionsheetMenuItemIcon {
-    font-size: 18px;
-    margin: 0 10px 0 0 !important;
-}
-
-html.sleekfin-main-ui .sleekfin-more-menu .actionsheetListItemBody {
-    padding: 0 !important;
-}
-
-html.sleekfin-main-ui .sleekfin-more-menu .btnCloseActionSheet {
-    align-self: flex-start;
-    font-size: 18px;
-    margin: 6px;
-    position: static;
 }

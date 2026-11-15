@@ -101,7 +101,7 @@ export function createTrackPickers(page, actions, initialSettings, loadSettings,
         select.dispatchEvent(new Event('change', { bubbles: true }));
       });
       let trigger, label, value, dropdown;
-      if (style === 'SeerrFin') {
+      if (style === 'SleekFin') {
         nativeLabel.classList.add('hide');
         control.classList.add('sleekfin-details-track-native');
         field.classList.add('sleekfin-details-custom-track');

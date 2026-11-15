@@ -96,7 +96,7 @@ export const SETTING_DEFINITIONS = Object.freeze([
   Object.freeze({ key: 'buttonActiveColor', property: 'DetailsButtonActiveColor', label: 'Active state color', default: 'Theme accent', type: 'color' }),
   Object.freeze({ key: 'mobileActionGroups', property: 'DetailsMobileActionGroups', label: 'Mobile action groups', default: 'Stack', options: [{ label: 'Inline', value: 'Inline' }, { label: 'Stack', value: 'Stack' }], type: 'option' }),
   Object.freeze({ key: 'buttonOverflow', property: 'DetailsButtonOverflow', label: 'Crowded buttons', default: 'Wrap', options: [{ label: 'Wrap', value: 'Wrap' }, { label: 'More', value: 'More' }], type: 'option' }),
-  Object.freeze({ key: 'dropdownStyle', property: 'DropdownStyle', label: 'Dropdown style', default: 'Jellyfin', options: [{ label: 'Jellyfin', value: 'Jellyfin' }, { label: 'SeerrFin', value: 'SeerrFin' }, { label: 'Basic native', value: 'Native' }], type: 'option' }),
+  Object.freeze({ key: 'dropdownStyle', property: 'DropdownStyle', label: 'Dropdown style', default: 'SleekFin', options: [{ label: 'SleekFin', value: 'SleekFin' }, { label: 'Jellyfin', value: 'Jellyfin' }, { label: 'Native', value: 'Native' }], type: 'option' }),
   Object.freeze({ key: 'infoPanelMaxWidth', property: 'DetailsInfoPanelMaxWidth', label: 'Info panel max width (px)', default: 560, min: 280, max: 1200, type: 'integer' }),
   Object.freeze({ key: 'showVersionPicker', property: 'DetailsShowVersionPicker', label: 'Version picker', default: true, type: 'boolean' }),
   Object.freeze({ key: 'showVideoDetails', property: 'DetailsShowVideoDetails', label: 'Video details', default: true, type: 'boolean' }),
@@ -207,6 +207,7 @@ export function writeConfiguration(configuration, settings) {
   result.DetailsLeftActions = normalized.leftActions.join(',');
   result.DetailsRightActions = normalized.rightActions.join(',');
   result.DetailsHiddenActions = normalized.hiddenActions.join(',');
+  result.DetailsSeasonPickerEnabled = normalized.dropdownStyle === 'SleekFin';
   return result;
 }
 

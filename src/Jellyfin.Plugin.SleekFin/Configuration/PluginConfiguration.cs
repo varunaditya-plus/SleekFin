@@ -5,7 +5,7 @@ namespace Jellyfin.Plugin.SleekFin.Configuration;
 public sealed class PluginConfiguration : BasePluginConfiguration
 {
     public const string DefaultAccentColor = "#dc2626";
-    public const string DefaultDropdownStyle = "Jellyfin";
+    public const string DefaultDropdownStyle = "SleekFin";
     public const string DefaultCardShape = "Squircle";
     public const string DefaultPlayButtonShape = "Circle";
 
@@ -14,7 +14,7 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     private string _playButtonShape = DefaultPlayButtonShape;
     private string _mediaCardShape = DefaultCardShape;
     private string _castCrewShape = DefaultCardShape;
-    private string? _dropdownStyle;
+    private string _dropdownStyle = DefaultDropdownStyle;
 
     public string AccentColor
     {
@@ -162,10 +162,11 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     public string DropdownStyle
     {
-        get => _dropdownStyle ?? (DetailsSeasonPickerEnabled ? "SeerrFin" : DefaultDropdownStyle);
+        get => _dropdownStyle;
         set => _dropdownStyle = value?.Trim().ToLowerInvariant() switch
         {
-            "seerrfin" => "SeerrFin",
+            "jellyfin" => "Jellyfin",
+            "sleekfin" or "seerrfin" => DefaultDropdownStyle, // for anyone wondering why seerrfin used to be an option, i need more sleep
             "native" => "Native",
             _ => DefaultDropdownStyle
         };

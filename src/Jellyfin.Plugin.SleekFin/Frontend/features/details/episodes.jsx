@@ -98,7 +98,7 @@ function seasonLabel(season) {
 
 function Episodes({ client, compactEpisodeGridCardsEnabled, dropdownStyle: configuredDropdownStyle, list, mediaItem, moreLabel, seasons }) {
   const dropdownStyle = configuredDropdownStyle === 'Native' && document.documentElement.classList.contains('layout-tv') ? 'Jellyfin' : configuredDropdownStyle;
-  const seasonPickerEnabled = dropdownStyle === 'SeerrFin';
+  const seasonPickerEnabled = dropdownStyle === 'SleekFin';
   const firstSeason = useMemo(() => seasons.filter((season) => Number(season.IndexNumber) > 0)[0] || seasons[0] || null, [seasons]);
   const [episodes, setEpisodes] = useState([]);
   const [query, setQuery] = useState('');
@@ -173,7 +173,6 @@ function Episodes({ client, compactEpisodeGridCardsEnabled, dropdownStyle: confi
     const dropdown = createDropdown({
       root,
       trigger,
-      maxWidth: 360,
       options: seasons.map((season) => ({ value: season.Id, label: seasonLabel(season) })),
       value: selectedSeasonId,
       onSelect: (option) => setSelectedSeasonId(option.value),
