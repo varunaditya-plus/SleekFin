@@ -91,7 +91,7 @@ internal static class HeaderConfiguration
             return true;
         }
 
-        if (value.StartsWith("je:", StringComparison.Ordinal) || value.StartsWith("sf:", StringComparison.Ordinal))
+        if (value.StartsWith("je:", StringComparison.Ordinal) || value.StartsWith("sf:", StringComparison.Ordinal) || value.StartsWith("kt:", StringComparison.Ordinal))
         {
             string slug = value[(value.IndexOf(':') + 1)..];
             return slug.Length is >= 1 and <= 64 && slug.All(character => char.IsAsciiLetterOrDigit(character) || character == '-');

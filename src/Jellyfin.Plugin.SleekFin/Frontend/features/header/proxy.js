@@ -63,7 +63,7 @@ function sourceTitle(record) {
 }
 
 function sourceDisabled(record) {
-  return Boolean(record.source.disabled) || record.source.getAttribute('aria-disabled') === 'true';
+  return Boolean(record.source.disabled) || record.source.getAttribute('aria-disabled') === 'true' || record.source.matches('.kefinTweaks-breadcrumb-element') && record.source.style.cursor !== 'pointer';
 }
 
 function renderProxyVisual(record) {
@@ -212,6 +212,9 @@ function proxyContentOverflows(mount) {
 function updateOverflow(mount) {
   if (!mount.proxy) return;
 
+  const categoryRail = document.querySelector('#kefin-home-category-rail:not(.hide) .kefin-home-category-rail');
+  const dockOffset = mount.layoutMode === 'compact' && dom.isVisible(categoryRail) && window.getComputedStyle(categoryRail).position === 'fixed' ? categoryRail.offsetHeight : 0;
+  setStyle(mount, mount.proxy, '--sleekfin-header-dock-offset', `${dockOffset}px`);
   mount.proxyEntries.forEach((entry) => entry.element.setAttribute('data-sleekfin-header-overflowed', 'false'));
   mount.overflowToggle.setAttribute('data-sleekfin-header-overflow-hidden', 'true');
   if (!proxyContentOverflows(mount)) {
@@ -243,7 +246,6 @@ function scheduleHeaderProxyLayout(mount) {
 }
 
 function markEmptySegments(mount) {
-  const sources = new Set([...mount.proxyRecords, ...mount.hiddenRecords].filter((record) => !record.fallback).map((record) => record.source));
   const markSegment = (segment) => {
     if (!segment) return;
     const controls = Array.from(segment.querySelectorAll('button, a[href]')).filter(
@@ -251,7 +253,7 @@ function markEmptySegments(mount) {
         !source.closest('[data-sleekfin-header-proxy]') &&
         !source.matches('[data-sleekfin-header-brand], .je-header-more-toggle, .mainDrawerButton'),
     );
-    mark(mount, segment, 'data-sleekfin-header-all-proxied', controls.every((source) => sources.has(source) || !dom.isVisible(source)) ? 'true' : 'false');
+    mark(mount, segment, 'data-sleekfin-header-all-proxied', controls.every((source) => mount.hiddenSources.has(source) || !dom.isVisible(source)) ? 'true' : 'false');
   };
   markSegment(mount.nav);
   markSegment(mount.actions);
@@ -259,6 +261,14 @@ function markEmptySegments(mount) {
 }
 
 function hideProviderWrappers(mount) {
+  document.querySelectorAll('#kefin-home-category-rail, #kefin-home-create-section-btn, #kefinTweaks-breadcrumbs-wrapper').forEach((wrapper) => {
+    const controls = Array.from(wrapper.querySelectorAll('button, .kefinTweaks-breadcrumb-element'));
+    mark(mount, wrapper, 'data-sleekfin-header-all-proxied', controls.length && controls.every((source) => mount.hiddenSources.has(source)) ? 'true' : 'false');
+  });
+  mount.header.querySelectorAll('[data-kefin-custom-menu-top-divider]').forEach((divider) => {
+    const controls = Array.from(divider.parentElement.querySelectorAll('[data-kefin-custom-menu-top-link], [data-kefin-custom-menu-more]'));
+    mark(mount, divider, 'data-sleekfin-header-source-hidden', controls.every((source) => mount.hiddenSources.has(source)) ? 'true' : 'false');
+  });
   const randomContainer = mount.header.querySelector('#randomItemButtonContainer');
   if (randomContainer) {
     mark(mount, randomContainer, 'data-sleekfin-header-source-hidden', mount.hiddenSources.has(randomContainer.querySelector('#randomItemButton')) ? 'true' : 'false');
@@ -283,10 +293,17 @@ function hideProviderWrappers(mount) {
 
 function hideSources(mount) {
   mount.hiddenSources = new Set();
+  [...mount.proxyRecords, ...mount.hiddenRecords].forEach((record) => {
+    record.headerSources?.forEach((source) => {
+      mount.hiddenSources.add(source);
+      if (source !== record.source) mark(mount, source, 'data-sleekfin-header-source-hidden');
+    });
+  });
   mount.proxyRecords.forEach((record) => {
     if (record.fallback) return;
     mount.hiddenSources.add(record.source);
     if (record.popup) {
+      mark(mount, record.source, 'data-sleekfin-header-source-hidden', 'false');
       mark(mount, record.source, 'data-sleekfin-header-source-anchor');
       mark(mount, record.source, 'tabindex', '-1');
     } else {
@@ -309,10 +326,19 @@ function syncPopupAnchors(mount, activeRecord, activeAnchor) {
     if (!record.popup || record.fallback || !dom.isConnected(anchor) || (!activeRecord && record.button.getAttribute('data-sleekfin-header-overflowed') === 'true')) return;
 
     const rectangle = anchor.getBoundingClientRect();
-    setStyle(mount, record.source, 'left', `${Math.round(rectangle.left)}px`, 'important');
-    setStyle(mount, record.source, 'top', `${Math.round(rectangle.top)}px`, 'important');
+    const cluster = record.source.closest('[data-sleekfin-legacy-cluster]');
+    const style = cluster && window.getComputedStyle(cluster);
+    // The legacy bar's backdrop filter gives fixed native popup anchors a local coordinate frame.
+    const origin = style && ((style.backdropFilter && style.backdropFilter !== 'none') || (style.webkitBackdropFilter && style.webkitBackdropFilter !== 'none')) ? cluster.getBoundingClientRect() : null;
+    setStyle(mount, record.source, 'left', `${Math.round(rectangle.left - (origin ? origin.left + cluster.clientLeft : 0))}px`, 'important');
+    setStyle(mount, record.source, 'top', `${Math.round(rectangle.top - (origin ? origin.top + cluster.clientTop : 0))}px`, 'important');
     setStyle(mount, record.source, 'height', `${Math.max(1, Math.round(rectangle.height))}px`, 'important');
     setStyle(mount, record.source, 'width', `${Math.max(1, Math.round(rectangle.width))}px`, 'important');
+    if (activeRecord && record.source.matches('.kefinTweaks-breadcrumb-element')) {
+      const popover = document.getElementById('kefinTweaks-popover-container');
+      setStyle(mount, popover, '--sleekfin-header-breadcrumb-top', `${Math.round(rectangle.top)}px`);
+      setStyle(mount, popover, '--sleekfin-header-breadcrumb-bottom', `${Math.round(rectangle.bottom)}px`);
+    }
   });
 }
 
@@ -349,8 +375,9 @@ export function needsProxyReplacement(mount, settings) {
   if (Boolean(mount.proxy) !== resolved.customized) return true;
   if (!mount.proxy) return false;
   if (!dom.isConnected(mount.proxy) || resolved.records.length !== mount.proxyEntries.length || resolved.hidden.length !== mount.hiddenRecords.length) return true;
-  if (resolved.hidden.some((record, index) => record.source !== mount.hiddenRecords[index].source)) return true;
-  return resolved.records.some((record, index) => record.key !== mount.proxyEntries[index].record.key || record.source !== mount.proxyEntries[index].record.source);
+  const changedSource = (record, previous) => record.source !== previous.source || (record.headerSources || []).length !== (previous.headerSources || []).length || record.headerSources?.some((source, index) => source !== previous.headerSources[index]);
+  if (resolved.hidden.some((record, index) => changedSource(record, mount.hiddenRecords[index]))) return true;
+  return resolved.records.some((record, index) => record.key !== mount.proxyEntries[index].record.key || changedSource(record, mount.proxyEntries[index].record));
 }
 
 export function refreshHeaderProxy(mount) {
@@ -361,6 +388,7 @@ export function refreshHeaderProxy(mount) {
     if (refreshRecordVisual(record)) renderProxyVisual(record);
     record.button.disabled = sourceDisabled(record);
     record.button.style.display = record.nativeHidden ? 'none' : '';
+    record.button.title = sourceTitle(record);
     record.button.setAttribute('data-sleekfin-current', currentSource(record) ? 'true' : 'false');
   });
   syncPopupAnchors(mount);

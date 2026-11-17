@@ -1,5 +1,7 @@
 import { dom } from '../../shared/runtime.js';
 
+export const KEFIN_SOURCE_SELECTOR = '[data-kefin-custom-menu-link], [data-kefin-custom-menu-top-link], [data-kefin-custom-menu-top-right], [data-kefin-custom-user-menu-link], [data-kefintweaks-user-menu-config-button], [data-kefin-custom-menu-more], [data-kefin-desktop-hamburger], .kefin-home-category-btn, .kefin-home-create-section-btn, .kefinTweaks-breadcrumb-element, .btnRecommendations, .btnAdmin';
+
 export const LABELS = Object.assign(Object.create(null), {
   'jellyfin:audio-player': 'Audio player',
   'jellyfin:back': 'Back',
@@ -127,9 +129,42 @@ function seerrFinId(source, route) {
   return (dataId || match?.[1] || '').toLowerCase();
 }
 
+function kefinCategoryKey(id) {
+  return `kt:category-${/^[a-z0-9-]{1,48}$/.test(id) ? id : digest(id)}`;
+}
+
+function kefinLinkKey(identity) {
+  if (identity.endsWith('||action:KefinTweaksSkinManager.toggleAppearancePopover')) return 'kt:appearance';
+  if (identity.endsWith('||action:KefinTweaksConfiguration.openConfigurationModal')) return 'kt:settings';
+  if (identity.startsWith('Watch Together||')) return 'kt:watch-together';
+  if (identity.startsWith('Watchlist||')) return 'kt:watchlist';
+  if (identity === 'Games||#/games') return 'kt:games';
+  return `kt:link-${digest(identity)}`;
+}
+
+function kefinKey(source) {
+  if (source.matches('.kefin-home-category-btn')) return kefinCategoryKey(source.getAttribute('data-category-id') || '');
+  if (source.matches('.kefin-home-create-section-btn')) return 'kt:create-section';
+  if (source.matches('[data-kefin-desktop-hamburger]')) return 'kt:menu';
+  if (source.matches('[data-kefin-custom-menu-more]')) return 'kt:more';
+  if (source.matches('[data-kefintweaks-user-menu-config-button]')) return 'kt:settings';
+  if (source.matches('.btnRecommendations')) return 'kt:recommendations';
+  if (source.matches('.btnAdmin')) return 'kt:admin';
+  if (source.matches('.kefinTweaks-breadcrumb-element')) {
+    const index = Array.from(source.parentElement.children).filter((element) => element.matches('.kefinTweaks-breadcrumb-element')).indexOf(source);
+    return `kt:breadcrumb-${index}`;
+  }
+
+  const identity = source.getAttribute('data-kefin-custom-menu-top-right') || source.getAttribute('data-kefin-custom-menu-top-link') || source.getAttribute('data-kefin-custom-user-menu-link') || source.getAttribute('data-kefin-custom-menu-link');
+  return identity ? kefinLinkKey(identity) : '';
+}
+
 function keyForSource(source) {
   if (!source || source.closest('[data-sleekfin-header-proxy], .sleekfin-builder-preview')) return null;
   if (source.matches('.mainDrawerButton, .je-header-more-toggle')) return null;
+
+  const kefin = kefinKey(source);
+  if (kefin) return kefin;
 
   const route = source.matches('a[href]') ? routeFor(source) : '';
   const url = source.matches('a[href]') ? urlFor(source) : null;
@@ -195,7 +230,7 @@ function modernCandidates(header) {
   const actions = boxes.find((box) => box !== profile && Boolean(box.querySelector('button, a[href]'))) || null;
 
   children
-    .filter((element) => element.matches('button, a[href]') && !element.querySelector('svg[data-testid="MenuIcon"]'))
+    .filter((element) => element.matches('button, a[href]') && (!element.querySelector('svg[data-testid="MenuIcon"]') || element.hasAttribute('data-kefin-desktop-hamburger')))
     .forEach((source) => addCandidate(result, seen, source, 'toolbar'));
   addCandidates(result, seen, nav, 'a[href], button', 'navigation');
   document.querySelectorAll('.MuiDrawer-paper, #user-view-overflow-menu, .customMenuOptions, .jellyfinEnhancedSection').forEach((container) => addCandidates(result, seen, container, container.matches('.jellyfinEnhancedSection') ? 'button, a[href]' : 'a[href]', 'fallback'));
@@ -219,10 +254,22 @@ function legacyCandidates(surface) {
   return result;
 }
 
+function addKefinCandidates(candidates, surface) {
+  const seen = new Set(candidates.map((candidate) => candidate.source));
+  document.querySelectorAll(KEFIN_SOURCE_SELECTOR).forEach((source) => {
+    if (!source.matches('button, a[href], .kefinTweaks-breadcrumb-element') || source.closest('.osdHeader, [data-sleekfin-header-proxy], .sleekfin-builder-preview')) return;
+    const homeControl = source.closest('#kefin-home-category-rail, #kefin-home-create-section-btn');
+    const header = source.closest('header.MuiAppBar-root, .skinHeader');
+    if (header && header !== surface.header && !homeControl) return;
+    const inline = homeControl || surface.header.contains(source) && !source.closest('[role="menu"], [data-kefin-custom-overflow-menu]');
+    addCandidate(candidates, seen, source, inline ? 'navigation' : 'fallback');
+  });
+}
+
 function candidateScore(candidate) {
-  const inline = candidate.zone === 'fallback' ? 0 : 10;
+  const inline = candidate.zone === 'fallback' || candidate.fallback ? 0 : 20;
   const owned = candidate.source.hasAttribute('data-sleekfin-header-source-hidden') || candidate.source.hasAttribute('data-sleekfin-header-source-anchor') ? 4 : 0;
-  return inline + owned + (dom.isVisible(candidate.source) ? 2 : 0);
+  return inline + (sourceNativeHidden(candidate.source) ? 0 : 8) + owned + (dom.isVisible(candidate.source) ? 2 : 0);
 }
 
 function namespaceSvgIds(clone) {
@@ -274,6 +321,14 @@ function cleanClone(node) {
   if (clone.matches('.material-icons')) {
     clone.classList.remove('actionsheetMenuItemIcon', 'listItemIcon', 'listItemIcon-transparent');
     clone.style.removeProperty('font-size');
+    const style = node.closest(KEFIN_SOURCE_SELECTOR) && window.getComputedStyle(node);
+    if (style && style.backgroundImage !== 'none') {
+      clone.style.backgroundImage = style.backgroundImage;
+      clone.style.backgroundPosition = style.backgroundPosition;
+      clone.style.backgroundRepeat = style.backgroundRepeat;
+      clone.style.backgroundSize = style.backgroundSize;
+      clone.style.color = style.color;
+    }
     if (!clone.getAttribute('style')) clone.removeAttribute('style');
   }
   if (clone.matches('img')) {
@@ -333,6 +388,8 @@ function visualNodes(source) {
 }
 
 function visibleLabel(source) {
+  if (source.hasAttribute('data-kefin-custom-menu-top-right')) return '';
+  if (source.matches('.kefin-home-category-btn')) return source.closest('.kefin-home-category-item')?.querySelector('.kefin-home-category-btn-label')?.textContent.trim() || source.getAttribute('title') || '';
   const foreground = source.querySelector('.emby-button-foreground')?.textContent.trim();
   if (foreground) return foreground;
 
@@ -349,6 +406,7 @@ function fallbackLabel(key, source) {
 }
 
 function providerFor(key, source) {
+  if (key.startsWith('kt:') || kefinKey(source)) return 'KefinTweaks';
   if (key.startsWith('je:') || source?.closest('#je-header-buttons-group, .jellyfinEnhancedSection, [id^="je-"], [id^="jellyfinEnhanced"]')) return 'JE';
   if (key.startsWith('sf:')) return 'SeerrFin';
   return 'Jellyfin';
@@ -356,14 +414,21 @@ function providerFor(key, source) {
 
 function captionFor(key, source, label) {
   const provider = providerFor(key, source);
-  if (provider !== 'JE' && LABELS[key]) return LABELS[key];
+  if (provider === 'Jellyfin' && LABELS[key]) return LABELS[key];
   const value = source.getAttribute('data-header-label')?.trim() || label || LABELS[key] || source.getAttribute('title')?.trim() || source.getAttribute('aria-label')?.trim() || 'Item';
   if (LABELS[value]) return LABELS[value];
   return value.toLowerCase() === provider.toLowerCase() || value.toLowerCase().startsWith(`${provider.toLowerCase()} `) ? value : `${provider} ${value}`;
 }
 
 function sourceNativeHidden(source) {
-  return source.hidden || source.classList.contains('hide') || source.style.display === 'none';
+  const homeControl = source.closest('#kefin-home-category-rail, #kefin-home-create-section-btn');
+  const breadcrumbs = source.closest('#kefinTweaks-breadcrumbs-wrapper');
+  if (breadcrumbs && window.getComputedStyle(breadcrumbs).display === 'none') return true;
+  const boundary = homeControl || (!source.closest('[role="menu"], .MuiDrawer-paper') && source.closest('header.MuiAppBar-root, .skinHeader'));
+  for (let element = source; element; element = element !== boundary && boundary ? element.parentElement : null) {
+    if (element.hidden || element.classList.contains('hide') || element.style.display === 'none') return true;
+  }
+  return false;
 }
 
 function sourceInline(candidate) {
@@ -375,6 +440,7 @@ function sourceInline(candidate) {
 
 function sourceOpensPopup(key, source) {
   return (
+    source.matches('[data-kefin-custom-menu-top-right], .kefinTweaks-breadcrumb-element') ||
     source.getAttribute('aria-haspopup') === 'true' ||
     Boolean(source.getAttribute('aria-controls')) ||
     ['jellyfin:audio-player', 'jellyfin:cast', 'jellyfin:syncplay', 'jellyfin:user-menu', 'je:active-streams'].includes(key)
@@ -448,6 +514,7 @@ export function discoverHeaderControls(surface) {
   if (!surface?.header) return [];
 
   const candidates = surface.kind === 'modern' ? modernCandidates(surface.header) : legacyCandidates(surface);
+  addKefinCandidates(candidates, surface);
   const records = [];
   const byKey = new Map();
   candidates.forEach((candidate) => {
@@ -455,13 +522,20 @@ export function discoverHeaderControls(surface) {
     if (!key) return;
 
     const existing = byKey.get(key);
-    if (existing && candidateScore(existing) >= candidateScore(candidate)) return;
+    const aliases = [...new Set([...(existing?.aliases || []), ...(key.startsWith('kt:') ? [`source:v1:${digest(genericIdentity(candidate.source, candidate.source.matches('a[href]') ? routeFor(candidate.source) : ''))}`] : [])])];
+    const headerSources = [...(existing?.headerSources || []), ...(key.startsWith('kt:') && candidate.zone !== 'fallback' ? [candidate.source] : [])];
+    if (existing && candidateScore(existing) >= candidateScore(candidate)) {
+      existing.aliases = aliases;
+      existing.headerSources = headerSources;
+      return;
+    }
 
     const visual = visualTemplate(candidate.source);
     const record = {
+      aliases,
       caption: captionFor(key, candidate.source, visual.label),
-      current: candidate.source.getAttribute('aria-current') === 'page' || candidate.source.classList.contains('emby-tab-button-active'),
       fallback: candidate.zone === 'fallback',
+      headerSources,
       inline: sourceInline(candidate),
       key,
       label: visual.label || fallbackLabel(key, candidate.source),
@@ -470,6 +544,7 @@ export function discoverHeaderControls(surface) {
       source: candidate.source,
       template: visual.template,
     };
+    record.current = currentSource(record);
     if (existing) {
       const index = records.indexOf(existing);
       records[index] = record;
@@ -484,11 +559,16 @@ export function discoverHeaderControls(surface) {
     if (home) records[records.indexOf(home)] = record;
     else records.push(record);
   }
+  const aliases = records.reduce((values, record) => values.concat(record.aliases || []), []);
+  records.forEach((record) => {
+    if (record.aliases) record.aliases = record.aliases.filter((alias) => aliases.indexOf(alias) === aliases.lastIndexOf(alias));
+  });
   return records;
 }
 
 export function catalogDescriptors(records) {
-  return records.map((record) => ({
+  const descriptors = records.map((record) => ({
+    aliases: Array.isArray(record.aliases) ? record.aliases : [],
     available: !record.nativeHidden,
     caption: LABELS[record.label] || record.caption,
     current: record.current,
@@ -497,6 +577,23 @@ export function catalogDescriptors(records) {
     label: LABELS[record.label] || record.label,
     shape: record.template.getAttribute('data-sleekfin-header-source-visual'),
   }));
+  const categories = window.KefinTweaksConfig?.homeScreenConfig?.HOME_SETTINGS?.categories || window.KefinHomeConfig2?.HOME_SETTINGS?.categories || [];
+  (Array.isArray(categories) ? categories : []).forEach((category) => {
+    if (!category?.id) return;
+    const id = kefinCategoryKey(String(category.id));
+    if (descriptors.some((descriptor) => descriptor.id === id)) return;
+    const label = String(category.name || category.id);
+    descriptors.push({ aliases: [], available: false, caption: `KefinTweaks ${label}`, current: false, id, inline: false, label, shape: 'text-only' });
+  });
+  const links = window.KefinTweaksConfig?.customMenuLinks;
+  (Array.isArray(links) ? links : []).forEach((link) => {
+    const label = String(link?.name || '').trim();
+    const target = String(link?.url || '').trim() || (link?.action ? `action:${String(link.action).trim()}` : '');
+    if (!label || !target) return;
+    const id = kefinLinkKey(`${label}||${target}`);
+    if (!descriptors.some((descriptor) => descriptor.id === id)) descriptors.push({ aliases: [], available: false, caption: `KefinTweaks ${label}`, current: false, id, inline: false, label, shape: 'text-only' });
+  });
+  return descriptors;
 }
 
 export function cloneSourceTemplate(template) {
@@ -520,19 +617,22 @@ export function chromeSignature(chrome) {
 }
 
 export function catalogSignature(records) {
-  return records.map((record) => `${record.key}|${record.caption}|${record.current}|${record.inline}|${record.nativeHidden}|${record.template.outerHTML}`).join('\n');
+  return records.map((record) => `${record.key}|${record.caption}|${record.current}|${record.inline}|${record.nativeHidden}|${record.aliases?.join(',')}|${record.template.outerHTML}`).join('\n');
 }
 
 export function legacyAlias(key, records) {
   if (key.startsWith('source:v1:')) {
-    return records.find((record) => ['jellyfin:home', 'jellyfin:favorites'].includes(record.key) && key === `source:v1:${digest(genericIdentity(record.source, ''))}`) || null;
+    return records.find((record) => record.aliases?.includes(key) || ['jellyfin:home', 'jellyfin:favorites'].includes(record.key) && key === `source:v1:${digest(genericIdentity(record.source, ''))}`) || null;
   }
+  if (key === 'jellyfin:more') return records.find((record) => record.key === 'kt:more') || null;
   if (key !== 'jellyfin:movies' && key !== 'jellyfin:shows') return null;
   const pattern = key === 'jellyfin:movies' ? /(?:#\/movies|collectiontype=movies)/ : /(?:#\/tv|collectiontype=tvshows)/;
   return records.find((record) => record.source.matches('a[href]') && pattern.test(routeFor(record.source))) || null;
 }
 
 export function currentSource(record) {
+  if (record.source.hasAttribute('data-kefin-custom-menu-top-right')) return false;
+  if (record.key.startsWith('kt:') || kefinKey(record.source)) return record.source.classList.contains('is-active') || record.source.classList.contains('active') || record.source.getAttribute('aria-pressed') === 'true';
   if (record.key === 'jellyfin:home') return /^#\/(?:home(?:\.html)?)?(?:\?tab=0)?$/.test(window.location.hash.toLowerCase());
   if (record.key === 'jellyfin:search') return /#?\/search(?:[?/#]|$)/.test((window.location.hash || window.location.pathname).toLowerCase());
   if (record.key === 'jellyfin:favorites') return /[?&]tab=1(?:&|$)/.test((window.location.hash || '').toLowerCase());
@@ -556,12 +656,11 @@ export function refreshRecordVisual(record) {
   const visual = visualTemplate(record.source);
   const signature = visual.template.outerHTML;
   const preserveShape =
+    !record.key.startsWith('kt:') &&
     (record.source.hasAttribute('data-sleekfin-header-source-hidden') || record.source.hasAttribute('data-sleekfin-header-source-anchor')) &&
     visual.template.getAttribute('data-sleekfin-header-source-visual') !== record.template.getAttribute('data-sleekfin-header-source-visual');
   const changed = !preserveShape && signature !== record.template.outerHTML;
   record.caption = captionFor(record.key, record.source, visual.label);
-  record.inline = sourceInline(record);
-  record.label = visual.label || fallbackLabel(record.key, record.source);
   record.nativeHidden = sourceNativeHidden(record.source);
   if (!preserveShape) record.template = visual.template;
   return changed;

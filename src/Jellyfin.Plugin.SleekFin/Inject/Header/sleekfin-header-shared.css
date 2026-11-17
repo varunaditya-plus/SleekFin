@@ -116,6 +116,37 @@ html.sleekfin-header-mounted [data-sleekfin-header-source-anchor="true"] {
     z-index: -1 !important;
 }
 
+html.sleekfin-header-mounted #kefin-home-category-rail[data-sleekfin-header-all-proxied="true"],
+html.sleekfin-header-mounted #kefin-home-create-section-btn[data-sleekfin-header-all-proxied="true"] {
+    display: none !important;
+}
+
+html.sleekfin-header-mounted #kefinTweaks-breadcrumbs-wrapper[data-sleekfin-header-all-proxied="true"],
+html.sleekfin-header-mounted #kefinTweaks-breadcrumbs-wrapper[data-sleekfin-header-all-proxied="true"] .kefinTweaks-breadcrumbs {
+    margin: 0;
+    min-width: 0;
+    padding: 0;
+    width: 0;
+}
+
+html.sleekfin-header-mounted #kefinTweaks-breadcrumbs-wrapper[data-sleekfin-header-all-proxied="true"] .kefinTweaks-breadcrumb-separator {
+    display: none;
+}
+
+/* KefinTweaks keeps its breadcrumb popovers in the native header, outside the floating bar. */
+html.sleekfin-header-mounted #kefinTweaks-breadcrumbs-wrapper[data-sleekfin-header-all-proxied="true"] #kefinTweaks-popover-container {
+    bottom: auto !important;
+    left: 0 !important;
+    position: fixed !important;
+    top: var(--sleekfin-header-breadcrumb-bottom) !important;
+    z-index: 1111;
+}
+
+html.sleekfin-header-mounted #kefinTweaks-breadcrumbs-wrapper[data-sleekfin-header-all-proxied="true"] #kefinTweaks-popover-container.kefinTweaks-popover-container--above {
+    bottom: calc(100vh - var(--sleekfin-header-breadcrumb-top)) !important;
+    top: auto !important;
+}
+
 html.sleekfin-header-mounted [data-sleekfin-header-proxy] {
     -webkit-backdrop-filter: var(--sleekfin-glass-filter);
     align-items: center;
@@ -236,7 +267,7 @@ html.sleekfin-header-mounted [data-sleekfin-header-overflow-drawer] {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    max-height: min(50vh, 420px);
+    overflow-x: hidden;
     overflow-y: auto;
     padding: 6px;
     pointer-events: auto;
@@ -248,15 +279,21 @@ html.sleekfin-header-mounted [data-sleekfin-header-overflow-item] {
     background: transparent;
     border: 0;
     border-radius: 8px;
+    box-sizing: border-box;
     color: var(--sleekfin-header-item-text);
     display: flex;
     flex: 0 0 auto;
-    font: 500 13px/1 var(--sleekfin-font-family);
+    font: 500 13px/1.3 var(--sleekfin-font-family);
     gap: 10px;
     min-height: 38px;
     padding: 0 10px;
     text-align: left;
     width: 100%;
+}
+
+html.sleekfin-header-mounted [data-sleekfin-header-overflow-item] > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 html.sleekfin-header-mounted [data-sleekfin-header-overflow-item]:hover,
@@ -433,7 +470,7 @@ html.sleekfin-header-mounted [data-sleekfin-header-proxy="legacy"] {
         background: var(--sleekfin-header-glass-background);
         border: var(--sleekfin-glass-border);
         border-radius: 12px;
-        bottom: calc(12px + env(safe-area-inset-bottom));
+        bottom: calc(12px + max(env(safe-area-inset-bottom), var(--sleekfin-header-dock-offset, 0px)));
         box-shadow: var(--sleekfin-glass-shadow);
         left: 50%;
         max-width: calc(100vw - 24px);

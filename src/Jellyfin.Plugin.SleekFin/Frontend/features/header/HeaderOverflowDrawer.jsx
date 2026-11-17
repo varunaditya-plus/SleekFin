@@ -1,6 +1,7 @@
 import { h, useEffect, useRef } from '../../shared/runtime.js';
+import { getPopupViewport } from '../../shared/popupPosition.js';
 import { cloneSourceTemplate } from './inventory.js';
-import { isTvLayout, layoutMode } from './shared.js';
+import { isTvLayout } from './shared.js';
 
 function OverflowItemVisual({ record }) {
   const element = useRef(null);
@@ -39,10 +40,16 @@ export function HeaderOverflowDrawer({ anchor, onActivate, onClose, records }) {
 
   const bar = anchor.closest('[data-sleekfin-header-proxy]') || anchor;
   const barBounds = bar.getBoundingClientRect();
-  const compact = layoutMode() === 'compact';
-  const style = compact
-    ? { bottom: `${window.innerHeight - barBounds.top + 8}px`, left: `${barBounds.left}px`, width: `${barBounds.width}px` }
-    : { left: `${barBounds.left}px`, top: `${barBounds.bottom + 8}px`, width: `${barBounds.width}px` };
+  const viewport = getPopupViewport();
+  const width = Math.min(Math.max(240, barBounds.width), Math.max(0, viewport.width - 24));
+  const above = barBounds.top > viewport.top + viewport.height / 2;
+  const availableHeight = (above ? barBounds.top - viewport.top : viewport.bottom - barBounds.bottom) - 20;
+  const style = {
+    left: `${Math.max(viewport.left + 12, Math.min(barBounds.left, viewport.right - width - 12))}px`,
+    maxHeight: `${Math.max(0, Math.min(420, viewport.height / 2, availableHeight))}px`,
+    width: `${width}px`,
+    ...(above ? { bottom: `${window.innerHeight - barBounds.top + 8}px` } : { top: `${barBounds.bottom + 8}px` }),
+  };
 
   return (
     <div data-sleekfin-header-overflow-layer>

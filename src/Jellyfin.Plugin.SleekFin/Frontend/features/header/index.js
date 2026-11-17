@@ -1,6 +1,6 @@
 import { dom } from '../../shared/runtime.js';
 import { createBrandController } from './FallbackBrand.jsx';
-import { appRoute, catalogDescriptors, catalogSignature, chromeSignature, cloneCatalogTemplate, cloneChromeTemplate, discoverHeaderChrome, discoverHeaderControls, isDashboardRoute } from './inventory.js';
+import { KEFIN_SOURCE_SELECTOR, appRoute, catalogDescriptors, catalogSignature, chromeSignature, cloneCatalogTemplate, cloneChromeTemplate, discoverHeaderChrome, discoverHeaderControls, isDashboardRoute } from './inventory.js';
 import { createLegacyAdapter } from './legacy.js';
 import { createModernAdapter } from './modern.js';
 import { DEFAULT_SETTINGS, normalizeSettings, settingsSignature } from './settings.js';
@@ -73,6 +73,7 @@ function cacheHeaderSources(catalog, chrome) {
       SOURCE_CACHE_KEY,
       JSON.stringify({
         catalog: catalog.map((record) => ({
+          aliases: record.aliases,
           caption: record.caption,
           current: record.current,
           inline: record.inline,
@@ -99,6 +100,7 @@ function cacheHeaderSources(catalog, chrome) {
 function createHeaderFeature() {
   const cached = cachedHeaderSources();
   const state = {
+    bodyObserver: null,
     catalog: cached.catalog,
     catalogSignature: catalogSignature(cached.catalog),
     chrome: cached.chrome,
@@ -114,6 +116,7 @@ function createHeaderFeature() {
     settingsRetryTimer: 0,
     settingsScope: '',
     sourceCacheScope: cached.scopeKey,
+    sourceObserver: null,
     started: false,
     stopWatching: null,
   };
@@ -206,14 +209,24 @@ function createHeaderFeature() {
     return true;
   }
 
-  function captureHeaderSources(surface) {
+  function captureHeaderSources(surface, kefinOnly = false) {
     if (!surface || !currentScope().userId) return;
 
-    const records = discoverHeaderControls(surface);
+    let records = discoverHeaderControls(surface);
+    if (kefinOnly) {
+      const kefin = records.filter((record) => record.key.startsWith('kt:'));
+      kefin.forEach((record) => {
+        if (!record.source.closest('#kefin-home-category-rail, #kefin-home-create-section-btn, #kefinTweaks-breadcrumbs-wrapper')) return;
+        record.nativeHidden = record.source.hidden || record.source.classList.contains('hide') || record.source.style.display === 'none';
+        record.inline = !record.nativeHidden;
+      });
+      records = [...state.catalog.filter((record) => !record.key.startsWith('kt:')), ...kefin];
+    }
     const signature = catalogSignature(records);
     let changed = false;
     if (records.length && signature !== state.catalogSignature) {
       state.catalog = records.map((record) => ({
+        aliases: record.aliases,
         caption: record.caption,
         current: record.current,
         inline: record.inline,
@@ -268,10 +281,16 @@ function createHeaderFeature() {
     if (syncServerScope()) requestSettings();
     if (isExcludedRoute()) {
       unmount();
+      if (isDashboardRoute()) {
+        const surface = findSurface();
+        watchSourceChanges(surface);
+        captureHeaderSources(surface, true);
+      } else state.sourceObserver.disconnect();
       finishLoading();
       return;
     }
     const surface = findSurface();
+    watchSourceChanges(surface);
     captureHeaderSources(surface);
     if (!state.settings.enabled) {
       unmount();
@@ -295,6 +314,15 @@ function createHeaderFeature() {
     }
     adapter.refresh(state.mount);
     captureHeaderSources(surface);
+  }
+
+  function watchSourceChanges(surface) {
+    state.sourceObserver.disconnect();
+    const external = Array.from(document.querySelectorAll(`#kefin-home-category-rail, #kefin-home-create-section-btn, ${KEFIN_SOURCE_SELECTOR}`)).filter((source) => !source.closest('.osdHeader, [data-sleekfin-header-proxy], .sleekfin-builder-preview') && !surface?.header.contains(source));
+    const roots = [surface?.header, ...external.filter((source) => !external.some((parent) => parent !== source && parent.contains(source)))].filter(Boolean);
+    roots.forEach((root) => state.sourceObserver.observe(root, { attributes: true, attributeOldValue: true, characterData: true, childList: true, subtree: true }));
+    state.sourceObserver.observe(document.head, { attributes: true, attributeFilter: ['href', 'disabled', 'media'], attributeOldValue: true, childList: true, characterData: true, subtree: true });
+    [document.documentElement, document.body].forEach((root) => state.sourceObserver.observe(root, { attributes: true, attributeFilter: ['class'], attributeOldValue: true }));
   }
 
   function scheduleReconcile() {
@@ -378,16 +406,34 @@ function createHeaderFeature() {
     if (event.target === document || event.target.classList.contains('page')) watchHeader(event);
   }
 
+  function onStylesheetLoad(event) {
+    if (event.target.matches?.('link[rel="stylesheet"]')) scheduleReconcile();
+  }
+
   function start() {
     if (state.started || !document.body) return;
 
     state.started = true;
+    state.sourceObserver = new MutationObserver((changes) => {
+      if (changes.some((change) => {
+        const target = change.target.nodeType === 1 ? change.target : change.target.parentElement;
+        if (target?.closest('[data-sleekfin-header-proxy], .sleekfin-builder-preview')) return false;
+        if (change.type === 'attributes') return !change.attributeName.startsWith('data-sleekfin-') && change.attributeName !== 'tabindex' && change.oldValue !== target.getAttribute(change.attributeName);
+        return change.type !== 'childList' || [...change.addedNodes, ...change.removedNodes].some((node) => node.nodeType !== 1 || !node.matches('[data-sleekfin-header-proxy], .sleekfin-header-fallback-brand'));
+      })) scheduleReconcile();
+    });
     window.addEventListener(SETTINGS_CHANGED_EVENT, requestSettings);
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    document.addEventListener('load', onStylesheetLoad, true);
     state.stopWatching = dom.watchSpa(watchHeader, {
       events: WINDOW_EVENTS,
       viewshow: true,
     });
+    // KefinTweaks mounts rails and portal menu links outside Jellyfin's React root.
+    state.bodyObserver = new MutationObserver((changes) => {
+      if (changes.some((change) => [...change.addedNodes, ...change.removedNodes].some((node) => node.nodeType === 1 && !node.closest('[data-sleekfin-header-proxy], .sleekfin-builder-preview') && (node.matches(KEFIN_SOURCE_SELECTOR) || node.querySelector(KEFIN_SOURCE_SELECTOR))))) scheduleReconcile();
+    });
+    state.bodyObserver.observe(document.body, { childList: true, subtree: true });
     requestSettings();
     reconcile();
   }
@@ -403,8 +449,13 @@ function createHeaderFeature() {
     state.settingsRequest += 1;
     window.removeEventListener(SETTINGS_CHANGED_EVENT, requestSettings);
     document.removeEventListener('scroll', onScroll, true);
+    document.removeEventListener('load', onStylesheetLoad, true);
     state.stopWatching?.();
     state.stopWatching = null;
+    state.bodyObserver?.disconnect();
+    state.bodyObserver = null;
+    state.sourceObserver?.disconnect();
+    state.sourceObserver = null;
     unmount();
     finishLoading();
   }

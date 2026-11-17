@@ -2462,7 +2462,21 @@
                 { id: 'sf:movies', label: 'Movies', caption: 'SeerrFin Movies' },
                 { id: 'sf:tv', label: 'TV Shows', caption: 'SeerrFin TV' },
                 { id: 'sf:requests', label: 'Requests', caption: 'SeerrFin Requests' },
-                { id: 'sf:letterboxd', label: 'Letterboxd', caption: 'SeerrFin Letterboxd' }
+                { id: 'sf:letterboxd', label: 'Letterboxd', caption: 'SeerrFin Letterboxd' },
+                { id: 'kt:watchlist', label: 'Watchlist', caption: 'KF Watchlist' },
+                { id: 'kt:games', label: 'Games', caption: 'KF Games' },
+                { id: 'kt:appearance', label: 'Appearance', caption: 'KF Appearance' },
+                { id: 'kt:watch-together', label: 'Watch Together', caption: 'KF Watch Together' },
+                { id: 'kt:settings', label: 'KefinTweaks', caption: 'KF Settings' },
+                { id: 'kt:menu', label: 'Open Menu', caption: 'KF Open Menu' },
+                { id: 'kt:more', label: 'More', caption: 'KF More' },
+                { id: 'kt:create-section', label: 'Create Section', caption: 'KF Create Section' },
+                { id: 'kt:recommendations', label: 'Recommendations', caption: 'KF Recommendations' },
+                { id: 'kt:admin', label: 'Admin Settings', caption: 'KF Admin Settings' },
+                { id: 'kt:breadcrumb-0', label: 'Breadcrumb 1', caption: 'KF Breadcrumb 1' },
+                { id: 'kt:breadcrumb-1', label: 'Breadcrumb 2', caption: 'KF Breadcrumb 2' },
+                { id: 'kt:breadcrumb-2', label: 'Breadcrumb 3', caption: 'KF Breadcrumb 3' },
+                { id: 'kt:breadcrumb-3', label: 'Breadcrumb 4', caption: 'KF Breadcrumb 4' }
             ];
             builderItems.forEach(function (item) {
                 item.providerEnabled = !/^(?:je|sf):/.test(item.id);
@@ -2471,6 +2485,7 @@
             var selectedBuilderItems = [];
             var hiddenBuilderItems = [];
             var builderCustomized = false;
+            var builderRefreshPending = false;
             var draggedBuilderItem = '';
             var draggedBuilderElement = null;
             var draggedBuilderFromPreview = false;
@@ -2871,7 +2886,7 @@
             }
 
             function validBuilderId(id) {
-                return id === 'space' || id === 'separator' || /^jellyfin:(?:movies|shows|audio-player|back|cast|favorites|home|more|search|syncplay|user-menu)$/.test(id) || /^jellyfin:view:[\da-f-]{16,64}$/.test(id) || /^(?:je|sf):[a-z0-9-]{1,64}$/.test(id) || /^source:v1:[\da-f]{32}$/.test(id);
+                return id === 'space' || id === 'separator' || /^jellyfin:(?:movies|shows|audio-player|back|cast|favorites|home|more|search|syncplay|user-menu)$/.test(id) || /^jellyfin:view:[\da-f-]{16,64}$/.test(id) || /^(?:je|sf|kt):[a-z0-9-]{1,64}$/.test(id) || /^source:v1:[\da-f]{32}$/.test(id);
             }
 
             function ensureBuilderItem(id) {
@@ -3152,6 +3167,10 @@
                 });
                 descriptors.forEach(function (descriptor) {
                     var id = String(descriptor.id || '').toLowerCase();
+                    var aliases = descriptor.aliases || [];
+                    selectedBuilderItems = selectedBuilderItems.map(function (value) { return aliases.indexOf(value) === -1 ? value : id; });
+                    hiddenBuilderItems = hiddenBuilderItems.map(function (value) { return aliases.indexOf(value) === -1 ? value : id; });
+                    builderItems = builderItems.filter(function (value) { return aliases.indexOf(value.id) === -1; });
                     var item = ensureBuilderItem(id);
                     if (!item) {
                         return;
@@ -3409,7 +3428,9 @@
                 draggedBuilderXOffset = 0;
                 preview.classList.remove('is-dragging');
                 previewDrawer.classList.remove('is-drop-target');
-                if (wasDragging) {
+                if (builderRefreshPending) {
+                    refreshBuilderCatalog();
+                } else if (wasDragging) {
                     renderBuilder();
                 }
             }
@@ -3697,6 +3718,11 @@
             }
 
             function renderBuilder() {
+                if (draggedBuilderItem || pointerBuilderItem) {
+                    builderRefreshPending = true;
+                    return;
+                }
+                builderRefreshPending = false;
                 var visibleItems = [];
                 var activeVisibleIndex = -1;
                 previewBar.textContent = '';

@@ -1,3 +1,10 @@
+/* Headroom transforms fix the mobile dock to the header. */
+html.sleekfin-header-mounted [data-sleekfin-header="legacy"] {
+    contain: none;
+    transform: none;
+    will-change: auto;
+}
+
 html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] {
     -webkit-backdrop-filter: var(--sleekfin-glass-filter);
     align-items: center;

@@ -13,7 +13,7 @@ const FIXED_ITEM_IDS = new Set([
   'jellyfin:user-menu',
   'separator',
 ]);
-const PLUGIN_ITEM_PATTERN = /^(?:je|sf):[a-z0-9-]{1,64}$/;
+const PLUGIN_ITEM_PATTERN = /^(?:je|sf|kt):[a-z0-9-]{1,64}$/;
 const JELLYFIN_VIEW_PATTERN = /^jellyfin:view:[\da-f-]{16,64}$/;
 const SOURCE_ITEM_PATTERN = /^source:v1:[\da-f]{32}$/;
 const HEX_COLOR_PATTERN = /^#(?:[\da-f]{3}|[\da-f]{4}|[\da-f]{6}|[\da-f]{8})$/i;
