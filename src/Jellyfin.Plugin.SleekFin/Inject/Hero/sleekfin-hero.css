@@ -5,6 +5,11 @@ html:is(.sleekfin-hero-boot-loading, .sleekfin-hero-loading) #indexPage.homePage
     padding-top: 0 !important;
 }
 
+/* Old KefinTweaks styles add extra spacing above above hometab */
+html:is(.sleekfin-hero-boot-loading, .sleekfin-hero-loading, .sleekfin-hero-mounted) #indexPage #homeTab {
+    margin-top: 0;
+}
+
 /* MediaBar sets its duplicate carousel inline, so hide it while SleekFin owns the home hero. */
 html.sleekfin-hero-mounted #slides-container {
     display: none !important;
