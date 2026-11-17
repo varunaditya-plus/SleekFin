@@ -50,6 +50,8 @@ export function createHero(page, { preview = false } = {}) {
   const stack = hero.querySelector('.sleekfin-details-stack');
   const title = stack.querySelector('.sleekfin-details-title');
   const childTitleRoot = stack.querySelector('.sleekfin-details-child-title');
+  const seriesLink = dom.element('<a class="sleekfin-details-series-link"></a>');
+  const episodeHeading = dom.element('<h3 class="itemName"></h3>');
   const factsRoot = stack.querySelector('.sleekfin-details-facts');
   const factsValuesRoot = dom.element('<span class="sleekfin-details-fact-values"></span>');
   factsRoot.appendChild(factsValuesRoot);
@@ -87,12 +89,31 @@ export function createHero(page, { preview = false } = {}) {
       destroyOverview = settings.descriptionExpandEnabled ? dom.expandableText(overview) : null;
     }
     const backdropUrl = item.imageUrl(mediaItem, 'Backdrop', { maxWidth: Math.max(960, window.innerWidth), inherit: true, quality: 90 });
+    const isEpisode = mediaItem.Type === 'Episode';
     const isChild = mediaItem.Type === 'Season' || mediaItem.Type === 'Episode';
     actions.dataset.sleekfinCanDownload = String(['Movie', 'Episode'].includes(mediaItem.Type) && mediaItem.CanDownload === true && (!window.NativeShell || window.NativeShell.AppHost.supports('filedownload')));
     childTitleRoot.hidden = !isChild;
     hero.classList.toggle('sleekfin-details-has-child-title', isChild);
-    const nameRoot = isChild ? childTitleRoot : title;
+    hero.classList.toggle('sleekfin-details-episode', isEpisode);
+    const nameRoot = mediaItem.Type === 'Season' ? childTitleRoot : title;
     if (name && name.parentNode !== nameRoot) nameRoot.appendChild(name);
+    if (isEpisode) {
+      const season = mediaItem.ParentIndexNumber != null ? `S${mediaItem.ParentIndexNumber}` : '';
+      const episode = mediaItem.IndexNumber != null ? `E${mediaItem.IndexNumber}${mediaItem.IndexNumberEnd != null ? `-E${mediaItem.IndexNumberEnd}` : ''}` : '';
+      const heading = `${season}${episode}${season || episode ? ' - ' : ''}${mediaItem.Name || ''}`;
+      if (episodeHeading.textContent !== heading) episodeHeading.textContent = heading;
+      if (episodeHeading.parentNode !== childTitleRoot) childTitleRoot.appendChild(episodeHeading);
+    } else episodeHeading.remove();
+    if (isEpisode && mediaItem.SeriesId && logo) {
+      const serverId = mediaItem.ServerId || window.ApiClient?.serverId?.() || '';
+      if (!preview) seriesLink.href = `#/details?id=${encodeURIComponent(mediaItem.SeriesId)}${serverId ? `&serverId=${encodeURIComponent(serverId)}` : ''}`;
+      seriesLink.title = mediaItem.SeriesName || '';
+      if (seriesLink.parentNode !== title) title.insertBefore(seriesLink, name);
+      if (logo.parentNode !== seriesLink) seriesLink.appendChild(logo);
+    } else {
+      if (logo && logo.parentNode !== title) title.insertBefore(logo, title.firstChild);
+      seriesLink.remove();
+    }
     render(<Facts values={factValues(mediaItem, seasons, settings)} />, factsValuesRoot);
     render(<Facts values={(mediaItem.Genres || []).map((genre) => ({ text: genre }))} />, genresRoot);
 
