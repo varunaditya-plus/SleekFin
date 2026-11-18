@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.8.0.0",
+        "changelog": "Added per-user SleekFin preferences modal and an admin-configurable User mdoal UI builder",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.8.0.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "3BD5B5E68544D92B422396D60F374659",
+        "timestamp": "2026-11-18T22:55:58.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.7.2.0",
         "changelog": "Added support for KefinTweaks tabs/controls in header and updated UI Builder to include them. Also fixed drag interruptions, overflow sizing, popup anchoring, and mobile dock positioning",
         "targetAbi": "12.0.0.0",
