@@ -20,6 +20,7 @@ const state = {
   mount: null,
   readyFrame: 0,
   reconcileTimer: 0,
+  scope: '',
   started: false,
   stopWatching: null,
 };
@@ -35,6 +36,12 @@ function prepareLoading() {
   if (root.classList.contains(ROOT_BOOT_LOADING_CLASS) || (state.loadingTimer && root.classList.contains(ROOT_LOADING_CLASS))) return;
   root.classList.add(ROOT_LOADING_CLASS);
   state.loadingTimer = window.setTimeout(finishLoading, 4000);
+}
+
+function currentScope() {
+  const client = window.ApiClient;
+  const userId = client?.getCurrentUserId?.();
+  return userId ? `${client.serverId?.() || ''}:${userId}` : '';
 }
 
 function isHomeRoute() {
@@ -93,10 +100,11 @@ function renderHero(root, entries, settings) {
 function mount(host) {
   const client = window.ApiClient;
   const generation = ++state.generation;
+  const scope = state.scope;
   const root = createRoot(host);
   loadSettings(client)
     .then((settings) => {
-      if (generation !== state.generation || state.mount !== root || !dom.isConnected(root)) return null;
+      if (generation !== state.generation || scope !== currentScope() || state.mount !== root || !dom.isConnected(root)) return null;
       state.enabled = settings.enabled;
       if (!settings.enabled) {
         removeMount();
@@ -106,7 +114,7 @@ function mount(host) {
       return loadEntries(client, settings).then((entries) => ({ entries, settings }));
     })
     .then((result) => {
-      if (!result || generation !== state.generation) return;
+      if (!result || generation !== state.generation || scope !== currentScope()) return;
       if (result.entries.length) {
         renderHero(root, result.entries, result.settings);
       } else {
@@ -115,7 +123,7 @@ function mount(host) {
       }
     })
     .catch(() => {
-      if (generation === state.generation) {
+      if (generation === state.generation && scope === currentScope()) {
         state.failedHost = host;
         removeMount();
       }
@@ -124,6 +132,13 @@ function mount(host) {
 
 function reconcile() {
   if (!state.started || !window.ApiClient) return;
+
+  const scope = currentScope();
+  if (scope !== state.scope) {
+    state.scope = scope;
+    state.enabled = null;
+    unmount();
+  }
 
   const host = findHost();
   if (!host) {

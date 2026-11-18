@@ -1,0 +1,95 @@
+.sleekfin-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 2px solid var(--cardBackground, transparent);
+    background: var(--cardBackground, rgba(255, 255, 255, 0.08));
+    color: inherit;
+    font-size: 1.05em;
+    line-height: 1.4;
+}
+
+.sleekfin-input:focus {
+    border-color: var(--accent, #00a4dc);
+    outline: none;
+}
+
+.sleekfin-color-swatch {
+    height: 26px;
+}
+
+.sleekfin-color-swatch input[type="color"] {
+    height: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+.sleekfin-toggle {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.sleekfin-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.sleekfin-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.18);
+    transition: background 0.2s ease;
+}
+
+.sleekfin-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    transition: transform 0.2s ease;
+}
+
+.sleekfin-toggle input:checked + .sleekfin-toggle-slider {
+    background: var(--accent, #00a4dc);
+}
+
+.sleekfin-toggle input:checked + .sleekfin-toggle-slider:before {
+    transform: translateX(22px);
+}
+
+.sleekfin-toggle input:focus-visible + .sleekfin-toggle-slider {
+    outline: 2px solid var(--accent, #00a4dc);
+    outline-offset: 2px;
+}
+
+#sleekFinConfigurationPage .sleekfin-hero-number-field,
+.sleekfin-user-settings-dialog .sleekfin-hero-number-field {
+    align-items: center;
+    display: flex;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+#sleekFinConfigurationPage .sleekfin-hero-number-field input,
+.sleekfin-user-settings-dialog .sleekfin-hero-number-field input {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    flex: 1 1 auto;
+    font: inherit;
+    min-width: 0;
+    outline: 0;
+    padding: 10px 0;
+    width: 100%;
+}

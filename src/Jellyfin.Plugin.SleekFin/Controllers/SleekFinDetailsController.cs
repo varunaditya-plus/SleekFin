@@ -1,4 +1,6 @@
 using Jellyfin.Plugin.SleekFin.Configuration;
+using Jellyfin.Plugin.SleekFin.Services;
+using MediaBrowser.Controller.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,12 +9,18 @@ namespace Jellyfin.Plugin.SleekFin.Controllers;
 [ApiController]
 [Route("SleekFin/Details")]
 [Authorize]
-public sealed class SleekFinDetailsController : ControllerBase
+public sealed class SleekFinDetailsController(UserSettingsService settings, IAuthorizationContext authorization) : ControllerBase
 {
     [HttpGet("Settings")]
-    public ActionResult GetSettings()
+    public async Task<ActionResult> GetSettings()
     {
-        PluginConfiguration configuration = SleekFinPlugin.Instance.Configuration;
+        Guid userId = (await authorization.GetAuthorizationInfo(Request).ConfigureAwait(false)).UserId;
+        if (userId == Guid.Empty)
+        {
+            return Unauthorized();
+        }
+
+        PluginConfiguration configuration = settings.GetEffectiveConfiguration(userId);
         Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
         return Ok(new
         {

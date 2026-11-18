@@ -54,6 +54,8 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     public bool HeaderEnabled { get; set; } = true;
 
+    public string UserModalFields { get; set; } = UserModalConfiguration.DefaultFields;
+
     public string HeaderItemOrder { get; set; } = string.Empty;
 
     public string HeaderHiddenItems { get; set; } = string.Empty;
@@ -393,6 +395,8 @@ public sealed class PluginConfiguration : BasePluginConfiguration
     public string HeroContentOrder { get; set; } = "ContinueWatching,NextUp,LatestMovies,LatestShows,Favorites";
 
     public bool HeroRandomized { get; set; }
+
+    internal PluginConfiguration Copy() => (PluginConfiguration)MemberwiseClone();
 
     private static string NormalizeShape(string? value, string fallback) => value?.Trim().ToLowerInvariant() switch
     {

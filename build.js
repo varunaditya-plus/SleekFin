@@ -23,6 +23,7 @@ const result = await build({
   entryPoints: {
     'sleekfin-runtime': path.join(frontendRoot, 'runtime/index.jsx'),
     'sleekfin-theme': path.join(frontendRoot, 'features/theme/index.js'),
+    'sleekfin-user-settings': path.join(frontendRoot, 'features/userSettings/index.jsx'),
     'sleekfin-header': path.join(frontendRoot, 'features/header/index.js'),
     'sleekfin-hero': path.join(frontendRoot, 'features/hero/index.jsx'),
     'sleekfin-media': path.join(frontendRoot, 'features/media/index.js'),

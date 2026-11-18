@@ -156,8 +156,9 @@ let settingsRevision = 0;
 
 function loadDetailsSettings(client) {
   if (!client) return Promise.resolve(DEFAULT_SETTINGS);
-  if (detailsSettings?.client === client) return detailsSettings.promise;
-  const record = { client, promise: null };
+  const scope = `${client.serverId?.() || ''}:${client.getCurrentUserId?.() || ''}`;
+  if (detailsSettings?.client === client && detailsSettings.scope === scope) return detailsSettings.promise;
+  const record = { client, scope, promise: null };
   record.promise = new Promise((resolve) => {
     const fallback = () => {
       // An older request must not clear a newer client's or settings save's cache.
@@ -167,7 +168,7 @@ function loadDetailsSettings(client) {
     const timer = window.setTimeout(fallback, SETTINGS_TIMEOUT_MS);
     Promise.resolve().then(() => loadSettings(client)).then((settings) => {
       window.clearTimeout(timer);
-      resolve(settings);
+      resolve(scope === `${client.serverId?.() || ''}:${client.getCurrentUserId?.() || ''}` ? settings : DEFAULT_SETTINGS);
     }, () => {
       window.clearTimeout(timer);
       fallback();

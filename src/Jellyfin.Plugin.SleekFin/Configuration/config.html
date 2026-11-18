@@ -95,22 +95,6 @@
             margin-bottom: 0.5em;
         }
 
-        .sleekfin-input {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px 12px;
-            border: 2px solid var(--cardBackground, transparent);
-            background: var(--cardBackground, rgba(255, 255, 255, 0.08));
-            color: inherit;
-            font-size: 1.05em;
-            line-height: 1.4;
-        }
-
-        .sleekfin-input:focus {
-            border-color: var(--accent, #00a4dc);
-            outline: none;
-        }
-
         .sleekfin-field-description {
             font-size: 0.92em;
             color: var(--secondaryTextColor, rgba(255, 255, 255, 0.55));
@@ -199,16 +183,6 @@
             margin-bottom: 0;
         }
 
-        .sleekfin-color-swatch {
-            height: 26px;
-        }
-
-        .sleekfin-color-swatch input[type="color"] {
-            height: 100%;
-            border: none;
-            cursor: pointer;
-        }
-
         .sleekfin-toggle-copy {
             flex: 1;
             min-width: 0;
@@ -219,52 +193,6 @@
             font-size: 1.05em;
             line-height: 1.4;
             color: #fff;
-        }
-
-        .sleekfin-toggle {
-            position: relative;
-            display: inline-block;
-            width: 48px;
-            height: 26px;
-            flex-shrink: 0;
-        }
-
-        .sleekfin-toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .sleekfin-toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.18);
-            transition: background 0.2s ease;
-        }
-
-        .sleekfin-toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            bottom: 3px;
-            background: #fff;
-            transition: transform 0.2s ease;
-        }
-
-        .sleekfin-toggle input:checked + .sleekfin-toggle-slider {
-            background: var(--accent, #00a4dc);
-        }
-
-        .sleekfin-toggle input:checked + .sleekfin-toggle-slider:before {
-            transform: translateX(22px);
-        }
-
-        .sleekfin-toggle input:focus-visible + .sleekfin-toggle-slider {
-            outline: 2px solid var(--accent, #00a4dc);
-            outline-offset: 2px;
         }
 
         .sleekfin-toggle-actions {
@@ -1124,6 +1052,18 @@
             width: 100%;
         }
 
+        #sleekFinConfigurationPage .sleekfin-user-modal-builder-preview {
+            background: #000;
+            position: relative;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-user-modal-preview-frame {
+            border: 0;
+            display: block;
+            height: 560px;
+            width: 100%;
+        }
+
         #sleekFinConfigurationPage .sleekfin-hero-preview-backdrop,
         #sleekFinConfigurationPage .sleekfin-hero-preview-vignette,
         #sleekFinConfigurationPage .sleekfin-hero-preview-seam {
@@ -1429,25 +1369,6 @@
             width: 100%;
         }
 
-        #sleekFinConfigurationPage .sleekfin-hero-number-field {
-            align-items: center;
-            display: flex;
-            padding-bottom: 0;
-            padding-top: 0;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-hero-number-field input {
-            background: transparent;
-            border: 0;
-            color: inherit;
-            flex: 1 1 auto;
-            font: inherit;
-            min-width: 0;
-            outline: 0;
-            padding: 10px 0;
-            width: 100%;
-        }
-
         #sleekFinConfigurationPage .sleekfin-hero-source-heading {
             margin-top: 0.25em;
         }
@@ -1642,6 +1563,7 @@
                     <div class="sleekfin-builder-subnav">
                         <div class="sleekfin-builder-subnav-item is-active" data-sleekfin-builder-panel="home">Home</div>
                         <div class="sleekfin-builder-subnav-item" data-sleekfin-builder-panel="details">Detail pages</div>
+                        <div class="sleekfin-builder-subnav-item" data-sleekfin-builder-panel="user-modal">User modal</div>
                     </div>
                 </div>
             </nav>
@@ -2323,6 +2245,23 @@
                     </div>
                 </div>
 
+                <div class="sleekfin-page-panel" data-sleekfin-panel="ui-builder" data-sleekfin-builder-panel="user-modal">
+                    <div class="sleekfin-section-container">
+                        <div class="sleekfin-config-section-title">User modal</div>
+                        <div class="sleekfin-hero-builder-shell">
+                            <div class="sleekfin-user-modal-builder-preview">
+                                <div id="sleekFinUserModalPreview"></div>
+                                <p class="sleekfin-hero-preview-caption">↑ THIS IS A LIVE PREVIEW OF YOUR USER MODAL</p>
+                            </div>
+                            <div class="sleekfin-hero-builder-content">
+                                <p class="sleekfin-field-description">Choose what users can personalize from SleekFin in their profile menu. Everyone starts with the server configuration. Hidden settings always use the server defaults.</p>
+                                <p class="sleekfin-field-description">Hide every setting to remove SleekFin from the profile menu.</p>
+                                <div id="sleekFinUserModalFields"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit" class="sleekfin-save-button">Save</button>
             </form>
         </div>
@@ -2355,6 +2294,9 @@
             var randomizedInput = document.getElementById('sleekFinHeroRandomized');
             var sources = document.getElementById('sleekFinHeroSources');
             var dependencyStatus = document.getElementById('sleekFinDependencyStatus');
+            var userModalFields = document.getElementById('sleekFinUserModalFields');
+            var userModalCatalog = null;
+            var userModalPreview = null;
             var preview = document.getElementById('sleekFinBuilderPreview');
             var previewBar = document.getElementById('sleekFinBuilderPreviewBar');
             var palette = document.getElementById('sleekFinBuilderPalette');
@@ -2373,51 +2315,52 @@
             var detailsBuilder = null;
             var detailsBuilderPromise = null;
             var detailsProviderAvailability = {};
-            var detailsBuilderAssets = {};
+            var configurationAssets = {};
             var configurationSavePromise = null;
             var configurationDialog = null;
+
+            function loadConfigurationAsset(fileName, style) {
+                if (configurationAssets[fileName]) return configurationAssets[fileName];
+                var existing = document.querySelector('[data-sleekfin-asset="' + fileName + '"]');
+                if (existing && style && existing.sheet) return Promise.resolve();
+                var runtimeScript = document.querySelector('script[data-sleekfin-asset="sleekfin-runtime.js"]');
+                var query = runtimeScript && runtimeScript.src.indexOf('?') !== -1 ? runtimeScript.src.slice(runtimeScript.src.indexOf('?')) : '?b=' + Date.now();
+                configurationAssets[fileName] = new Promise(function (resolve, reject) {
+                    var element = existing || document.createElement(style ? 'link' : 'script');
+                    function cleanup() {
+                        element.removeEventListener('load', loaded);
+                        element.removeEventListener('error', failed);
+                    }
+                    function loaded() { cleanup(); resolve(); }
+                    function failed() {
+                        cleanup();
+                        element.remove();
+                        delete configurationAssets[fileName];
+                        reject(new Error('Could not load ' + fileName));
+                    }
+                    element.addEventListener('load', loaded);
+                    element.addEventListener('error', failed);
+                    if (!existing) {
+                        element.setAttribute('data-sleekfin-asset', fileName);
+                        if (style) {
+                            element.rel = 'stylesheet';
+                            element.href = ApiClient.getUrl('SleekFin/' + fileName) + query;
+                        } else {
+                            element.src = ApiClient.getUrl('SleekFin/' + fileName) + query;
+                        }
+                        document.head.appendChild(element);
+                    }
+                });
+                return configurationAssets[fileName];
+            }
 
             function loadDetailsBuilder() {
                 if (detailsBuilder) return Promise.resolve(detailsBuilder);
                 if (detailsBuilderPromise) return detailsBuilderPromise;
                 var mountRequest = loadRequest;
-                var runtimeScript = document.querySelector('script[data-sleekfin-asset="sleekfin-runtime.js"]');
-                var query = runtimeScript && runtimeScript.src.indexOf('?') !== -1 ? runtimeScript.src.slice(runtimeScript.src.indexOf('?')) : '?b=' + Date.now();
-                function asset(fileName, style) {
-                    if (detailsBuilderAssets[fileName]) return detailsBuilderAssets[fileName];
-                    var existing = document.querySelector('[data-sleekfin-asset="' + fileName + '"]');
-                    if (existing && style && existing.sheet) return Promise.resolve();
-                    detailsBuilderAssets[fileName] = new Promise(function (resolve, reject) {
-                        var element = existing || document.createElement(style ? 'link' : 'script');
-                        function cleanup() {
-                            element.removeEventListener('load', loaded);
-                            element.removeEventListener('error', failed);
-                        }
-                        function loaded() { cleanup(); resolve(); }
-                        function failed() {
-                            cleanup();
-                            element.remove();
-                            delete detailsBuilderAssets[fileName];
-                            reject(new Error('Could not load ' + fileName));
-                        }
-                        element.addEventListener('load', loaded);
-                        element.addEventListener('error', failed);
-                        if (!existing) {
-                            element.setAttribute('data-sleekfin-asset', fileName);
-                            if (style) {
-                                element.rel = 'stylesheet';
-                                element.href = ApiClient.getUrl('SleekFin/' + fileName) + query;
-                            } else {
-                                element.src = ApiClient.getUrl('SleekFin/' + fileName) + query;
-                            }
-                            document.head.appendChild(element);
-                        }
-                    });
-                    return detailsBuilderAssets[fileName];
-                }
-                detailsBuilderPromise = Promise.all(['sleekfin-details-hero.css', 'sleekfin-details-actions.css', 'sleekfin-details-dropdown.css', 'sleekfin-details-track-picker.css', 'sleekfin-details-builder.css', 'sleekfin-details-builder-fields.css', 'sleekfin-details-builder-preview.css', 'sleekfin-details-builder-overflow.css'].map(function (name) { return asset(name, true); }))
-                    .then(function () { return window.SleekFinRuntime ? null : asset('sleekfin-runtime.js', false); })
-                    .then(function () { return window.SleekFin && window.SleekFin.detailsBuilder ? null : asset('sleekfin-details-builder.js', false); })
+                detailsBuilderPromise = Promise.all(['sleekfin-details-hero.css', 'sleekfin-details-actions.css', 'sleekfin-details-dropdown.css', 'sleekfin-details-track-picker.css', 'sleekfin-details-builder.css', 'sleekfin-details-builder-fields.css', 'sleekfin-details-builder-preview.css', 'sleekfin-details-builder-overflow.css'].map(function (name) { return loadConfigurationAsset(name, true); }))
+                    .then(function () { return window.SleekFinRuntime ? null : loadConfigurationAsset('sleekfin-runtime.js', false); })
+                    .then(function () { return window.SleekFin && window.SleekFin.detailsBuilder ? null : loadConfigurationAsset('sleekfin-details-builder.js', false); })
                     .then(function () {
                         if (!currentLoad(mountRequest)) return null;
                         detailsBuilder = window.SleekFin.detailsBuilder.mount(document.getElementById('sleekFinDetailsBuilder'), {
@@ -4032,6 +3975,65 @@
                 applyBuilderConfiguration({});
             }
 
+            function renderUserModalFields(configuration, fields) {
+                userModalFields.textContent = '';
+                userModalCatalog = Array.isArray(fields) ? fields : null;
+                if (!userModalCatalog) {
+                    userModalFields.textContent = 'User modal settings could not be loaded. Reload this page to try again.';
+                    return;
+                }
+                var configured = readValue(configuration, 'UserModalFields');
+                var selected = configured === undefined ? fields.map(function (field) { return field.id; }) : String(configured).split(',');
+                var groups = {};
+                fields.forEach(function (field) {
+                    if (!groups[field.group]) {
+                        var section = document.createElement('details');
+                        section.className = 'sleekfin-hero-accordion';
+                        section.innerHTML = '<summary></summary><div class="sleekfin-hero-settings"></div>';
+                        section.firstElementChild.textContent = field.group;
+                        userModalFields.appendChild(section);
+                        groups[field.group] = section.lastElementChild;
+                    }
+                    var row = document.createElement('div');
+                    row.className = 'sleekfin-hero-setting-row';
+                    row.innerHTML = '<label class="sleekfin-hero-setting-label"></label><div class="sleekfin-toggle-actions"><label class="sleekfin-toggle"><input type="checkbox"><span class="sleekfin-toggle-slider"></span></label></div>';
+                    var input = row.querySelector('input');
+                    input.id = 'sleekFinUserModal-' + field.id;
+                    input.value = field.id;
+                    input.checked = selected.indexOf(field.id) !== -1;
+                    var label = row.querySelector('.sleekfin-hero-setting-label');
+                    label.htmlFor = input.id;
+                    label.textContent = field.label;
+                    groups[field.group].appendChild(row);
+                });
+            }
+
+            function updateUserModalPreview() {
+                if (!userModalCatalog || !page.querySelector('.sleekfin-page-panel.is-active[data-sleekfin-builder-panel="user-modal"]')) return;
+                var host = document.getElementById('sleekFinUserModalPreview');
+                if (!userModalPreview) {
+                    if (!window.SleekFin || !window.SleekFin.userModalPreview) {
+                        host.textContent = 'The modal preview is unavailable. Refresh Jellyfin to load the SleekFin browser assets.';
+                        return;
+                    }
+                    userModalPreview = window.SleekFin.userModalPreview.mount(host);
+                }
+                var configuration = {
+                    HeaderEnabled: enabledInput.checked,
+                    HeroEnabled: heroEnabledInput.checked,
+                    HeroRandomized: randomizedInput.checked,
+                    HeroContentOrder: selectedSources().join(','),
+                    HeroSlidesShown: boundedHeroValue('HeroSlidesShown'),
+                    HeroAutoRotateSeconds: boundedHeroValue('HeroAutoRotateSeconds'),
+                    DetailsSeasonPostersEnabled: detailsSeasonPostersInput.checked,
+                    DetailsCompactEpisodeGridCardsEnabled: detailsCompactEpisodeGridCardsInput.checked,
+                    DetailsTrailerBackgroundEnabled: detailsTrailerBackgroundInput.checked,
+                    AccentColor: accentInput.value,
+                    DropdownStyle: dropdownStyleInput.value
+                };
+                userModalPreview.update(userModalCatalog.filter(function (field) { return document.getElementById('sleekFinUserModal-' + field.id).checked; }), configuration);
+            }
+
             function loadConfiguration() {
                 var request = ++loadRequest;
                 savedConfigurationState = null;
@@ -4039,13 +4041,14 @@
                 return (configurationSavePromise || Promise.resolve()).then(function () {
                     if (!currentLoad(request)) return null;
                     Dashboard.showLoadingMsg();
-                    return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins()]);
+                    return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins(), ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/UserSettings/Fields') }).catch(function () { return null; }), loadConfigurationAsset('sleekfin-form-controls.css', true)]);
                 })
                     .then(function (results) {
                         if (!results || !currentLoad(request)) {
                             return null;
                         }
                         var configuration = results[0];
+                        renderUserModalFields(configuration, results[2]);
                         enabledInput.checked = readValue(configuration, 'HeaderEnabled') !== false;
                         heroEnabledInput.checked = readValue(configuration, 'HeroEnabled') !== false;
                         detailsEnabledInput.checked = readValue(configuration, 'DetailsEnabled') !== false;
@@ -4062,6 +4065,7 @@
                         });
                         applyHeroConfiguration(configuration);
                         applyBuilderConfiguration(configuration);
+                        updateUserModalPreview();
                         loadPreviewServerName(request);
                         loadPreviewBackdrop(request);
                         return Promise.all([
@@ -4250,6 +4254,7 @@
                     AccentColor: accentInput.value
                 };
                 Object.keys(shapeInputs).forEach(function (name) { changes[name] = shapeInputs[name].value; });
+                if (userModalCatalog) changes.UserModalFields = Array.prototype.map.call(userModalFields.querySelectorAll('input:checked'), function (input) { return input.value; }).join(',');
                 saveHeroConfiguration(changes, contentOrder);
                 saveBuilderConfiguration(changes);
                 changes = detailsBuilder.write(changes);
@@ -4272,6 +4277,7 @@
                             window.dispatchEvent(new CustomEvent('sleekfin:header-settings-changed'));
                             window.dispatchEvent(new CustomEvent('sleekfin:hero-settings-changed'));
                             window.dispatchEvent(new CustomEvent('sleekfin:details-settings-changed'));
+                            window.dispatchEvent(new CustomEvent('sleekfin:user-settings-changed'));
                         }
                     })
                     .catch(function () {
@@ -4303,6 +4309,7 @@
                     updatePreviewMeasurements();
                     updateHeroPreview();
                 }
+                if (panel === 'user-modal') updateUserModalPreview();
                 if (detailsBuilder) {
                     if (panel === 'details') detailsBuilder.show();
                     else detailsBuilder.hide();
@@ -4446,6 +4453,8 @@
                 Dashboard.hideLoadingMsg();
                 if (configurationDialog) Dashboard.dialogHelper.close(configurationDialog);
                 if (detailsBuilder) detailsBuilder.destroy();
+                if (userModalPreview) userModalPreview.destroy();
+                userModalPreview = null;
                 detailsBuilder = null;
                 detailsBuilderPromise = null;
             }
@@ -4457,6 +4466,8 @@
             form.addEventListener('click', openBuilderConfiguration);
             form.addEventListener('input', updateUnsavedChanges);
             form.addEventListener('change', updateUnsavedChanges);
+            form.addEventListener('input', updateUserModalPreview);
+            form.addEventListener('change', updateUserModalPreview);
             startPreviewMeasurements();
             refreshBuilderCatalog();
         }());
