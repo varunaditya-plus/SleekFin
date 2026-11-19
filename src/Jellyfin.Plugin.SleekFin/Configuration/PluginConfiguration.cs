@@ -54,6 +54,8 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     public bool HeaderEnabled { get; set; } = true;
 
+    public bool UserModalEnabled { get; set; } = true;
+
     public string UserModalFields { get; set; } = UserModalConfiguration.DefaultFields;
 
     public string HeaderItemOrder { get; set; } = string.Empty;

@@ -11,8 +11,8 @@ export function mount(host) {
   function paint() {
     if (!root || !snapshot) return;
     frame.contentDocument.documentElement.style.setProperty('--sleekfin-accent', accent);
-    root.className = snapshot.fields.length ? 'dialog sleekfin-user-settings-dialog' : '';
-    render(snapshot.fields.length ? h(UserSettingsModal, { snapshot }) : h('p', { class: 'sleekfin-user-settings-intro' }, 'SleekFin is hidden from the profile menu.'), root);
+    root.className = snapshot.enabled ? 'dialog sleekfin-user-settings-dialog' : '';
+    render(snapshot.enabled ? h(UserSettingsModal, { snapshot }) : h('p', { class: 'sleekfin-user-settings-intro' }, 'SleekFin is hidden from the profile menu.'), root);
     root.querySelectorAll('input, select, button').forEach((control) => { control.tabIndex = -1; });
   }
 
@@ -39,7 +39,7 @@ export function mount(host) {
   const controller = {
     update(fields, configuration) {
       accent = configuration.AccentColor;
-      snapshot = { fields, defaults: Object.fromEntries(fields.map((field) => [field.id, configuration[field.id]])), overrides: {} };
+      snapshot = { enabled: configuration.UserModalEnabled, fields, defaults: Object.fromEntries(fields.map((field) => [field.id, configuration[field.id]])), overrides: {} };
       paint();
     },
     destroy() {

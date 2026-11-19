@@ -31,6 +31,7 @@ public sealed class UserSettingsService(IDisplayPreferencesManager preferences, 
 
         return new UserSettingsResponse
         {
+            Enabled = defaults.UserModalEnabled,
             Fields = fields,
             Defaults = fields.ToDictionary(field => field.Id, field => UserModalConfiguration.Properties[field.Id].GetValue(defaults), StringComparer.Ordinal),
             Overrides = overrides,
@@ -42,6 +43,12 @@ public sealed class UserSettingsService(IDisplayPreferencesManager preferences, 
     {
         error = null;
         PluginConfiguration defaults = configuration();
+        if (!defaults.UserModalEnabled)
+        {
+            error = "The user modal is disabled.";
+            return false;
+        }
+
         IReadOnlyList<UserSettingField> fields = UserModalConfiguration.AllowedFields(defaults.UserModalFields);
         if (overrides is null || overrides.Count > fields.Count)
         {

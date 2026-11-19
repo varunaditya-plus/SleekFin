@@ -25,7 +25,7 @@ function createUserSettingsFeature() {
   }
 
   function accept(snapshot) {
-    if (state.dialog && JSON.stringify(state.snapshot?.fields) !== JSON.stringify(snapshot.fields)) close();
+    if (state.dialog && (!snapshot.enabled || JSON.stringify(state.snapshot?.fields) !== JSON.stringify(snapshot.fields))) close();
     const signature = JSON.stringify([snapshot.fields, { ...snapshot.defaults, ...snapshot.overrides }, snapshot.appearance]);
     state.snapshot = snapshot;
     root.style.setProperty('--sleekfin-accent', snapshot.appearance.accentColor);
@@ -73,7 +73,7 @@ function createUserSettingsFeature() {
     const scope = currentScope();
     try {
       const snapshot = await requestSettings();
-      if (!snapshot || !snapshot.fields.length || scope !== currentScope() || !state.started) return;
+      if (!snapshot?.enabled || scope !== currentScope() || !state.started) return;
       const dialog = helper.createDialog({ removeOnClose: true, scrollY: false, enableHistory: false, exitAnimation: 'none' });
       dialog.classList.add('sleekfin-user-settings-dialog');
       state.dialog = dialog;
@@ -125,7 +125,7 @@ function createUserSettingsFeature() {
   }
 
   function injectLinks() {
-    if (!state.snapshot?.fields.length || state.scope !== currentScope()) {
+    if (!state.snapshot?.enabled || state.scope !== currentScope()) {
       document.querySelectorAll(LINK_SELECTOR).forEach((link) => link.remove());
       return;
     }

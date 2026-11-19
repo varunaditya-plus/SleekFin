@@ -45,7 +45,7 @@ export function UserSettingsModal({ snapshot, onSave, onClose }) {
 
   async function save(event) {
     event.preventDefault();
-    if (busy) return;
+    if (busy || !dirty) return;
     if (snapshot.fields.some((field) => field.type === 'sources' && !String(values[field.id] || '').trim())) {
       setError('Select at least one hero content source.');
       return;
@@ -74,8 +74,9 @@ export function UserSettingsModal({ snapshot, onSave, onClose }) {
           <SettingInput field={field} value={values[field.id]} disabled={busy} onChange={(value) => change(field, value)} />
         </div>)}
       </section>)}
+      {!groups.length && <p class="sleekfin-user-settings-intro">No settings are available to personalize.</p>}
       {error ? <p class="sleekfin-user-settings-error">{error}</p> : null}
     </div>
-    <div class="formDialogFooter formDialogFooter-flex"><button type="button" class="emby-button button-flat" disabled={busy || !Object.keys(overrides).length} onClick={() => { setOverrides({}); setError(''); }}>Reset to server defaults</button><div><button type="button" class="emby-button button-flat" disabled={busy} onClick={onClose}>Cancel</button><button type="submit" class="emby-button raised button-submit" disabled={busy || !dirty}>{busy ? 'Saving…' : 'Save'}</button></div></div>
+    {groups.length > 0 && <div class="formDialogFooter formDialogFooter-flex"><button type="button" class="emby-button button-flat" disabled={busy || !Object.keys(overrides).length} onClick={() => { setOverrides({}); setError(''); }}>Reset to server defaults</button><div><button type="button" class="emby-button button-flat" disabled={busy} onClick={onClose}>Cancel</button><button type="submit" class="emby-button raised button-submit" disabled={busy || !dirty}>{busy ? 'Saving…' : 'Save'}</button></div></div>}
   </form>;
 }

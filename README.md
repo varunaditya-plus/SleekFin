@@ -66,7 +66,7 @@ https://raw.githubusercontent.com/varunaditya-plus/SleekFin/main/manifest.json
 ### Configuration
 After installation, go to **Dashboard → SleekFin**. The **Overview** tab groups feature toggles and the SleekFin accent colour picker under **General options**. Save and refresh Jellyfin to apply an accent colour change. Our **UI Builder** gives you live editors for the elements we reskin, letting you tweak them to your liking.
 
-Users can open **SleekFin** from the profile menu to personalize hero content, detail-page options, and appearance. By default, users use server defaults. Saved preferences apply only to the account it has been edited on. Admins can go to **UI Builder → User modal** to control which settings users can change. Hidden settings use the server defaults, and hiding every setting removes the menu entry (for now). Users can reset all preferences to the server defaults from the modal.
+Users can open **SleekFin** from the profile menu to personalize hero content, detail-page options, and appearance. By default, users use server defaults. Saved preferences apply only to the account it has been edited on. Admins can go to **UI Builder → User modal** to control which settings users can change or turn off the user menu entirely. Hidden settings use the server defaults. Users can reset all preferences to the server defaults from the modal.
 
 ## Compatibility
 

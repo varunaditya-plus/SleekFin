@@ -1057,6 +1057,10 @@
             position: relative;
         }
 
+        #sleekFinConfigurationPage .sleekfin-user-modal-toggle {
+            margin-top: 0.75em;
+        }
+
         #sleekFinConfigurationPage .sleekfin-user-modal-preview-frame {
             border: 0;
             display: block;
@@ -2254,8 +2258,18 @@
                                 <p class="sleekfin-hero-preview-caption">↑ THIS IS A LIVE PREVIEW OF YOUR USER MODAL</p>
                             </div>
                             <div class="sleekfin-hero-builder-content">
-                                <p class="sleekfin-field-description">Choose what users can personalize from SleekFin in their profile menu. Everyone starts with the server configuration. Hidden settings always use the server defaults.</p>
-                                <p class="sleekfin-field-description">Hide every setting to remove SleekFin from the profile menu.</p>
+                                <div class="sleekfin-toggle-row sleekfin-user-modal-toggle">
+                                    <div class="sleekfin-toggle-copy">
+                                        <label class="sleekfin-toggle-label" for="sleekFinUserModalEnabled">Show user modal</label>
+                                        <div class="sleekfin-field-description">Allow users to configure how SleekFin looks for them using the user modal.</div>
+                                    </div>
+                                    <div class="sleekfin-toggle-actions">
+                                        <label class="sleekfin-toggle">
+                                            <input id="sleekFinUserModalEnabled" type="checkbox" checked />
+                                            <span class="sleekfin-toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
                                 <div id="sleekFinUserModalFields"></div>
                             </div>
                         </div>
@@ -2294,6 +2308,7 @@
             var randomizedInput = document.getElementById('sleekFinHeroRandomized');
             var sources = document.getElementById('sleekFinHeroSources');
             var dependencyStatus = document.getElementById('sleekFinDependencyStatus');
+            var userModalEnabledInput = document.getElementById('sleekFinUserModalEnabled');
             var userModalFields = document.getElementById('sleekFinUserModalFields');
             var userModalCatalog = null;
             var userModalPreview = null;
@@ -4019,6 +4034,7 @@
                     userModalPreview = window.SleekFin.userModalPreview.mount(host);
                 }
                 var configuration = {
+                    UserModalEnabled: userModalEnabledInput.checked,
                     HeaderEnabled: enabledInput.checked,
                     HeroEnabled: heroEnabledInput.checked,
                     HeroRandomized: randomizedInput.checked,
@@ -4048,6 +4064,7 @@
                             return null;
                         }
                         var configuration = results[0];
+                        userModalEnabledInput.checked = readValue(configuration, 'UserModalEnabled') !== false;
                         renderUserModalFields(configuration, results[2]);
                         enabledInput.checked = readValue(configuration, 'HeaderEnabled') !== false;
                         heroEnabledInput.checked = readValue(configuration, 'HeroEnabled') !== false;
@@ -4244,6 +4261,7 @@
                 }
                 if (!detailsBuilder || !detailsBuilder.validate()) return;
                 var changes = {
+                    UserModalEnabled: userModalEnabledInput.checked,
                     HeaderEnabled: enabledInput.checked,
                     HeroEnabled: heroEnabledInput.checked,
                     DetailsEnabled: detailsEnabledInput.checked,

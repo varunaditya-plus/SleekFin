@@ -19,6 +19,9 @@ public sealed record UserSettingField(
 
 public sealed record UserSettingsResponse
 {
+    [JsonPropertyName("enabled")]
+    public required bool Enabled { get; init; }
+
     [JsonPropertyName("fields")]
     public required IReadOnlyList<UserSettingField> Fields { get; init; }
 
