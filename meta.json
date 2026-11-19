@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added user modal toggle for personalized settings in SleekFin",
+  "changelog": "Kept Bonfire profile avatars within SleekFin header controls",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-19T00:46:15.0000000Z",
-  "version": "1.8.1.0",
+  "timestamp": "2026-11-19T01:14:36.0000000Z",
+  "version": "1.8.1.1",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
