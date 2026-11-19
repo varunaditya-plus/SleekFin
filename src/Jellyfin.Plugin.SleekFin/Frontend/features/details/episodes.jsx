@@ -84,6 +84,7 @@ function EpisodeCard({ client, episode, expanded, moreLabel }) {
           {episode.CanDownload && typeof client.getItemDownloadUrl === 'function' && (
             <IconButton class="sleekfin-details-episode-download" icon="download" label="Download" raised strokeWidth={1.75} onClick={() => downloadEpisode(client, episode)} />
           )}
+          <button type="button" class="sleekfin-icon-button sleekfin-control-3d itemAction" data-action="link" title="Episode details"><span class="material-icons info_outline" aria-hidden="true" /></button>
           <button type="button" class="sleekfin-icon-button sleekfin-control-3d itemAction" data-action="menu" title={moreLabel}><span class="material-icons more_vert" /></button>
         </span>
       </div>
