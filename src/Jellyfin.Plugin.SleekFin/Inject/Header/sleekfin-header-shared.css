@@ -405,6 +405,15 @@ html.sleekfin-header-mounted [data-sleekfin-header-source-icon] img {
     width: 20px;
 }
 
+/* Cloned provider images can retain inline sizing and positioning from their original wrapper. */
+html.sleekfin-header-mounted [data-sleekfin-header-proxy-item] > img[data-sleekfin-header-source-icon],
+html.sleekfin-header-mounted [data-sleekfin-header-overflow-visual] > img[data-sleekfin-header-source-icon] {
+    height: 20px !important;
+    object-fit: cover;
+    position: static !important;
+    width: 20px !important;
+}
+
 html.sleekfin-header-mounted [data-sleekfin-header-proxy-item="je:active-streams"] {
     overflow: visible;
     position: relative;
