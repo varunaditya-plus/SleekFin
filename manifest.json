@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.8.2.0",
+        "changelog": "Added info button to episode cards to allow going to episode pages",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.8.2.0/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "20CF7B46D19A707FCF8E5447FAC854C0",
+        "timestamp": "2026-11-19T21:23:43.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.8.1.1",
         "changelog": "Kept Bonfire profile avatars within SleekFin header controls",
         "targetAbi": "12.0.0.0",
