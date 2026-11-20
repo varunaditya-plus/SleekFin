@@ -10,6 +10,15 @@
     "repositoryUrl": "https://github.com/varunaditya-plus/SleekFin",
     "versions": [
       {
+        "version": "1.8.3.1",
+        "changelog": "Restored header library names when opening settings directly",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/varunaditya-plus/SleekFin/releases/download/1.8.3.1/Jellyfin.Plugin.SleekFin_12.0.0.zip",
+        "checksum": "099BBA341E5478CEEFFC5A057CC26507",
+        "timestamp": "2026-11-20T03:34:53.0000000Z",
+        "dependencies": []
+      },
+      {
         "version": "1.8.3.0",
         "changelog": "Added cross-account and conditional controls to the Header UI Builder, kept newly added items out of header layout unless placed manually fixed desktop overflow and mobile dock overlap, hid the duplicate Jellyfin Enhanced launcher, and corrected provider popup positioning",
         "targetAbi": "12.0.0.0",

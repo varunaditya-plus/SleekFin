@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added cross-account and conditional controls to the Header UI Builder, kept newly added items out of header layout unless placed manually fixed desktop overflow and mobile dock overlap, hid the duplicate Jellyfin Enhanced launcher, and corrected provider popup positioning",
+  "changelog": "Restored header library names when opening settings directly",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-20T01:55:48.0000000Z",
-  "version": "1.8.3.0",
+  "timestamp": "2026-11-20T03:34:53.0000000Z",
+  "version": "1.8.3.1",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
