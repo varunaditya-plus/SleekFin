@@ -211,14 +211,13 @@ jobs:
             echo "No version file changes to commit"
           else
             git commit -m "chore: bump version to ${VERSION}"
-            git push origin HEAD:main
           fi
 
-      - name: Create and push release tag
+      - name: Push version commit and release tag
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           git tag -a "${VERSION}" -m "SleekFin ${VERSION}"
-          git push origin "${VERSION}"
+          git push --atomic origin HEAD:refs/heads/main "refs/tags/${VERSION}"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
