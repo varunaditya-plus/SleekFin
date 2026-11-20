@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Restored header library names when opening settings directly",
+  "changelog": "Added unlimited slides as an option for the Home hero carousel",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-20T03:34:53.0000000Z",
-  "version": "1.8.3.1",
+  "timestamp": "2026-11-20T11:47:52.0000000Z",
+  "version": "1.8.4.0",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
