@@ -1,6 +1,11 @@
 import { normalizeSettings } from './settings.js';
 
-const ITEM_FIELDS = 'Overview,Genres';
+const ITEM_QUERIES = {
+  ContinueWatching: { Filters: 'IsResumable', IncludeItemTypes: 'Movie,Episode', SortBy: 'DatePlayed', SortOrder: 'Descending' },
+  LatestMovies: { IncludeItemTypes: 'Movie', SortBy: 'DateCreated', SortOrder: 'Descending' },
+  LatestShows: { IncludeItemTypes: 'Series', SortBy: 'DateCreated', SortOrder: 'Descending' },
+  Favorites: { Filters: 'IsFavorite', IncludeItemTypes: 'Movie,Series', SortBy: 'SortName', SortOrder: 'Ascending' },
+};
 
 export function loadSettings(client) {
   return client.ajax({
@@ -10,54 +15,12 @@ export function loadSettings(client) {
   }).then(normalizeSettings);
 }
 
-function itemQuery(client, options) {
-  const query = Object.assign({}, options, {
-    EnableTotalRecordCount: false,
-    Fields: ITEM_FIELDS,
-    Limit: 10,
-    Recursive: true,
-  });
-  return client.getItems(client.getCurrentUserId(), query).then((result) => result.Items || []);
-}
-
-function loadSource(client, source) {
-  switch (source) {
-    case 'ContinueWatching':
-      return itemQuery(client, {
-        Filters: 'IsResumable',
-        IncludeItemTypes: 'Movie,Episode',
-        SortBy: 'DatePlayed',
-        SortOrder: 'Descending',
-      });
-    case 'NextUp':
-      return client
-        .getNextUpEpisodes({
-          EnableTotalRecordCount: false,
-          Fields: ITEM_FIELDS,
-          Limit: 10,
-          UserId: client.getCurrentUserId(),
-        })
-        .then((result) => result.Items || []);
-    case 'LatestMovies':
-      return itemQuery(client, {
-        IncludeItemTypes: 'Movie',
-        SortBy: 'DateCreated',
-        SortOrder: 'Descending',
-      });
-    case 'LatestShows':
-      return itemQuery(client, {
-        IncludeItemTypes: 'Series',
-        SortBy: 'DateCreated',
-        SortOrder: 'Descending',
-      });
-    case 'Favorites':
-      return itemQuery(client, {
-        Filters: 'IsFavorite',
-        IncludeItemTypes: 'Movie,Series',
-        SortBy: 'SortName',
-        SortOrder: 'Ascending',
-      });
-  }
+function loadSource(client, source, options) {
+  const userId = client.getCurrentUserId();
+  const request = source === 'NextUp'
+    ? client.getNextUpEpisodes({ ...options, UserId: userId })
+    : client.getItems(userId, { ...options, ...ITEM_QUERIES[source], Recursive: true });
+  return request.then((result) => result.Items || []);
 }
 
 function shuffle(items) {
@@ -72,7 +35,9 @@ function shuffle(items) {
 }
 
 function collect(client, settings) {
-  return Promise.all(settings.contentOrder.map((source) => loadSource(client, source).catch(() => []))).then((sources) => {
+  const options = { EnableTotalRecordCount: false, Fields: 'Overview,Genres' };
+  if (settings.slidesShown !== -1) options.Limit = 10;
+  return Promise.all(settings.contentOrder.map((source) => loadSource(client, source, options).catch(() => []))).then((sources) => {
     const seen = new Set();
     const items = [];
     sources.forEach((sourceItems) => {
@@ -84,7 +49,8 @@ function collect(client, settings) {
         }
       });
     });
-    return (settings.randomized ? shuffle(items) : items).slice(0, settings.slidesShown);
+    const ordered = settings.randomized ? shuffle(items) : items;
+    return settings.slidesShown === -1 ? ordered : ordered.slice(0, settings.slidesShown);
   });
 }
 
@@ -94,6 +60,12 @@ function prepare(client, item) {
 }
 
 export function loadEntries(client, settings) {
-  if (!settings.contentOrder.length) return Promise.resolve([]);
-  return collect(client, settings).then((items) => Promise.all(items.map((item) => prepare(client, item))));
+  return collect(client, settings).then((items) => {
+    if (settings.slidesShown !== -1) return Promise.all(items.map((item) => prepare(client, item)));
+    return items.map((item) => {
+      if (item.Type !== 'Episode' || !item.SeriesId) return { display: item, play: item };
+      let prepared;
+      return { play: item, load: () => (prepared ||= prepare(client, item)) };
+    });
+  });
 }

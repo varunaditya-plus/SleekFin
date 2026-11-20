@@ -108,7 +108,7 @@ export function normalizeSettings(value) {
     secondaryButtonBackgroundColor: color(source.secondaryButtonBackgroundColor, DEFAULT_SETTINGS.secondaryButtonBackgroundColor),
     secondaryButtonOpacity: number(source.secondaryButtonOpacity, 0, 100, DEFAULT_SETTINGS.secondaryButtonOpacity),
     secondaryButtonTextColor: color(source.secondaryButtonTextColor, DEFAULT_SETTINGS.secondaryButtonTextColor),
-    slidesShown: number(source.slidesShown, 1, 10, DEFAULT_SETTINGS.slidesShown),
+    slidesShown: Number(source.slidesShown) === -1 ? -1 : number(source.slidesShown, 1, 10, DEFAULT_SETTINGS.slidesShown),
     swipeEnabled: source.swipeEnabled !== false,
     titleCase: option(source.titleCase, TITLE_CASES, DEFAULT_SETTINGS.titleCase),
     titleColor: color(source.titleColor, DEFAULT_SETTINGS.titleColor),

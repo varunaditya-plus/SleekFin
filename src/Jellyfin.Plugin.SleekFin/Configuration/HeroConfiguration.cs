@@ -3,6 +3,8 @@ namespace Jellyfin.Plugin.SleekFin.Configuration;
 internal static class HeroConfiguration
 {
     public const int DefaultSlidesShown = 5;
+    public const int UnlimitedSlides = -1;
+    public const int MaxSlidesShown = 10;
     public const string DefaultContentAlignment = "Left";
     public const string DefaultVerticalAlignment = "Bottom";
     public const int DefaultMobileHeight = 70;
@@ -48,7 +50,7 @@ internal static class HeroConfiguration
         ArgumentNullException.ThrowIfNull(configuration);
 
         configuration.HeroContentOrder = string.Join(',', HeroContentOrder.Normalize(configuration.HeroContentOrder));
-        configuration.HeroSlidesShown = Math.Clamp(configuration.HeroSlidesShown, 1, 10);
+        configuration.HeroSlidesShown = NormalizeSlidesShown(configuration.HeroSlidesShown);
         configuration.HeroContentAlignment = NormalizeOption(configuration.HeroContentAlignment, ContentAlignments, DefaultContentAlignment);
         configuration.HeroVerticalAlignment = NormalizeOption(configuration.HeroVerticalAlignment, VerticalAlignments, DefaultVerticalAlignment);
         configuration.HeroMobileHeight = Math.Clamp(configuration.HeroMobileHeight, 40, 100);
@@ -83,6 +85,11 @@ internal static class HeroConfiguration
         configuration.HeroTransitionStyle = NormalizeOption(configuration.HeroTransitionStyle, TransitionStyles, DefaultTransitionStyle);
         configuration.HeroTransitionDurationMs = Math.Clamp(configuration.HeroTransitionDurationMs, 100, 2000);
         configuration.HeroVignetteStrength = Math.Clamp(configuration.HeroVignetteStrength, 0, 100);
+    }
+
+    public static int NormalizeSlidesShown(int value)
+    {
+        return value == UnlimitedSlides ? value : Math.Clamp(value, 1, MaxSlidesShown);
     }
 
     private static string NormalizeOption(string? value, IReadOnlyList<string> allowedValues, string fallback)

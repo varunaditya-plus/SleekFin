@@ -1778,9 +1778,9 @@
                                             <div id="sleekFinHeroSources" class="sleekfin-source-list"></div>
                                         </div>
                                         <div class="sleekfin-hero-setting-row">
-                                            <label class="sleekfin-hero-setting-label" for="sleekFinHeroSlidesShown">Slides shown</label>
+                                            <label class="sleekfin-hero-setting-label" for="sleekFinHeroSlidesShown">Number of slides (-1 for unlimited)</label>
                                             <div class="sleekfin-input sleekfin-hero-number-field sleekfin-hero-setting-control">
-                                                <input id="sleekFinHeroSlidesShown" type="number" min="1" max="10" value="5" />
+                                                <input id="sleekFinHeroSlidesShown" type="number" min="-1" max="10" value="5" />
                                             </div>
                                         </div>
                                     </div>
@@ -2621,6 +2621,7 @@
                 if (!isFinite(value)) {
                     value = heroDefaults[name];
                 }
+                if (name === 'HeroSlidesShown' && value === -1) return value;
                 return Math.min(bounds[1], Math.max(bounds[0], Math.round(value)));
             }
 

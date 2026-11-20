@@ -14,7 +14,7 @@ internal static class UserModalConfiguration
             Options = [new("ContinueWatching", "Continue watching"), new("NextUp", "Next up"), new("LatestMovies", "Latest movies"), new("LatestShows", "Latest shows"), new("Favorites", "Favorites")]
         },
         new(nameof(PluginConfiguration.HeroRandomized), "Shuffle content", "Hero carousel", "boolean"),
-        new(nameof(PluginConfiguration.HeroSlidesShown), "Number of slides", "Hero carousel", "number", 1, 10),
+        new(nameof(PluginConfiguration.HeroSlidesShown), "Number of slides (-1 for unlimited)", "Hero carousel", "number", HeroConfiguration.UnlimitedSlides, HeroConfiguration.MaxSlidesShown),
         new(nameof(PluginConfiguration.HeroAutoRotateSeconds), "Seconds between slides", "Hero carousel", "number", 1, 120),
         new(nameof(PluginConfiguration.DetailsSeasonPostersEnabled), "Show season posters", "Detail pages", "boolean"),
         new(nameof(PluginConfiguration.DetailsCompactEpisodeGridCardsEnabled), "Compact episode cards", "Detail pages", "boolean"),
@@ -53,7 +53,9 @@ internal static class UserModalConfiguration
 
         if (field.Type == "number" && value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int number))
         {
-            normalized = Math.Clamp(number, field.Min, field.Max);
+            normalized = field.Id == nameof(PluginConfiguration.HeroSlidesShown)
+                ? HeroConfiguration.NormalizeSlidesShown(number)
+                : Math.Clamp(number, field.Min, field.Max);
             return true;
         }
 

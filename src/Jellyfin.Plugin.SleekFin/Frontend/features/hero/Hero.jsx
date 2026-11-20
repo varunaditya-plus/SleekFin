@@ -1,6 +1,21 @@
 import { h, useEffect, useRef, useState } from '../../shared/runtime.js';
 import { HeroSlide } from './HeroSlide.jsx';
 
+function DeferredSlide({ entry, active, settings, onReady }) {
+  const [prepared, setPrepared] = useState(null);
+  useEffect(() => {
+    let mounted = true;
+    entry.load().then((result) => {
+      if (mounted) setPrepared(result);
+    });
+    return () => { mounted = false; };
+  }, [entry]);
+  useEffect(() => {
+    if (prepared) onReady();
+  }, [prepared]);
+  return prepared && <HeroSlide entry={prepared} active={active} settings={settings} />;
+}
+
 export function Hero({ entries, root, settings }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const pointerStartX = useRef(null);
@@ -29,12 +44,16 @@ export function Hero({ entries, root, settings }) {
     return stopRotation;
   }, [entries.length, settings.autoRotateSeconds]);
 
-  useEffect(() => {
+  function focusPendingButton() {
     if (pendingFocus.current === null) return;
     const buttons = root.querySelectorAll('.sleekfin-hero-slide[data-active="true"] .sleekfin-hero-actions button');
-    buttons[pendingFocus.current === 'first' ? 0 : buttons.length - 1]?.focus();
+    const button = buttons[pendingFocus.current === 'first' ? 0 : buttons.length - 1];
+    if (!button) return;
+    button.focus();
     pendingFocus.current = null;
-  }, [activeIndex]);
+  }
+
+  useEffect(focusPendingButton, [activeIndex]);
 
   useEffect(() => {
     function navigate(event) {
@@ -97,5 +116,15 @@ export function Hero({ entries, root, settings }) {
     };
   }, [entries.length, root, settings.autoRotateSeconds, settings.swipeEnabled]);
 
-  return entries.map((entry, index) => <HeroSlide key={`${entry.display.Id || index}-${entry.play.Id || index}`} entry={entry} active={index === activeIndex} settings={settings} />);
+  function renderSlide(entry, index) {
+    const key = entry.play.Id || index;
+    const active = index === activeIndex;
+    return entry.load
+      ? <DeferredSlide key={key} entry={entry} active={active} settings={settings} onReady={focusPendingButton} />
+      : <HeroSlide key={key} entry={entry} active={active} settings={settings} />;
+  }
+
+  if (settings.slidesShown !== -1 || entries.length <= 3) return entries.map(renderSlide);
+  const indexes = [(activeIndex + entries.length - 1) % entries.length, activeIndex, (activeIndex + 1) % entries.length];
+  return indexes.map((index) => renderSlide(entries[index], index));
 }
