@@ -107,6 +107,18 @@ html.sleekfin-header-mounted [data-sleekfin-header][data-sleekfin-header-proxy-a
     display: none !important;
 }
 
+html.sleekfin-header-mounted [data-sleekfin-header="legacy"][data-sleekfin-header-proxy-active] .headerTabs [id^="je-native-tab-btn-"][data-sleekfin-header-source-hidden="true"] {
+    display: inline-flex !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    visibility: hidden !important;
+}
+
+html.sleekfin-header-mounted [data-sleekfin-header="legacy"][data-sleekfin-header-proxy-active] .headerTabs [id^="je-native-tab-btn-"][data-sleekfin-header-source-hidden="true"].hide,
+html.sleekfin-header-mounted [data-sleekfin-header="legacy"][data-sleekfin-header-proxy-active] .headerTabs [id^="je-native-tab-btn-"][data-sleekfin-header-source-hidden="true"][hidden] {
+    display: none !important;
+}
+
 html.sleekfin-header-mounted [data-sleekfin-header-source-anchor="true"] {
     margin: 0 !important;
     opacity: 0 !important;
@@ -116,6 +128,15 @@ html.sleekfin-header-mounted [data-sleekfin-header-source-anchor="true"] {
     z-index: -1 !important;
 }
 
+/* Jellyfin Enhanced sets the launcher display inline while measuring its tray. */
+html.sleekfin-header-mounted [data-sleekfin-header-proxy-active] #je-header-buttons-group[data-sleekfin-header-all-proxied="true"] .je-header-launcher,
+html.sleekfin-header-mounted [data-sleekfin-header-proxy-active] #je-header-buttons-group[data-sleekfin-header-all-proxied="true"] .je-header-more-toggle {
+    pointer-events: none !important;
+    position: absolute !important;
+    visibility: hidden !important;
+}
+
+html.sleekfin-header-mounted #kefin-home-category-rail .kefin-home-category-item[data-sleekfin-header-source-hidden="true"],
 html.sleekfin-header-mounted #kefin-home-category-rail[data-sleekfin-header-all-proxied="true"],
 html.sleekfin-header-mounted #kefin-home-create-section-btn[data-sleekfin-header-all-proxied="true"] {
     display: none !important;
@@ -126,7 +147,7 @@ html.sleekfin-header-mounted #kefinTweaks-breadcrumbs-wrapper[data-sleekfin-head
     margin: 0;
     min-width: 0;
     padding: 0;
-    width: 0;
+    width: 0 !important;
 }
 
 html.sleekfin-header-mounted #kefinTweaks-breadcrumbs-wrapper[data-sleekfin-header-all-proxied="true"] .kefinTweaks-breadcrumb-separator {
@@ -169,6 +190,7 @@ html.sleekfin-header-mounted [data-sleekfin-header-proxy] {
 }
 
 html.sleekfin-header-mounted [data-sleekfin-header-overflowed="true"],
+html.sleekfin-header-mounted [data-sleekfin-header-proxy][hidden],
 html.sleekfin-header-mounted [data-sleekfin-header-overflow-hidden="true"] {
     display: none !important;
 }
@@ -466,28 +488,27 @@ html.sleekfin-header-mounted [data-sleekfin-header-proxy="legacy"] {
     padding: 0;
 }
 
-@media (max-width: 899px) {
-    html.sleekfin-header-mounted:not(.layout-tv) body:not(.layout-tv) [data-sleekfin-header] [data-sleekfin-header-overflow-caret] {
-        margin-bottom: 0;
-        margin-top: 4px;
-        transform: rotate(45deg);
-    }
+html.sleekfin-header-mounted[data-sleekfin-header-layout="compact"] [data-sleekfin-header-overflow-caret] {
+    margin-bottom: 0;
+    margin-top: 4px;
+    transform: rotate(45deg);
+}
 
-    html.sleekfin-header-mounted:not(.layout-tv) body:not(.layout-tv) [data-sleekfin-header] [data-sleekfin-header-proxy] {
-        -webkit-backdrop-filter: var(--sleekfin-glass-filter);
-        backdrop-filter: var(--sleekfin-glass-filter);
-        background: var(--sleekfin-header-glass-background);
-        border: var(--sleekfin-glass-border);
-        border-radius: 12px;
-        bottom: calc(12px + max(env(safe-area-inset-bottom), var(--sleekfin-header-dock-offset, 0px)));
-        box-shadow: var(--sleekfin-glass-shadow);
-        left: 50%;
-        max-width: calc(100vw - 24px);
-        padding: var(--sleekfin-header-bar-padding);
-        position: fixed;
-        right: auto;
-        top: auto;
-        transform: translateX(-50%);
-        z-index: 1103;
-    }
+html.sleekfin-header-mounted[data-sleekfin-header-layout="compact"] [data-sleekfin-header-proxy] {
+    -webkit-backdrop-filter: var(--sleekfin-glass-filter);
+    backdrop-filter: var(--sleekfin-glass-filter);
+    background: var(--sleekfin-header-glass-background);
+    border: var(--sleekfin-glass-border);
+    border-radius: 12px;
+    bottom: calc(12px + max(env(safe-area-inset-bottom, 0px), var(--sleekfin-header-dock-offset, 0px)));
+    box-shadow: var(--sleekfin-glass-shadow);
+    left: 50%;
+    max-width: calc(100vw - 24px);
+    padding: var(--sleekfin-header-bar-padding);
+    position: fixed;
+    right: auto;
+    top: auto;
+    transform: translateX(-50%);
+    width: max-content;
+    z-index: 1103;
 }

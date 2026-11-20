@@ -29,9 +29,13 @@ internal static class HeaderConfiguration
         "jellyfin:audio-player",
         "jellyfin:back",
         "jellyfin:cast",
+        "jellyfin:collections",
         "jellyfin:favorites",
+        "jellyfin:folders",
         "jellyfin:home",
+        "jellyfin:live-tv",
         "jellyfin:more",
+        "jellyfin:playlists",
         "jellyfin:search",
         "jellyfin:syncplay",
         "jellyfin:user-menu",
@@ -84,7 +88,7 @@ internal static class HeaderConfiguration
         return result;
     }
 
-    private static bool IsItemId(string value)
+    internal static bool IsItemId(string value)
     {
         if (FixedItemIds.Contains(value, StringComparer.Ordinal))
         {

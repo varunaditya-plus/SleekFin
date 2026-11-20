@@ -1,5 +1,5 @@
 import { dom } from '../../shared/runtime.js';
-import { createHeaderProxy, needsProxyReplacement, refreshHeaderProxy } from './proxy.js';
+import { createHeaderProxy, needsProxyReplacement, refreshHeaderProxy, scheduleHeaderProxyLayout } from './proxy.js';
 import { settingsSignature } from './settings.js';
 import { applySettings, cleanup, createMount, directChildren, isTvLayout, layoutMode, mark, move, updateScrolledState } from './shared.js';
 
@@ -33,15 +33,14 @@ export function createLegacyAdapter(brand) {
         .filter((element) => element !== menu && element.matches('button, .headerButton, .paper-icon-button-light'))
         .forEach((element) => move(headerMount, element, cluster));
     }
-    // Jellyfin 12 removes native tab handlers on detach without restoring them on reattachment.
-    if (tabs && headerMount.layoutMode === 'desktop' && !headerMount.isTv) {
-      move(headerMount, tabs, cluster);
-    }
     move(headerMount, right, cluster);
     brand.ensureFallback(headerMount.isTv ? header : document.body);
-    const proxyBefore = tabs?.parentNode === cluster ? tabs : right?.parentNode === cluster ? right : null;
-    headerMount.proxy = createHeaderProxy(headerMount, cluster, proxyBefore, settings);
+    headerMount.proxy = createHeaderProxy(headerMount, cluster, right, settings);
     headerMount.updateBrandOverlap = () => brand.updateOverlap(headerMount);
+    if (typeof window.ResizeObserver === 'function') {
+      headerMount.resizeObserver = new window.ResizeObserver(() => scheduleHeaderProxyLayout(headerMount));
+      headerMount.resizeObserver.observe(top);
+    }
     return headerMount;
   }
 
@@ -51,6 +50,8 @@ export function createLegacyAdapter(brand) {
       mount.isTv !== isTvLayout() ||
       mount.layoutMode !== layoutMode() ||
       !dom.isConnected(mount.cluster) ||
+      mount.nav !== surface.header.querySelector('.headerTabs') ||
+      mount.actions !== surface.header.querySelector('.headerRight') ||
       mount.menu !== surface.header.querySelector('.mainDrawerButton') ||
       mount.settingsSignature !== settingsSignature(settings) ||
       needsProxyReplacement(mount, settings)

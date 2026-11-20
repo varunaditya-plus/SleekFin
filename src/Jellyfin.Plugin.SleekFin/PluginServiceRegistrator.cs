@@ -12,5 +12,6 @@ public sealed class PluginServiceRegistrator : IPluginServiceRegistrator
     {
         serviceCollection.AddSingleton<Func<PluginConfiguration>>(_ => () => SleekFinPlugin.Instance.Configuration);
         serviceCollection.AddSingleton<UserSettingsService>();
+        serviceCollection.AddSingleton<HeaderCatalogService>();
     }
 }

@@ -38,8 +38,6 @@ html.sleekfin-header-mounted[data-sleekfin-header-bar-position="right"] [data-sl
     margin-inline-start: auto;
 }
 
-html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] .headerTabs,
-html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] .emby-tabs-slider,
 html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] .headerRight {
     align-items: center !important;
     background: transparent !important;
@@ -70,31 +68,6 @@ html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] [data-sleekfin-heade
 
 html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] .headerRight[data-sleekfin-header-all-proxied="true"]::before {
     display: none;
-}
-
-html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] .emby-tab-button {
-    background: var(--sleekfin-header-item-background) !important;
-    border: 0 !important;
-    border-radius: 8px !important;
-    color: var(--sleekfin-header-item-text) !important;
-    font: 500 13px/1 var(--sleekfin-font-family) !important;
-    height: var(--sleekfin-header-item-height) !important;
-    margin: 0 !important;
-    min-height: var(--sleekfin-header-item-height) !important;
-    padding: 0 12px !important;
-    text-transform: none !important;
-}
-
-html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] .emby-tab-button-active {
-    background: var(--sleekfin-header-active-background) !important;
-    box-shadow: inset 0 1px rgba(255, 255, 255, 0.14) !important;
-    color: var(--sleekfin-header-active-text) !important;
-    font-weight: 600 !important;
-    opacity: var(--sleekfin-header-active-opacity);
-}
-
-html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] .emby-tab-button:not(.emby-tab-button-active):hover {
-    opacity: var(--sleekfin-header-hover-opacity);
 }
 
 html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] button.headerButton,
@@ -158,16 +131,14 @@ html.sleekfin-header-mounted [data-sleekfin-legacy-left] .pageTitle {
     display: none !important;
 }
 
-@media (max-width: 899px) {
-    html.sleekfin-header-mounted:not(.layout-tv) body:not(.layout-tv) [data-sleekfin-legacy-cluster] {
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
-        background: transparent;
-        border: 0;
-        box-shadow: none;
-        height: auto;
-        max-width: none;
-        overflow: visible;
-        padding: 0;
-    }
+html.sleekfin-header-mounted[data-sleekfin-header-layout="compact"] [data-sleekfin-legacy-cluster] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    height: auto;
+    max-width: none;
+    overflow: visible;
+    padding: 0;
 }

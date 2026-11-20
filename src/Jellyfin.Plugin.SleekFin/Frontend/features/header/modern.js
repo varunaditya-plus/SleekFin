@@ -1,7 +1,8 @@
 import { dom } from '../../shared/runtime.js';
-import { createHeaderProxy, needsProxyReplacement, refreshHeaderProxy } from './proxy.js';
+import { isNativeMenu } from './inventory.js';
+import { createHeaderProxy, needsProxyReplacement, refreshHeaderProxy, scheduleHeaderProxyLayout } from './proxy.js';
 import { settingsSignature } from './settings.js';
-import { applySettings, cleanup as cleanupShared, createMount, directChildren, layoutMode, mark, updateScrolledState } from './shared.js';
+import { applySettings, cleanup as cleanupShared, createMount, directChildren, layoutMode, mark, setStyle, updateScrolledState } from './shared.js';
 
 function updateActiveControls(mount) {
   const links = mount.header.querySelectorAll('[data-sleekfin-header-segment] a[href]:not([data-sleekfin-header-brand])');
@@ -17,7 +18,7 @@ function updateActiveControls(mount) {
 
 function findParts(toolbar) {
   const children = directChildren(toolbar);
-  const menu = children.find((element) => element.matches('button') && Boolean(element.querySelector('svg[data-testid="MenuIcon"]'))) || null;
+  const menu = children.find(isNativeMenu) || null;
   const nav = children.find((element) => element.classList.contains('MuiStack-root')) || null;
   const brand =
     nav &&
@@ -27,7 +28,7 @@ function findParts(toolbar) {
     });
   const boxes = children.filter((element) => element.classList.contains('MuiBox-root'));
   const profile = boxes.find((box) => Boolean(box.querySelector('button[aria-controls="app-user-menu"]'))) || null;
-  const actions = boxes.find((box) => box !== profile && Boolean(box.querySelector('button, a[href]'))) || null;
+  const actions = boxes.find((box) => box !== profile && Boolean(box.querySelector('button, a[href]'))) || boxes.find((box) => box !== profile) || null;
   return { actions, brand, menu, nav, profile };
 }
 
@@ -94,7 +95,7 @@ export function createModernAdapter(brand) {
     mark(headerMount, toolbar, 'data-sleekfin-header-toolbar');
     if (parts.brand) {
       brand.useNative(headerMount, parts.brand);
-    } else if (parts.menu) {
+    } else {
       brand.ensureFallback();
     }
     if (parts.nav) {
@@ -115,15 +116,21 @@ export function createModernAdapter(brand) {
       mark(headerMount, parts.profile, 'data-sleekfin-header-profile');
     }
 
-    headerMount.proxy = createHeaderProxy(headerMount, toolbar, parts.actions || parts.profile, settings);
+    // Jellyfin Enhanced looks for its action host immediately before the native profile box.
+    headerMount.proxy = createHeaderProxy(headerMount, toolbar, parts.actions, settings);
+    // KefinTweaks applies an ID-specific wrapping rule when its breadcrumbs are mounted.
+    if (headerMount.proxy) setStyle(headerMount, toolbar, 'flex-wrap', 'nowrap', 'important');
     headerMount.updateBrandOverlap = () => brand.updateOverlap(headerMount);
     headerMount.clusterItems = headerMount.proxy
       ? [parts.nav, headerMount.proxy, parts.actions, parts.profile].filter(Boolean)
       : directChildren(toolbar).filter((child) => child === parts.actions || child === parts.profile || (child === parts.nav && headerMount.layoutMode === 'desktop'));
-    mark(headerMount, headerMount.clusterItems[0], 'data-sleekfin-header-first-cluster');
-    mark(headerMount, headerMount.clusterItems[headerMount.clusterItems.length - 1], 'data-sleekfin-header-last-cluster');
+    mark(headerMount, headerMount.proxy || headerMount.clusterItems[0], 'data-sleekfin-header-first-cluster');
+    mark(headerMount, headerMount.proxy || headerMount.clusterItems[headerMount.clusterItems.length - 1], 'data-sleekfin-header-last-cluster');
     if (typeof window.ResizeObserver === 'function') {
-      headerMount.resizeObserver = new window.ResizeObserver(() => scheduleMeasurement(headerMount));
+      headerMount.resizeObserver = new window.ResizeObserver(() => {
+        scheduleHeaderProxyLayout(headerMount);
+        scheduleMeasurement(headerMount);
+      });
       headerMount.resizeObserver.observe(toolbar);
     }
     return headerMount;

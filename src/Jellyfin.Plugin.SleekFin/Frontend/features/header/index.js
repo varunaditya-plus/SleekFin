@@ -1,15 +1,17 @@
 import { dom } from '../../shared/runtime.js';
 import { createBrandController } from './FallbackBrand.jsx';
-import { KEFIN_SOURCE_SELECTOR, appRoute, catalogDescriptors, catalogSignature, chromeSignature, cloneCatalogTemplate, cloneChromeTemplate, discoverHeaderChrome, discoverHeaderControls, isDashboardRoute } from './inventory.js';
+import { HEADER_SOURCE_ROOT_SELECTOR, KEFIN_HOME_SELECTOR, KEFIN_SOURCE_SELECTOR, appRoute, catalogDescriptors, catalogSignature, chromeSignature, cloneCatalogTemplate, cloneChromeTemplate, discoverHeaderChrome, discoverHeaderControls, isDashboardRoute, setHeaderUserViews } from './inventory.js';
 import { createLegacyAdapter } from './legacy.js';
 import { createModernAdapter } from './modern.js';
-import { DEFAULT_SETTINGS, normalizeSettings, settingsSignature } from './settings.js';
+import { DEFAULT_SETTINGS, isItemId, normalizeSettings } from './settings.js';
 import { findSurface, layoutMode } from './shared.js';
 
 const ROOT_BOOT_LOADING_CLASS = 'sleekfin-header-boot-loading';
 const ROOT_CLASS = 'sleekfin-header-mounted';
 const ROOT_LOADING_CLASS = 'sleekfin-header-loading';
 const SOURCE_CACHE_KEY = 'sleekfin:header-sources:v2';
+const HEADER_SOURCE_SELECTOR = `${HEADER_SOURCE_ROOT_SELECTOR}, ${KEFIN_HOME_SELECTOR}, ${KEFIN_SOURCE_SELECTOR}`;
+const MAX_CATALOG_ITEMS = 256;
 const SETTINGS_CHANGED_EVENT = 'sleekfin:header-settings-changed';
 const WINDOW_EVENTS = ['hashchange', 'pageshow', 'popstate', 'resize'];
 const PUBLIC_PATHS = new Set(['/addserver', '/selectserver', '/login', '/forgotpassword', '/forgotpasswordpin', '/wizardremoteaccess', '/wizardfinish', '/wizardlibrary', '/wizardsettings', '/wizardstart', '/wizarduser']);
@@ -48,7 +50,7 @@ function cachedHeaderSources(scope = currentScope()) {
     if (!scope.userId || stored?.serverId !== scope.serverId || stored?.userId !== scope.userId) return { catalog: [], chrome: {}, scopeKey: scope.key };
 
     const catalog = (Array.isArray(stored.catalog) ? stored.catalog : [])
-      .slice(0, 128)
+      .slice(0, MAX_CATALOG_ITEMS)
       .map((record) => ({ ...record, key: String(record.key || ''), template: sourceTemplate(record.template) }))
       .filter((record) => record.key && record.template);
     const chrome = {};
@@ -108,7 +110,10 @@ function createHeaderFeature() {
     loadingTimer: 0,
     mount: null,
     publicSettings: PUBLIC_SETTINGS,
+    queriedViewIds: new Set(),
     reconcileTimer: 0,
+    reportedItems: new Map(),
+    reportPending: false,
     settings: PUBLIC_SETTINGS,
     settingsResolved: false,
     settingsRequest: 0,
@@ -119,6 +124,7 @@ function createHeaderFeature() {
     sourceObserver: null,
     started: false,
     stopWatching: null,
+    viewRequest: null,
   };
   const brand = createBrandController(() => state.started);
   const adapters = { legacy: createLegacyAdapter(brand), modern: createModernAdapter(brand) };
@@ -185,6 +191,9 @@ function createHeaderFeature() {
       state.chrome = {};
       state.chromeSignature = chromeSignature({});
       state.sourceCacheScope = '';
+      resetHeaderUserViews();
+      state.reportedItems = new Map();
+      state.reportPending = false;
       try {
         window.sessionStorage.removeItem(SOURCE_CACHE_KEY);
       } catch {}
@@ -198,6 +207,9 @@ function createHeaderFeature() {
     if (scope.key === state.settingsScope) return false;
 
     state.settingsScope = scope.key;
+    resetHeaderUserViews();
+    state.reportedItems = new Map();
+    state.reportPending = false;
     state.settingsResolved = false;
     state.settingsRequest += 1;
     state.settingsRetryDelay = 1000;
@@ -209,6 +221,63 @@ function createHeaderFeature() {
     return true;
   }
 
+  function resetHeaderUserViews() {
+    state.queriedViewIds = new Set();
+    state.viewRequest = null;
+    setHeaderUserViews();
+  }
+
+  function refreshHeaderUserViews(records) {
+    const client = window.ApiClient;
+    const scope = currentScope();
+    if (state.viewRequest || !scope.key || scope.key !== state.settingsScope || typeof client?.ajax !== 'function') return;
+
+    const queried = state.queriedViewIds;
+    const ids = records.filter((record) => record.key.startsWith('jellyfin:view:')).map((record) => record.key.slice('jellyfin:view:'.length));
+    if (ids.every((id) => queried.has(id))) return;
+    ids.forEach((id) => queried.add(id));
+
+    state.viewRequest = client.ajax({ type: 'GET', dataType: 'json', url: client.getUrl('UserViews', { userId: scope.userId }) })
+      .then((result) => {
+        if (!state.started || queried !== state.queriedViewIds || scope.key !== currentScope().key || !Array.isArray(result?.Items)) return;
+        result.Items.forEach((item) => { if (item.Id) queried.add(item.Id.toLowerCase()); });
+        setHeaderUserViews(result.Items);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (queried !== state.queriedViewIds) return;
+        state.viewRequest = null;
+        scheduleReconcile();
+      });
+  }
+
+  function reportHeaderItems(records) {
+    const client = window.ApiClient;
+    const scope = currentScope();
+    if (state.reportPending || !state.settingsResolved || !scope.key || scope.key !== state.settingsScope || !client?.ajax) return;
+
+    const reported = state.reportedItems;
+    const items = records
+      .filter((record) => isItemId(record.key) && (record.inline || record.fallback || record.separate) && !record.nativeHidden && !record.key.startsWith('kt:breadcrumb-') &&
+        !(record.key.startsWith('source:') && record.source.matches('.emby-tab-button[data-index]')))
+      .map(({ key, label, caption }) => ({ id: key, label: label.replace(/\s+/g, ' ').trim().slice(0, 160), caption: caption.replace(/\s+/g, ' ').trim().slice(0, 160) }))
+      .filter((item) => item.label && item.caption && !/[\x00-\x1f\x7f-\x9f]/.test(item.label + item.caption) && reported.get(item.id) !== JSON.stringify(item))
+      .slice(0, MAX_CATALOG_ITEMS);
+    if (!items.length) return;
+
+    state.reportPending = true;
+    client.ajax({ type: 'POST', contentType: 'application/json', url: client.getUrl('SleekFin/Header/Catalog'), data: JSON.stringify(items) })
+      .then(() => {
+        if (reported !== state.reportedItems) return;
+        items.forEach((item) => reported.set(item.id, JSON.stringify(item)));
+        scheduleReconcile();
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (reported === state.reportedItems) state.reportPending = false;
+      });
+  }
+
   function captureHeaderSources(surface, kefinOnly = false) {
     if (!surface || !currentScope().userId) return;
 
@@ -216,16 +285,24 @@ function createHeaderFeature() {
     if (kefinOnly) {
       const kefin = records.filter((record) => record.key.startsWith('kt:'));
       kefin.forEach((record) => {
-        if (!record.source.closest('#kefin-home-category-rail, #kefin-home-create-section-btn, #kefinTweaks-breadcrumbs-wrapper')) return;
-        record.nativeHidden = record.source.hidden || record.source.classList.contains('hide') || record.source.style.display === 'none';
-        record.inline = !record.nativeHidden;
+        if (record.source.matches('.kefinTweaks-breadcrumb-element')) record.inline = !record.nativeHidden;
       });
       records = [...state.catalog.filter((record) => !record.key.startsWith('kt:')), ...kefin];
+    } else {
+      refreshHeaderUserViews(records);
+      if (!state.viewRequest) reportHeaderItems(records);
     }
-    const signature = catalogSignature(records);
+    const liveKeys = new Set();
+    records.forEach((record) => {
+      liveKeys.add(record.key);
+      record.aliases?.forEach((alias) => liveKeys.add(alias));
+    });
+    const retained = state.catalog.filter((record) => !liveKeys.has(record.key)).map((record) => ({ ...record, current: false, inline: false, nativeHidden: true }));
+    const catalog = [...records, ...retained].slice(0, MAX_CATALOG_ITEMS);
+    const signature = catalogSignature(catalog);
     let changed = false;
     if (records.length && signature !== state.catalogSignature) {
-      state.catalog = records.map((record) => ({
+      state.catalog = catalog.map((record) => ({
         aliases: record.aliases,
         caption: record.caption,
         current: record.current,
@@ -318,11 +395,11 @@ function createHeaderFeature() {
 
   function watchSourceChanges(surface) {
     state.sourceObserver.disconnect();
-    const external = Array.from(document.querySelectorAll(`#kefin-home-category-rail, #kefin-home-create-section-btn, ${KEFIN_SOURCE_SELECTOR}`)).filter((source) => !source.closest('.osdHeader, [data-sleekfin-header-proxy], .sleekfin-builder-preview') && !surface?.header.contains(source));
+    const external = Array.from(document.querySelectorAll(HEADER_SOURCE_SELECTOR)).filter((source) => !source.closest('.skinHeader, header.MuiAppBar-root, [data-sleekfin-header-proxy], .sleekfin-builder-preview'));
     const roots = [surface?.header, ...external.filter((source) => !external.some((parent) => parent !== source && parent.contains(source)))].filter(Boolean);
     roots.forEach((root) => state.sourceObserver.observe(root, { attributes: true, attributeOldValue: true, characterData: true, childList: true, subtree: true }));
     state.sourceObserver.observe(document.head, { attributes: true, attributeFilter: ['href', 'disabled', 'media'], attributeOldValue: true, childList: true, characterData: true, subtree: true });
-    [document.documentElement, document.body].forEach((root) => state.sourceObserver.observe(root, { attributes: true, attributeFilter: ['class'], attributeOldValue: true }));
+    [document.documentElement, document.body].forEach((root) => state.sourceObserver.observe(root, { attributes: true, attributeFilter: ['class', 'data-active-page'], attributeOldValue: true }));
   }
 
   function scheduleReconcile() {
@@ -375,10 +452,8 @@ function createHeaderFeature() {
         state.publicSettings = normalizeSettings({ enabled: normalized.enabled, height: normalized.height });
         state.settingsResolved = true;
         state.settingsRetryDelay = 1000;
-        if (settingsSignature(normalized) !== settingsSignature(state.settings)) {
-          state.settings = normalized;
-          scheduleReconcile();
-        }
+        state.settings = normalized;
+        scheduleReconcile();
       })
       .catch(() => {
         if (!state.started || request !== state.settingsRequest || requestScope !== currentScope().key) return;
@@ -429,9 +504,9 @@ function createHeaderFeature() {
       events: WINDOW_EVENTS,
       viewshow: true,
     });
-    // KefinTweaks mounts rails and portal menu links outside Jellyfin's React root.
+    // Portaled menus and provider rails can mount outside the active header.
     state.bodyObserver = new MutationObserver((changes) => {
-      if (changes.some((change) => [...change.addedNodes, ...change.removedNodes].some((node) => node.nodeType === 1 && !node.closest('[data-sleekfin-header-proxy], .sleekfin-builder-preview') && (node.matches(KEFIN_SOURCE_SELECTOR) || node.querySelector(KEFIN_SOURCE_SELECTOR))))) scheduleReconcile();
+      if (changes.some((change) => [...change.addedNodes, ...change.removedNodes].some((node) => node.nodeType === 1 && !node.closest('[data-sleekfin-header-proxy], .sleekfin-builder-preview') && (node.matches(HEADER_SOURCE_SELECTOR) || node.querySelector(HEADER_SOURCE_SELECTOR))))) scheduleReconcile();
     });
     state.bodyObserver.observe(document.body, { childList: true, subtree: true });
     requestSettings();

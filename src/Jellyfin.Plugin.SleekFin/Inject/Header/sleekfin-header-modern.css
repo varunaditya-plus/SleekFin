@@ -103,7 +103,9 @@ html.sleekfin-header-mounted [data-sleekfin-header-actions]::before {
     margin: var(--sleekfin-header-bar-padding) 6px;
 }
 
-html.sleekfin-header-mounted [data-sleekfin-header-all-proxied="true"] {
+html.sleekfin-header-mounted [data-sleekfin-header-toolbar] > [data-sleekfin-header-all-proxied="true"] {
+    flex: 0 0 0 !important;
+    margin-inline: 0 !important;
     min-width: 0 !important;
     padding: 0 !important;
     width: 0 !important;

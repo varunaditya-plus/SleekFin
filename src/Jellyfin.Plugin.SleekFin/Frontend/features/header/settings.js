@@ -5,9 +5,13 @@ const FIXED_ITEM_IDS = new Set([
   'jellyfin:audio-player',
   'jellyfin:back',
   'jellyfin:cast',
+  'jellyfin:collections',
   'jellyfin:favorites',
+  'jellyfin:folders',
   'jellyfin:home',
+  'jellyfin:live-tv',
   'jellyfin:more',
+  'jellyfin:playlists',
   'jellyfin:search',
   'jellyfin:syncplay',
   'jellyfin:user-menu',
@@ -63,13 +67,16 @@ function color(value, fallback) {
   return candidate;
 }
 
+export function isItemId(id) {
+  return FIXED_ITEM_IDS.has(id) || PLUGIN_ITEM_PATTERN.test(id) || JELLYFIN_VIEW_PATTERN.test(id) || SOURCE_ITEM_PATTERN.test(id);
+}
+
 function itemIds(value, preserveDuplicates = false) {
   const items = Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : [];
   const seen = new Set();
   return items.reduce((result, item) => {
     const candidate = String(item || '').trim().toLowerCase();
-    const valid = FIXED_ITEM_IDS.has(candidate) || PLUGIN_ITEM_PATTERN.test(candidate) || JELLYFIN_VIEW_PATTERN.test(candidate) || SOURCE_ITEM_PATTERN.test(candidate);
-    if (valid && (preserveDuplicates || !seen.has(candidate))) {
+    if (isItemId(candidate) && (preserveDuplicates || !seen.has(candidate))) {
       if (!preserveDuplicates) seen.add(candidate);
       result.push(candidate);
     }

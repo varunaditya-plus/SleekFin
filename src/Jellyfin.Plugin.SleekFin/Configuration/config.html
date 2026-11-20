@@ -2072,7 +2072,7 @@
                         <div class="sleekfin-builder-content">
                         <h3 class="sleekfin-builder-heading">Drag your favorite things into the header bar</h3>
                         <div id="sleekFinBuilderPalette" class="sleekfin-builder-palette"></div>
-                        <p id="sleekFinBuilderNote" class="sleekfin-builder-note">*If an item is <span>red</span>, that means it is not enabled in the plugin it is from (and will not show)</p>
+                        <p class="sleekfin-builder-note">* <span>Red</span> items are either not enabled from their plugin or unavailable for you. They can still be placed for users who have them.</p>
 
                         <div class="sleekfin-toggle-row">
                             <div class="sleekfin-toggle-copy"><span class="sleekfin-toggle-label">Show logo/server name</span></div>
@@ -2315,7 +2315,6 @@
             var preview = document.getElementById('sleekFinBuilderPreview');
             var previewBar = document.getElementById('sleekFinBuilderPreviewBar');
             var palette = document.getElementById('sleekFinBuilderPalette');
-            var paletteNote = document.getElementById('sleekFinBuilderNote');
             var previewBrand = document.getElementById('sleekFinBuilderPreviewBrand');
             var previewMenu = document.getElementById('sleekFinBuilderPreviewMenu');
             var previewDrawer = document.getElementById('sleekFinBuilderPreviewDrawer');
@@ -2409,6 +2408,10 @@
                 { id: 'jellyfin:home', label: 'Home', caption: 'Home' },
                 { id: 'jellyfin:more', label: 'More', caption: 'More' },
                 { id: 'jellyfin:back', label: 'Back', caption: 'Back' },
+                { id: 'jellyfin:playlists', label: 'Playlists', caption: 'Jellyfin Playlists' },
+                { id: 'jellyfin:collections', label: 'Collections', caption: 'Jellyfin Collections' },
+                { id: 'jellyfin:folders', label: 'Folders', caption: 'Jellyfin Folders' },
+                { id: 'jellyfin:live-tv', label: 'Live TV', caption: 'Jellyfin Live TV' },
                 { id: 'je:random', label: 'Random', caption: 'JE Random' },
                 { id: 'je:active-streams', label: 'Active Streams', caption: 'JE Active Streams' },
                 { id: 'je:bookmarks', label: 'Bookmarks', caption: 'JE Bookmarks' },
@@ -2417,6 +2420,7 @@
                 { id: 'je:calendar', label: 'Calendar', caption: 'JE Calendar' },
                 { id: 'je:recommendations', label: 'Recommendations', caption: 'JE Recommendations' },
                 { id: 'je:activity', label: 'Activity', caption: 'JE Activity' },
+                { id: 'je:catchup', label: 'Catch Up', caption: 'JE Catch Up' },
                 { id: 'sf:movies', label: 'Movies', caption: 'SeerrFin Movies' },
                 { id: 'sf:tv', label: 'TV Shows', caption: 'SeerrFin TV' },
                 { id: 'sf:requests', label: 'Requests', caption: 'SeerrFin Requests' },
@@ -2427,8 +2431,8 @@
                 { id: 'kt:watch-together', label: 'Watch Together', caption: 'KF Watch Together' },
                 { id: 'kt:settings', label: 'KefinTweaks', caption: 'KF Settings' },
                 { id: 'kt:menu', label: 'Open Menu', caption: 'KF Open Menu' },
-                { id: 'kt:more', label: 'More', caption: 'KF More' },
                 { id: 'kt:create-section', label: 'Create Section', caption: 'KF Create Section' },
+                { id: 'kt:category-pinned', label: 'Pinned', caption: 'KefinTweaks Pinned' },
                 { id: 'kt:recommendations', label: 'Recommendations', caption: 'KF Recommendations' },
                 { id: 'kt:admin', label: 'Admin Settings', caption: 'KF Admin Settings' },
                 { id: 'kt:breadcrumb-0', label: 'Breadcrumb 1', caption: 'KF Breadcrumb 1' },
@@ -2436,14 +2440,11 @@
                 { id: 'kt:breadcrumb-2', label: 'Breadcrumb 3', caption: 'KF Breadcrumb 3' },
                 { id: 'kt:breadcrumb-3', label: 'Breadcrumb 4', caption: 'KF Breadcrumb 4' }
             ];
-            builderItems.forEach(function (item) {
-                item.providerEnabled = !/^(?:je|sf):/.test(item.id);
-                item.available = item.structural === true || item.id === 'jellyfin:home';
-            });
             var selectedBuilderItems = [];
             var hiddenBuilderItems = [];
             var builderCustomized = false;
             var builderRefreshPending = false;
+            var sharedBuilderItems = [];
             var draggedBuilderItem = '';
             var draggedBuilderElement = null;
             var draggedBuilderFromPreview = false;
@@ -2839,12 +2840,11 @@
                 var item = builderItem(id);
                 if (item) {
                     item.providerEnabled = available;
-                    item.available = item.structural === true || available;
                 }
             }
 
             function validBuilderId(id) {
-                return id === 'space' || id === 'separator' || /^jellyfin:(?:movies|shows|audio-player|back|cast|favorites|home|more|search|syncplay|user-menu)$/.test(id) || /^jellyfin:view:[\da-f-]{16,64}$/.test(id) || /^(?:je|sf|kt):[a-z0-9-]{1,64}$/.test(id) || /^source:v1:[\da-f]{32}$/.test(id);
+                return id === 'space' || id === 'separator' || /^jellyfin:(?:movies|shows|audio-player|back|cast|collections|favorites|folders|home|live-tv|more|playlists|search|syncplay|user-menu)$/.test(id) || /^jellyfin:view:[\da-f-]{16,64}$/.test(id) || /^(?:je|sf|kt):[a-z0-9-]{1,64}$/.test(id) || /^source:v1:[\da-f]{32}$/.test(id);
             }
 
             function ensureBuilderItem(id) {
@@ -2852,7 +2852,7 @@
                 if (item || !validBuilderId(id)) {
                     return item;
                 }
-                item = { id: id, label: id, caption: id, providerEnabled: true, available: false };
+                item = { id: id, label: id, caption: id, available: false };
                 builderItems.push(item);
                 return item;
             }
@@ -3118,38 +3118,42 @@
                 var feature = headerFeature();
                 var descriptors = feature && typeof feature.getCatalog === 'function' ? feature.getCatalog() : [];
                 var discovered = [];
-                paletteNote.innerHTML = descriptors.length ? '*If an item is <span>red</span>, that means it is not enabled in the plugin it is from (and will not show)' : '*Visit Home once to load native Jellyfin and plugin header items';
                 builderItems.forEach(function (item) {
                     item.current = false;
-                    item.available = item.structural === true || item.id === 'jellyfin:home';
+                    item.available = item.structural === true || item.id === 'jellyfin:home' || item.providerEnabled === true;
+                });
+                sharedBuilderItems.forEach(function (descriptor) {
+                    var item = ensureBuilderItem(descriptor.id === 'kt:more' ? 'jellyfin:more' : descriptor.id);
+                    if (!item) return;
+                    item.label = item.providerLabel || descriptor.label;
+                    item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : descriptor.caption;
+                    item.available = item.id === 'jellyfin:home';
                 });
                 descriptors.forEach(function (descriptor) {
                     var id = String(descriptor.id || '').toLowerCase();
                     var aliases = descriptor.aliases || [];
-                    selectedBuilderItems = selectedBuilderItems.map(function (value) { return aliases.indexOf(value) === -1 ? value : id; });
-                    hiddenBuilderItems = hiddenBuilderItems.map(function (value) { return aliases.indexOf(value) === -1 ? value : id; });
-                    builderItems = builderItems.filter(function (value) { return aliases.indexOf(value.id) === -1; });
+                    if (aliases.length) {
+                        selectedBuilderItems = selectedBuilderItems.map(function (value) { return aliases.indexOf(value) === -1 ? value : id; });
+                        hiddenBuilderItems = hiddenBuilderItems.map(function (value) { return aliases.indexOf(value) === -1 ? value : id; });
+                        builderItems = builderItems.filter(function (value) { return aliases.indexOf(value.id) === -1; });
+                    }
                     var item = ensureBuilderItem(id);
                     if (!item) {
                         return;
                     }
-                    item.label = descriptor.label || item.label;
-                    item.caption = descriptor.caption || item.caption;
+                    item.label = item.providerLabel || descriptor.label || item.label;
+                    item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : descriptor.caption || item.caption;
                     item.shape = descriptor.shape || item.shape || 'text-only';
                     item.current = descriptor.current === true;
-                    item.available = item.id === 'jellyfin:home' || (/^(?:je|sf):/.test(item.id) ? item.providerEnabled !== false : descriptor.available === true && Boolean(cloneHeaderItem(id)));
-                    if (descriptor.inline) {
+                    item.available = item.id === 'jellyfin:home' || descriptor.available === true;
+                    if (!builderCustomized && descriptor.inline) {
                         discovered.push(id);
                     }
                 });
                 if (!builderCustomized) {
-                    selectedBuilderItems = discovered.slice();
+                    selectedBuilderItems = discovered;
                 } else {
-                    discovered.forEach(function (id) {
-                        if (selectedBuilderItems.indexOf(id) === -1 && hiddenBuilderItems.indexOf(id) === -1) {
-                            selectedBuilderItems.push(id);
-                        }
-                    });
+                    selectedBuilderItems = selectedBuilderItems.filter(function (id) { return hiddenBuilderItems.indexOf(id) === -1; });
                 }
                 refreshPreviewChrome();
                 renderBuilder();
@@ -3187,6 +3191,7 @@
                     setBuilderAvailability('je:calendar', enhancedActive && nativeFeatureEnabled(enhanced, 'CalendarPageEnabled', 'CalendarUseNativeTab', true));
                     setBuilderAvailability('je:recommendations', enhancedActive && nativeFeatureEnabled(enhanced, 'RecommendationsPageEnabled', 'RecommendationsUseNativeTab', false));
                     setBuilderAvailability('je:activity', enhancedActive && nativeFeatureEnabled(enhanced, 'ActivityFeedEnabled', 'ActivityFeedUseNativeTab', false));
+                    setBuilderAvailability('je:catchup', enhancedActive && nativeFeatureEnabled(enhanced, 'CatchUpEnabled', 'CatchUpUseNativeTab', false));
 
                     var detailTypes = ['Movie', 'Series', 'Season', 'Episode'];
                     var seerrEnabled = enhancedActive && readValue(enhanced, 'JellyseerrEnabled') === true;
@@ -3220,18 +3225,27 @@
                         }
                         title = String(readValue(tab, 'Title') || titles[tabId]).trim();
                         item = builderItem('sf:' + tabId);
+                        item.providerLabel = seerrFin ? title : '';
                         item.label = title;
                         item.caption = 'SeerrFin ' + title;
                         setBuilderAvailability(item.id, seerrFinActive && readValue(tab, 'Enabled') !== false);
                     });
 
-                    renderBuilder();
+                    refreshBuilderCatalog();
                 });
+            }
+
+            function loadHeaderCatalog() {
+                return ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/Header/Catalog') }).catch(function () { return null; });
             }
 
             function refreshProviderAvailability() {
                 var request = ++providerRequest;
-                return loadPlugins().then(function (plugins) { return updateProviderAvailability(plugins, request); });
+                return Promise.all([loadPlugins(), loadHeaderCatalog()]).then(function (results) {
+                    if (request !== providerRequest) return;
+                    if (Array.isArray(results[1])) sharedBuilderItems = results[1];
+                    return updateProviderAvailability(results[0], request);
+                });
             }
 
             function moveSource(row, direction) {
@@ -3638,7 +3652,7 @@
                 element.className = 'sleekfin-builder-item' + (item.available ? '' : ' is-unavailable');
                 element.draggable = true;
                 element.dataset.builderItem = item.id;
-                element.title = 'Drag ' + item.caption + ' into the header' + (item.available ? '' : ' (will not appear in the header)');
+                element.title = 'Drag ' + item.caption + ' into the header' + (item.available ? '' : ' (unavailable in this preview)');
                 caption.className = 'sleekfin-builder-item-caption';
                 caption.textContent = item.caption;
                 element.appendChild(sample);
@@ -3957,7 +3971,10 @@
 
             function builderList(value, preserveDuplicates) {
                 var seen = [];
-                return String(value || '').split(',').map(function (id) { return id.trim().toLowerCase(); }).filter(function (id) {
+                return String(value || '').split(',').map(function (id) {
+                    id = id.trim().toLowerCase();
+                    return id === 'kt:more' ? 'jellyfin:more' : id;
+                }).filter(function (id) {
                     if (!validBuilderId(id) || (!preserveDuplicates && seen.indexOf(id) !== -1)) {
                         return false;
                     }
@@ -3971,9 +3988,7 @@
 
             function applyBuilderConfiguration(configuration) {
                 selectedBuilderItems = builderList(readValue(configuration, 'HeaderItemOrder'), true);
-                hiddenBuilderItems = builderList(readValue(configuration, 'HeaderHiddenItems')).filter(function (id) {
-                    return selectedBuilderItems.indexOf(id) === -1;
-                });
+                hiddenBuilderItems = builderList(readValue(configuration, 'HeaderHiddenItems'));
                 builderCustomized = selectedBuilderItems.length > 0 || hiddenBuilderItems.length > 0;
                 setRadio('sleekFinHeaderBrandDisplay', readValue(configuration, 'HeaderBrandDisplay'), builderDefaults.HeaderBrandDisplay);
                 setRadio('sleekFinHeaderBrandPosition', readValue(configuration, 'HeaderBrandPosition'), builderDefaults.HeaderBrandPosition);
@@ -4057,13 +4072,14 @@
                 return (configurationSavePromise || Promise.resolve()).then(function () {
                     if (!currentLoad(request)) return null;
                     Dashboard.showLoadingMsg();
-                    return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins(), ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/UserSettings/Fields') }).catch(function () { return null; }), loadConfigurationAsset('sleekfin-form-controls.css', true)]);
+                    return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins(), ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/UserSettings/Fields') }).catch(function () { return null; }), loadConfigurationAsset('sleekfin-form-controls.css', true), loadHeaderCatalog()]);
                 })
                     .then(function (results) {
                         if (!results || !currentLoad(request)) {
                             return null;
                         }
                         var configuration = results[0];
+                        sharedBuilderItems = Array.isArray(results[4]) ? results[4] : [];
                         userModalEnabledInput.checked = readValue(configuration, 'UserModalEnabled') !== false;
                         renderUserModalFields(configuration, results[2]);
                         enabledInput.checked = readValue(configuration, 'HeaderEnabled') !== false;
@@ -4444,7 +4460,6 @@
             function handleHeaderCatalogChanged() {
                 if (document.documentElement.contains(page)) {
                     refreshBuilderCatalog();
-                    handleProviderRefresh();
                 }
             }
 
@@ -4467,6 +4482,7 @@
                 window.removeEventListener('focus', handleProviderRefresh);
                 document.removeEventListener('visibilitychange', handleProviderRefresh);
                 stopPreviewMeasurements();
+                providerRequest += 1;
                 loadRequest += 1;
                 Dashboard.hideLoadingMsg();
                 if (configurationDialog) Dashboard.dialogHelper.close(configurationDialog);
@@ -4477,7 +4493,6 @@
                 detailsBuilderPromise = null;
             }
 
-            window.addEventListener('sleekfin:header-catalog-changed', handleHeaderCatalogChanged);
             page.addEventListener('viewshow', showConfigurationPage);
             page.addEventListener('viewhide', hideConfigurationPage);
             form.addEventListener('submit', saveConfiguration);

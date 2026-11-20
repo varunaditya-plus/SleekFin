@@ -1,6 +1,35 @@
 import { dom } from '../../shared/runtime.js';
 
 export const KEFIN_SOURCE_SELECTOR = '[data-kefin-custom-menu-link], [data-kefin-custom-menu-top-link], [data-kefin-custom-menu-top-right], [data-kefin-custom-user-menu-link], [data-kefintweaks-user-menu-config-button], [data-kefin-custom-menu-more], [data-kefin-desktop-hamburger], .kefin-home-category-btn, .kefin-home-create-section-btn, .kefinTweaks-breadcrumb-element, .btnRecommendations, .btnAdmin';
+export const HEADER_CONTROL_SELECTOR = 'button, a[href], [role="button"], [role="link"], [role="tab"]';
+export const JE_LAUNCHER_SELECTOR = '.je-header-more-toggle, .je-header-launcher';
+export const KEFIN_HOME_SELECTOR = '#kefin-home-category-rail, #kefin-home-create-section-btn';
+const MODERN_FALLBACK_SELECTOR = '.MuiDrawer-paper, #user-view-overflow-menu';
+const LEGACY_FALLBACK_SELECTOR = '.mainDrawer-scrollContainer, .mainDrawer';
+const PROVIDER_FALLBACK_SELECTOR = '.customMenuOptions, .jellyfinEnhancedSection';
+export const HEADER_SOURCE_ROOT_SELECTOR = `header.MuiAppBar-root, .skinHeader, ${MODERN_FALLBACK_SELECTOR}, ${LEGACY_FALLBACK_SELECTOR}, ${PROVIDER_FALLBACK_SELECTOR}`;
+const CONDITIONAL_VIEW_KEYS = new Map([
+  ['boxsets', 'jellyfin:collections'],
+  ['folders', 'jellyfin:folders'],
+  ['livetv', 'jellyfin:live-tv'],
+  ['playlists', 'jellyfin:playlists'],
+]);
+const CONDITIONAL_VIEW_IDS = new Set(CONDITIONAL_VIEW_KEYS.values());
+const LIVE_TV_TAB = /^#?\/livetv\?(?:[^#]*&)?tab=/;
+const userViewKeys = new Map();
+
+export function isNativeMenu(source) {
+  return source.matches('button:not([data-kefin-desktop-hamburger])') && Boolean(source.querySelector('svg[data-testid="MenuIcon"]'));
+}
+
+// Generic /list links for legacy views and Folders carry the ID, but no collection type.
+export function setHeaderUserViews(views = []) {
+  userViewKeys.clear();
+  views.forEach(({ Id, CollectionType }) => {
+    const key = CONDITIONAL_VIEW_KEYS.get(CollectionType?.toLowerCase());
+    if (Id && key) userViewKeys.set(Id.toLowerCase(), key);
+  });
+}
 
 export const LABELS = Object.assign(Object.create(null), {
   'jellyfin:audio-player': 'Audio player',
@@ -14,7 +43,6 @@ export const LABELS = Object.assign(Object.create(null), {
   'jellyfin:user-menu': 'User Menu',
   'je:active-streams': 'Active Streams',
   'je:random': 'Random',
-  'More from Jellyfin Enhanced': 'JE More',
 });
 const HOME_SOURCE = dom.element('<a href="#/"><span class="material-icons home"></span>Home</a>');
 let cloneSequence = 0;
@@ -62,6 +90,12 @@ function libraryId(source, route) {
   }
   const value = dataId || routeId;
   return /^[a-f\d-]{16,64}$/i.test(value) ? value.toLowerCase() : '';
+}
+
+function conditionalViewKey(route, viewId) {
+  const view = /^#?\/(boxsets|playlists|livetv)(?:\?|$)/.exec(route)?.[1];
+  if (LIVE_TV_TAB.test(route)) return null;
+  return CONDITIONAL_VIEW_KEYS.get(view) || (/^#?\/list\?/.test(route) && viewId ? userViewKeys.get(viewId) : null);
 }
 
 function stableClasses(source) {
@@ -146,7 +180,6 @@ function kefinKey(source) {
   if (source.matches('.kefin-home-category-btn')) return kefinCategoryKey(source.getAttribute('data-category-id') || '');
   if (source.matches('.kefin-home-create-section-btn')) return 'kt:create-section';
   if (source.matches('[data-kefin-desktop-hamburger]')) return 'kt:menu';
-  if (source.matches('[data-kefin-custom-menu-more]')) return 'kt:more';
   if (source.matches('[data-kefintweaks-user-menu-config-button]')) return 'kt:settings';
   if (source.matches('.btnRecommendations')) return 'kt:recommendations';
   if (source.matches('.btnAdmin')) return 'kt:admin';
@@ -160,17 +193,20 @@ function kefinKey(source) {
 }
 
 function keyForSource(source) {
-  if (!source || source.closest('[data-sleekfin-header-proxy], .sleekfin-builder-preview')) return null;
-  if (source.matches('.mainDrawerButton, .je-header-more-toggle')) return null;
+  if (!source || source.closest('[data-sleekfin-header-proxy], .sleekfin-builder-preview, .sleekfin-details-back-root')) return null;
+  if (source.matches(`.mainDrawerButton, [data-sleekfin-header-brand], ${JE_LAUNCHER_SELECTOR}`)) return null;
 
   const kefin = kefinKey(source);
   if (kefin) return kefin;
+  if (source.parentElement?.matches('.MuiToolbar-root') && isNativeMenu(source)) return null;
 
-  const route = source.matches('a[href]') ? routeFor(source) : '';
-  const url = source.matches('a[href]') ? urlFor(source) : null;
+  const href = source.matches('a[href]') ? source.getAttribute('href').trim() : '';
+  const navigates = href && href !== '#' && !/^javascript:/i.test(href);
+  const route = navigates ? routeFor(source) : '';
+  const url = navigates ? urlFor(source) : null;
   const external = Boolean(url && url.origin !== window.location.origin);
   const internalRoute = external ? '' : route;
-  if (!external && (source.matches('a[href="#/"], a[href$="#/"], a[href="/"]') || route === '#/' || route === '/')) return null;
+  if (internalRoute === '#/' || internalRoute === '/') return null;
 
   const enhanced = /^je-native-tab-(?:btn|link)-([a-z0-9-]+)$/i.exec(source.id || '');
   if (enhanced) return `je:${enhanced[1].toLowerCase()}`;
@@ -186,16 +222,21 @@ function keyForSource(source) {
 
   if (source.matches('.headerSyncButton, [aria-controls="app-sync-play-menu"]')) return 'jellyfin:syncplay';
   if (source.matches('.headerCastButton, [aria-controls="app-remote-play-menu"], [aria-controls="app-remote-play-active-menu"]')) return 'jellyfin:cast';
-  if (source.matches('[aria-controls="user-view-overflow-menu"]')) return 'jellyfin:more';
+  if (source.matches('[aria-controls="user-view-overflow-menu"], [data-kefin-custom-menu-more]')) return 'jellyfin:more';
   if (source.matches('.headerSearchButton') || /^#?\/search(?:[?/#]|$)/.test(internalRoute)) return 'jellyfin:search';
   if (source.matches('.headerUserButton, [aria-controls="app-user-menu"]')) return 'jellyfin:user-menu';
   if (source.matches('.headerAudioPlayerButton')) return 'jellyfin:audio-player';
-  if (source.matches('.headerHomeButton')) return 'jellyfin:home';
+  if (source.matches('.headerHomeButton') || /^#?\/home(?:\.html)?(?:\?tab=0)?$/.test(internalRoute)) return 'jellyfin:home';
   if (source.matches('.headerBackButton') || source.querySelector('svg[data-testid="ArrowBackIcon"]')) return 'jellyfin:back';
   if (/[?&]tab=1(?:&|$)/.test(internalRoute) && /#?\/home(?:[?/#]|$)/.test(internalRoute)) return 'jellyfin:favorites';
 
+  // Jellyfin replaces these tabs with page-local controls when leaving Home.
+  if (source.matches('.emby-tab-button[data-index]') && source.closest('.headerTabs')) return null;
+
   const viewId = libraryId(source, internalRoute);
-  if (viewId) return `jellyfin:view:${viewId}`;
+  const namedView = conditionalViewKey(internalRoute, viewId);
+  if (namedView) return namedView;
+  if (viewId && !LIVE_TV_TAB.test(internalRoute)) return `jellyfin:view:${viewId}`;
 
   const identity = genericIdentity(source, route);
   return identity ? `source:v1:${digest(identity)}` : null;
@@ -203,18 +244,18 @@ function keyForSource(source) {
 
 function addCandidates(result, seen, container, selector, zone) {
   if (!container) return;
+  if (container.matches(selector)) addCandidate(result, seen, container, zone);
   container.querySelectorAll(selector).forEach((source) => {
-    if (!seen.has(source)) {
-      seen.add(source);
-      result.push({ source, zone });
-    }
+    const parentControl = source.parentElement?.closest(selector);
+    if (!parentControl || !container.contains(parentControl)) addCandidate(result, seen, source, zone);
   });
 }
 
 function addCandidate(result, seen, source, zone) {
-  if (source && !seen.has(source)) {
+  if (source && !seen.has(source) && !source.closest('.osdHeader, #kefinTweaks-popover-container') && (zone === 'fallback' || !source.closest('[role="dialog"]'))) {
     seen.add(source);
-    result.push({ source, zone });
+    const fallback = zone === 'fallback' || Boolean(source.closest('[role="menu"], [data-kefin-custom-overflow-menu]'));
+    result.push({ source, fallback, separate: !fallback && zone === 'rail' });
   }
 }
 
@@ -222,21 +263,8 @@ function modernCandidates(header) {
   const result = [];
   const seen = new Set();
   const toolbar = header?.querySelector('.MuiToolbar-root');
-  const children = toolbar ? Array.from(toolbar.children) : [];
-  const nav = children.find((element) => element.classList.contains('MuiStack-root')) || null;
-  const enhancedActions = children.find((element) => element.classList.contains('headerRight')) || null;
-  const boxes = children.filter((element) => element.classList.contains('MuiBox-root'));
-  const profile = boxes.find((box) => Boolean(box.querySelector('[aria-controls="app-user-menu"]'))) || null;
-  const actions = boxes.find((box) => box !== profile && Boolean(box.querySelector('button, a[href]'))) || null;
-
-  children
-    .filter((element) => element.matches('button, a[href]') && (!element.querySelector('svg[data-testid="MenuIcon"]') || element.hasAttribute('data-kefin-desktop-hamburger')))
-    .forEach((source) => addCandidate(result, seen, source, 'toolbar'));
-  addCandidates(result, seen, nav, 'a[href], button', 'navigation');
-  document.querySelectorAll('.MuiDrawer-paper, #user-view-overflow-menu, .customMenuOptions, .jellyfinEnhancedSection').forEach((container) => addCandidates(result, seen, container, container.matches('.jellyfinEnhancedSection') ? 'button, a[href]' : 'a[href]', 'fallback'));
-  addCandidates(result, seen, actions, 'button, a[href]', 'actions');
-  addCandidates(result, seen, enhancedActions, 'button, a[href]', 'actions');
-  addCandidates(result, seen, profile, 'button, a[href]', 'profile');
+  addCandidates(result, seen, toolbar, HEADER_CONTROL_SELECTOR, 'header');
+  document.querySelectorAll(`${MODERN_FALLBACK_SELECTOR}, ${PROVIDER_FALLBACK_SELECTOR}`).forEach((container) => addCandidates(result, seen, container, container.matches('.jellyfinEnhancedSection') ? HEADER_CONTROL_SELECTOR : 'a[href]', 'fallback'));
   return result;
 }
 
@@ -244,32 +272,33 @@ function legacyCandidates(surface) {
   const result = [];
   const seen = new Set();
   const header = surface?.header;
-  addCandidates(result, seen, header?.querySelector('.headerLeft'), 'button:not(.mainDrawerButton), a[href]', 'toolbar');
+  addCandidates(result, seen, header?.querySelector('.headerLeft'), HEADER_CONTROL_SELECTOR, 'header');
   Array.from(surface?.cluster?.children || [])
-    .filter((source) => source.matches('button, a[href]') && !source.matches('.mainDrawerButton'))
-    .forEach((source) => addCandidate(result, seen, source, 'toolbar'));
-  addCandidates(result, seen, header?.querySelector('.headerTabs'), 'button, a[href]', 'navigation');
-  document.querySelectorAll('.mainDrawer-scrollContainer, .mainDrawer, .customMenuOptions, .jellyfinEnhancedSection').forEach((container) => addCandidates(result, seen, container, container.matches('.jellyfinEnhancedSection') ? 'button, a[href]' : 'a[href]', 'fallback'));
-  addCandidates(result, seen, header?.querySelector('.headerRight'), 'button, a[href]', 'actions');
+    .filter((source) => source.matches(HEADER_CONTROL_SELECTOR))
+    .forEach((source) => addCandidate(result, seen, source, 'header'));
+  addCandidates(result, seen, header?.querySelector('.headerTabs'), HEADER_CONTROL_SELECTOR, 'header');
+  addCandidates(result, seen, header?.querySelector('.headerRight'), HEADER_CONTROL_SELECTOR, 'header');
+  addCandidates(result, seen, header, HEADER_CONTROL_SELECTOR, 'header');
+  document.querySelectorAll(`${LEGACY_FALLBACK_SELECTOR}, ${PROVIDER_FALLBACK_SELECTOR}`).forEach((container) => addCandidates(result, seen, container, container.matches('.jellyfinEnhancedSection') ? HEADER_CONTROL_SELECTOR : 'a[href]', 'fallback'));
   return result;
 }
 
 function addKefinCandidates(candidates, surface) {
   const seen = new Set(candidates.map((candidate) => candidate.source));
   document.querySelectorAll(KEFIN_SOURCE_SELECTOR).forEach((source) => {
-    if (!source.matches('button, a[href], .kefinTweaks-breadcrumb-element') || source.closest('.osdHeader, [data-sleekfin-header-proxy], .sleekfin-builder-preview')) return;
-    const homeControl = source.closest('#kefin-home-category-rail, #kefin-home-create-section-btn');
+    if (!source.matches(`${HEADER_CONTROL_SELECTOR}, .kefinTweaks-breadcrumb-element`) || source.closest('.osdHeader, [data-sleekfin-header-proxy], .sleekfin-builder-preview')) return;
+    const homeControl = source.closest(KEFIN_HOME_SELECTOR);
     const header = source.closest('header.MuiAppBar-root, .skinHeader');
     if (header && header !== surface.header && !homeControl) return;
-    const inline = homeControl || surface.header.contains(source) && !source.closest('[role="menu"], [data-kefin-custom-overflow-menu]');
-    addCandidate(candidates, seen, source, inline ? 'navigation' : 'fallback');
+    addCandidate(candidates, seen, source, homeControl ? 'rail' : surface.header.contains(source) ? 'header' : 'fallback');
   });
 }
 
 function candidateScore(candidate) {
-  const inline = candidate.zone === 'fallback' || candidate.fallback ? 0 : 20;
+  const inline = candidate.fallback ? 0 : 20;
   const owned = candidate.source.hasAttribute('data-sleekfin-header-source-hidden') || candidate.source.hasAttribute('data-sleekfin-header-source-anchor') ? 4 : 0;
-  return inline + (sourceNativeHidden(candidate.source) ? 0 : 8) + owned + (dom.isVisible(candidate.source) ? 2 : 0);
+  const nativeMore = candidate.source.matches('[aria-controls="user-view-overflow-menu"]:not([data-kefin-custom-menu-more])');
+  return inline + (sourceNativeHidden(candidate.source) ? 0 : 16) + (nativeMore ? 8 : 0) + owned + (dom.isVisible(candidate.source) ? 2 : 0);
 }
 
 function namespaceSvgIds(clone) {
@@ -420,10 +449,17 @@ function captionFor(key, source, label) {
   return value.toLowerCase() === provider.toLowerCase() || value.toLowerCase().startsWith(`${provider.toLowerCase()} `) ? value : `${provider} ${value}`;
 }
 
-function sourceNativeHidden(source) {
-  const homeControl = source.closest('#kefin-home-category-rail, #kefin-home-create-section-btn');
+export function sourceNativeHidden(source) {
+  const homeControl = source.closest(KEFIN_HOME_SELECTOR);
+  if (homeControl) {
+    const page = document.documentElement.dataset.activePage;
+    const tab = /[?&]tab=([^&#]+)/.exec(window.location.hash)?.[1];
+    if (page !== undefined ? page !== 'home' : !['/', '/home', '/home.html'].includes(appRoute()) || Boolean(tab && tab !== '0')) return true;
+  }
+  if ((homeControl?.id === 'kefin-home-create-section-btn' || source.hasAttribute('data-kefin-desktop-hamburger')) && window.matchMedia?.('(max-width: 899px)').matches) return true;
   const breadcrumbs = source.closest('#kefinTweaks-breadcrumbs-wrapper');
   if (breadcrumbs && window.getComputedStyle(breadcrumbs).display === 'none') return true;
+  if (source.matches('.headerHomeButton') && source.closest('.noHomeButtonHeader')) return true;
   const boundary = homeControl || (!source.closest('[role="menu"], .MuiDrawer-paper') && source.closest('header.MuiAppBar-root, .skinHeader'));
   for (let element = source; element; element = element !== boundary && boundary ? element.parentElement : null) {
     if (element.hidden || element.classList.contains('hide') || element.style.display === 'none') return true;
@@ -433,24 +469,24 @@ function sourceNativeHidden(source) {
 
 function sourceInline(candidate) {
   const source = candidate.source;
-  if (candidate.zone === 'fallback' || sourceNativeHidden(source)) return false;
+  if (candidate.fallback || candidate.separate || sourceNativeHidden(source)) return false;
   const owned = source.hasAttribute('data-sleekfin-header-source-hidden') || source.hasAttribute('data-sleekfin-header-source-anchor');
-  return owned || dom.isVisible(source);
+  return owned || source.classList.contains('je-header-overflowed') || dom.isVisible(source);
 }
 
 function sourceOpensPopup(key, source) {
   return (
     source.matches('[data-kefin-custom-menu-top-right], .kefinTweaks-breadcrumb-element') ||
-    source.getAttribute('aria-haspopup') === 'true' ||
+    (source.hasAttribute('aria-haspopup') && source.getAttribute('aria-haspopup') !== 'false') ||
     Boolean(source.getAttribute('aria-controls')) ||
-    ['jellyfin:audio-player', 'jellyfin:cast', 'jellyfin:syncplay', 'jellyfin:user-menu', 'je:active-streams'].includes(key)
+    ['jellyfin:audio-player', 'jellyfin:cast', 'jellyfin:syncplay', 'jellyfin:user-menu', 'jellyfin:more'].includes(key)
   );
 }
 
 function visualTemplate(source) {
   const template = document.createElement('span');
   const icons = visualNodes(source);
-  const label = visibleLabel(source);
+  const label = visibleLabel(source) || (!icons.length && (source.getAttribute('data-header-label') || source.getAttribute('aria-label') || source.getAttribute('title'))?.trim()) || '';
   icons.forEach((icon) => template.appendChild(icon));
   if (label) {
     const text = document.createElement('span');
@@ -484,7 +520,7 @@ export function discoverHeaderChrome(surface) {
     const children = toolbar ? Array.from(toolbar.children) : [];
     const navigation = children.find((element) => element.classList.contains('MuiStack-root')) || null;
     brand ||= rootAnchor(navigation) || Array.from(document.querySelectorAll('.sleekfin-header-fallback-brand')).find((element) => dom.isVisible(element)) || null;
-    menu ||= children.find((element) => element.matches('button') && Boolean(element.querySelector('svg[data-testid="MenuIcon"]'))) || null;
+    menu ||= children.find(isNativeMenu) || null;
   } else {
     menu ||= surface.header.querySelector('.mainDrawerButton');
     brand ||= rootAnchor(surface.header) || Array.from(document.querySelectorAll('.sleekfin-header-fallback-brand')).find((element) => dom.isVisible(element)) || null;
@@ -522,25 +558,37 @@ export function discoverHeaderControls(surface) {
     if (!key) return;
 
     const existing = byKey.get(key);
-    const aliases = [...new Set([...(existing?.aliases || []), ...(key.startsWith('kt:') ? [`source:v1:${digest(genericIdentity(candidate.source, candidate.source.matches('a[href]') ? routeFor(candidate.source) : ''))}`] : [])])];
-    const headerSources = [...(existing?.headerSources || []), ...(key.startsWith('kt:') && candidate.zone !== 'fallback' ? [candidate.source] : [])];
+    const aliases = new Set(existing?.aliases);
+    if (key === 'jellyfin:more') aliases.add('kt:more');
+    if (key.startsWith('kt:') || (key.startsWith('source:v1:') || key === 'jellyfin:home') && candidate.source.matches('a[href]')) {
+      const route = candidate.source.matches('a[href]') ? routeFor(candidate.source) : '';
+      const previousKey = `source:v1:${digest(genericIdentity(candidate.source, route))}`;
+      if (previousKey !== key) aliases.add(previousKey);
+    }
+    if (CONDITIONAL_VIEW_IDS.has(key)) {
+      const route = routeFor(candidate.source);
+      const viewId = libraryId(candidate.source, route);
+      aliases.add(viewId ? `jellyfin:view:${viewId}` : `source:v1:${digest(genericIdentity(candidate.source, route))}`);
+    }
+    const headerSources = [...(existing?.headerSources || []), ...(candidate.fallback ? [] : [candidate.source])];
     if (existing && candidateScore(existing) >= candidateScore(candidate)) {
-      existing.aliases = aliases;
+      existing.aliases = [...aliases];
       existing.headerSources = headerSources;
       return;
     }
 
     const visual = visualTemplate(candidate.source);
     const record = {
-      aliases,
+      aliases: [...aliases],
       caption: captionFor(key, candidate.source, visual.label),
-      fallback: candidate.zone === 'fallback',
+      fallback: candidate.fallback,
       headerSources,
       inline: sourceInline(candidate),
       key,
       label: visual.label || fallbackLabel(key, candidate.source),
       nativeHidden: sourceNativeHidden(candidate.source),
       popup: sourceOpensPopup(key, candidate.source),
+      separate: candidate.separate,
       source: candidate.source,
       template: visual.template,
     };
@@ -603,7 +651,7 @@ export function cloneSourceTemplate(template) {
 }
 
 export function cloneCatalogTemplate(records, key) {
-  const template = key === 'jellyfin:home' ? visualTemplate(HOME_SOURCE).template : records.find((record) => record.key === key)?.template;
+  const template = records.find((record) => record.key === key)?.template || (key === 'jellyfin:home' ? visualTemplate(HOME_SOURCE).template : null);
   return template ? cloneSourceTemplate(template) : null;
 }
 
@@ -621,10 +669,11 @@ export function catalogSignature(records) {
 }
 
 export function legacyAlias(key, records) {
+  const match = records.find((record) => record.aliases?.includes(key));
+  if (match) return match;
   if (key.startsWith('source:v1:')) {
-    return records.find((record) => record.aliases?.includes(key) || ['jellyfin:home', 'jellyfin:favorites'].includes(record.key) && key === `source:v1:${digest(genericIdentity(record.source, ''))}`) || null;
+    return records.find((record) => ['jellyfin:home', 'jellyfin:favorites'].includes(record.key) && key === `source:v1:${digest(genericIdentity(record.source, ''))}`) || null;
   }
-  if (key === 'jellyfin:more') return records.find((record) => record.key === 'kt:more') || null;
   if (key !== 'jellyfin:movies' && key !== 'jellyfin:shows') return null;
   const pattern = key === 'jellyfin:movies' ? /(?:#\/movies|collectiontype=movies)/ : /(?:#\/tv|collectiontype=tvshows)/;
   return records.find((record) => record.source.matches('a[href]') && pattern.test(routeFor(record.source))) || null;

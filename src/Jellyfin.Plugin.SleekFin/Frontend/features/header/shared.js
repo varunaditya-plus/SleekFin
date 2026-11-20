@@ -92,6 +92,7 @@ export function applySettings(mount, settings) {
   mark(mount, root, 'data-sleekfin-header-bar-position', settings.barPosition.toLowerCase());
   mark(mount, root, 'data-sleekfin-header-brand-display', settings.brandDisplay.toLowerCase());
   mark(mount, root, 'data-sleekfin-header-brand-position', settings.brandPosition.toLowerCase());
+  mark(mount, root, 'data-sleekfin-header-layout', mount.layoutMode);
 }
 
 export function directChildren(element) {
