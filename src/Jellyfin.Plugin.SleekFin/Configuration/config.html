@@ -2445,6 +2445,7 @@
             var builderCustomized = false;
             var builderRefreshPending = false;
             var sharedBuilderItems = [];
+            var builderLibraryNames = {};
             var draggedBuilderItem = '';
             var draggedBuilderElement = null;
             var draggedBuilderFromPreview = false;
@@ -3123,10 +3124,11 @@
                     item.available = item.structural === true || item.id === 'jellyfin:home' || item.providerEnabled === true;
                 });
                 sharedBuilderItems.forEach(function (descriptor) {
-                    var item = ensureBuilderItem(descriptor.id === 'kt:more' ? 'jellyfin:more' : descriptor.id);
+                    var id = readValue(descriptor, 'Id');
+                    var item = ensureBuilderItem(id === 'kt:more' ? 'jellyfin:more' : id);
                     if (!item) return;
-                    item.label = item.providerLabel || descriptor.label;
-                    item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : descriptor.caption;
+                    item.label = item.providerLabel || readValue(descriptor, 'Label');
+                    item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : readValue(descriptor, 'Caption');
                     item.available = item.id === 'jellyfin:home';
                 });
                 descriptors.forEach(function (descriptor) {
@@ -3141,13 +3143,22 @@
                     if (!item) {
                         return;
                     }
-                    item.label = item.providerLabel || descriptor.label || item.label;
-                    item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : descriptor.caption || item.caption;
+                    if (descriptor.label !== id || item.label === id) {
+                        item.label = item.providerLabel || descriptor.label || item.label;
+                        item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : descriptor.caption || item.caption;
+                    }
                     item.shape = descriptor.shape || item.shape || 'text-only';
                     item.current = descriptor.current === true;
                     item.available = item.id === 'jellyfin:home' || descriptor.available === true;
                     if (!builderCustomized && descriptor.inline) {
                         discovered.push(id);
+                    }
+                });
+                builderItems.forEach(function (item) {
+                    var name = builderLibraryNames[item.id];
+                    if (name) {
+                        item.label = name;
+                        item.caption = 'Jellyfin ' + name;
                     }
                 });
                 if (!builderCustomized) {
@@ -3237,6 +3248,19 @@
 
             function loadHeaderCatalog() {
                 return ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/Header/Catalog') }).catch(function () { return null; });
+            }
+
+            function loadBuilderLibraryNames() {
+                return ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('UserViews', { includeHidden: true }) }).then(function (result) {
+                    var names = {};
+                    var views = readValue(result, 'Items');
+                    if (Array.isArray(views)) views.forEach(function (view) {
+                        var name = readValue(view, 'Name');
+                        var id = 'jellyfin:view:' + String(readValue(view, 'Id') || '').toLowerCase();
+                        if (name && validBuilderId(id)) names[id] = name;
+                    });
+                    return names;
+                }).catch(function () { return {}; });
             }
 
             function refreshProviderAvailability() {
@@ -3630,7 +3654,7 @@
                     while (template.firstChild) {
                         sample.appendChild(template.firstChild);
                     }
-                    if (item.id.indexOf('sf:') === 0) {
+                    if (item.id.indexOf('sf:') === 0 || (item.id.indexOf('jellyfin:view:') === 0 && item.label !== item.id)) {
                         label = sample.querySelector('[data-sleekfin-header-source-label]');
                         if (label) {
                             label.textContent = item.label;
@@ -4072,7 +4096,7 @@
                 return (configurationSavePromise || Promise.resolve()).then(function () {
                     if (!currentLoad(request)) return null;
                     Dashboard.showLoadingMsg();
-                    return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins(), ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/UserSettings/Fields') }).catch(function () { return null; }), loadConfigurationAsset('sleekfin-form-controls.css', true), loadHeaderCatalog()]);
+                    return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins(), ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/UserSettings/Fields') }).catch(function () { return null; }), loadConfigurationAsset('sleekfin-form-controls.css', true), loadHeaderCatalog(), loadBuilderLibraryNames()]);
                 })
                     .then(function (results) {
                         if (!results || !currentLoad(request)) {
@@ -4080,6 +4104,7 @@
                         }
                         var configuration = results[0];
                         sharedBuilderItems = Array.isArray(results[4]) ? results[4] : [];
+                        builderLibraryNames = results[5];
                         userModalEnabledInput.checked = readValue(configuration, 'UserModalEnabled') !== false;
                         renderUserModalFields(configuration, results[2]);
                         enabledInput.checked = readValue(configuration, 'HeaderEnabled') !== false;
