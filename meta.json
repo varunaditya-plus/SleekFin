@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Added unlimited slides as an option for the Home hero carousel",
+  "changelog": "Fixed header overflow and dock positioning, corrected KefinTweaks builder status, and removed the old JE launcher",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-20T11:47:52.0000000Z",
-  "version": "1.8.4.0",
+  "timestamp": "2026-11-22T23:30:13.0000000Z",
+  "version": "1.8.4.1",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
