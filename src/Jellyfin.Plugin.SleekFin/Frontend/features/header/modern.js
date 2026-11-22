@@ -132,6 +132,10 @@ export function createModernAdapter(brand) {
         scheduleMeasurement(headerMount);
       });
       headerMount.resizeObserver.observe(toolbar);
+      if (headerMount.proxy) {
+        headerMount.resizeObserver.observe(headerMount.proxy);
+        headerMount.proxyEntries.forEach(({ element }) => headerMount.resizeObserver.observe(element));
+      }
     }
     return headerMount;
   }

@@ -109,7 +109,9 @@ internal static class HeaderConfiguration
         }
 
         const string sourcePrefix = "source:v1:";
+        // Older releases saved Jellyfin Enhanced's three-dot launcher under this source ID.
         return value.StartsWith(sourcePrefix, StringComparison.Ordinal)
+            && !string.Equals(value, "source:v1:53f7a696156864b35ecf31acea817af9", StringComparison.Ordinal)
             && value.Length == sourcePrefix.Length + 32
             && value.AsSpan(sourcePrefix.Length).ToArray().All(Uri.IsHexDigit);
     }

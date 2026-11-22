@@ -40,6 +40,10 @@ export function createLegacyAdapter(brand) {
     if (typeof window.ResizeObserver === 'function') {
       headerMount.resizeObserver = new window.ResizeObserver(() => scheduleHeaderProxyLayout(headerMount));
       headerMount.resizeObserver.observe(top);
+      if (headerMount.proxy) {
+        headerMount.resizeObserver.observe(headerMount.proxy);
+        headerMount.proxyEntries.forEach(({ element }) => headerMount.resizeObserver.observe(element));
+      }
     }
     return headerMount;
   }

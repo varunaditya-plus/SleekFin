@@ -196,13 +196,37 @@ function createOverflowController(mount, toggle) {
   };
 }
 
+function proxyContentClipped(mount, viewport, first, last) {
+  const { proxy } = mount;
+  if (proxy.scrollWidth > proxy.clientWidth + 1) return true;
+
+  const bounds = proxy.getBoundingClientRect();
+  let left = Math.max(bounds.left, viewport.left);
+  let right = Math.min(bounds.right, viewport.right);
+  // The compact dock is fixed to the viewport, outside the toolbar's clipping box.
+  for (let parent = mount.layoutMode === 'compact' ? null : proxy.parentElement; parent; parent = parent.parentElement) {
+    if (!/^(?:auto|clip|hidden|scroll)$/.test(window.getComputedStyle(parent).overflowX)) continue;
+    const rect = parent.getBoundingClientRect();
+    const scale = parent.offsetWidth ? rect.width / parent.offsetWidth : 1;
+    left = Math.max(left, rect.left + parent.clientLeft * scale);
+    right = Math.min(right, rect.left + (parent.clientLeft + parent.clientWidth) * scale);
+  }
+  return [first, last].some((element) => {
+    const rect = element.getBoundingClientRect();
+    return rect.left < left - 1 || rect.right > right + 1;
+  });
+}
+
 function updateOverflow(mount) {
   if (!mount.proxy) return;
 
   const viewport = getPopupViewport();
-  const rail = document.querySelector('#kefin-home-category-rail:not(.hide):not(.is-scroll-hidden) .kefin-home-category-rail');
-  const railRect = mount.layoutMode === 'compact' && dom.isVisible(rail) && window.getComputedStyle(rail).position === 'fixed' ? rail.getBoundingClientRect() : null;
-  const dockOffset = railRect && railRect.bottom > viewport.top + viewport.height / 2 ? Math.max(0, viewport.bottom - railRect.top) : 0;
+  let dockOffset = 0;
+  // KefinTweaks uses a bottom rail below 900px and translates it while scrolling.
+  if (mount.layoutMode === 'compact' && window.matchMedia?.('(max-width: 899px)').matches) {
+    const rail = document.querySelector('#kefin-home-category-rail:not(.hide):not(.is-scroll-hidden) .kefin-home-category-rail');
+    if (dom.isVisible(rail) && window.getComputedStyle(rail).position === 'fixed') dockOffset = rail.offsetHeight;
+  }
   setStyle(mount, mount.proxy, '--sleekfin-header-dock-offset', `${dockOffset}px`);
 
   const entries = mount.proxyEntries.filter((entry) => entry.element.style.display !== 'none');
@@ -214,6 +238,8 @@ function updateOverflow(mount) {
   }
   const css = window.getComputedStyle(mount.proxy);
   const gap = Number.parseFloat(css.columnGap) || 0;
+  if (mount.proxy.scrollLeft) mount.proxy.scrollLeft = 0;
+  if (mount.cluster?.scrollLeft) mount.cluster.scrollLeft = 0;
 
   // Measure all items in one pass before changing their visibility. Iterative flex measurements shrink the fit budget with the bar.
   mount.overflowToggle.setAttribute('data-sleekfin-header-overflow-hidden', 'true');
@@ -228,14 +254,20 @@ function updateOverflow(mount) {
   let used = widths.reduce((sum, width) => sum + width, 0) - gap;
   let count = entries.length;
 
-  if (used > budget + 1) {
+  if (used > budget + 1 || proxyContentClipped(mount, viewport, entries[0].element, entries[count - 1].element)) {
     mount.overflowToggle.setAttribute('data-sleekfin-header-overflow-hidden', 'false');
     used += mount.overflowToggle.getBoundingClientRect().width + gap;
-    while (count && used > budget + 1) used -= widths[--count];
+    while (count && (count === entries.length || used > budget + 1)) {
+      used -= widths[--count];
+      entries[count].element.setAttribute('data-sleekfin-header-overflowed', 'true');
+    }
+    // A flex reflow or clipping ancestor can still shorten the visible row after the estimate.
+    while (count && proxyContentClipped(mount, viewport, entries[0].element, mount.overflowToggle)) {
+      entries[--count].element.setAttribute('data-sleekfin-header-overflowed', 'true');
+    }
   }
   
   const overflow = entries.slice(count);
-  overflow.forEach(({ element }) => element.setAttribute('data-sleekfin-header-overflowed', 'true'));
   mount.proxy.setAttribute('data-sleekfin-header-overflow-active', overflow.length ? 'true' : 'false');
   mount.overflow.sync(overflow.map(({ record }) => record));
   mount.updateBrandOverlap?.();

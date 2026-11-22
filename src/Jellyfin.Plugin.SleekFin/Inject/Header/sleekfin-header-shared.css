@@ -184,6 +184,7 @@ html.sleekfin-header-mounted [data-sleekfin-header-proxy] {
     max-width: calc(100vw - var(--sleekfin-page-gutter) - var(--sleekfin-page-gutter) - 16px);
     min-width: 0;
     overflow: hidden;
+    overflow: clip;
     padding: var(--sleekfin-header-bar-padding);
     pointer-events: auto;
     z-index: 3;

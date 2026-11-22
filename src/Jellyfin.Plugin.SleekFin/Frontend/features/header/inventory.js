@@ -625,13 +625,25 @@ export function catalogDescriptors(records) {
     label: LABELS[record.label] || record.label,
     shape: record.template.getAttribute('data-sleekfin-header-source-visual'),
   }));
-  const categories = window.KefinTweaksConfig?.homeScreenConfig?.HOME_SETTINGS?.categories || window.KefinHomeConfig2?.HOME_SETTINGS?.categories || [];
+  const kefin = window.KefinTweaksConfig;
+  const defaultHomeSettings = window.KefinHomeConfig2?.HOME_SETTINGS;
+  const homeSettings = kefin?.homeScreenConfig?.HOME_SETTINGS || defaultHomeSettings;
+  const configured = homeSettings?.categories;
+  const categories = Array.isArray(configured) && configured.length ? configured : defaultHomeSettings?.categories;
+  const categoryFiltersEnabled = kefin?.enabled !== false && kefin?.scripts?.homeScreen !== false && homeSettings?.showCategoryFilters !== false;
   (Array.isArray(categories) ? categories : []).forEach((category) => {
     if (!category?.id) return;
-    const id = kefinCategoryKey(String(category.id));
-    if (descriptors.some((descriptor) => descriptor.id === id)) return;
-    const label = String(category.name || category.id);
-    descriptors.push({ aliases: [], available: false, caption: `KefinTweaks ${label}`, current: false, id, inline: false, label, shape: 'text-only' });
+    const categoryId = String(category.id);
+    const id = kefinCategoryKey(categoryId);
+    const existing = descriptors.find((descriptor) => descriptor.id === id);
+    // The Home preview uses KefinTweaks settings because the rail hides on the dashboard.
+    const available = categoryFiltersEnabled && (categoryId !== 'pinned' || existing?.available === true);
+    if (existing) {
+      existing.available = available;
+      return;
+    }
+    const label = String(category.name || categoryId);
+    descriptors.push({ aliases: [], available, caption: `KefinTweaks ${label}`, current: false, id, inline: false, label, shape: 'text-only' });
   });
   const links = window.KefinTweaksConfig?.customMenuLinks;
   (Array.isArray(links) ? links : []).forEach((link) => {

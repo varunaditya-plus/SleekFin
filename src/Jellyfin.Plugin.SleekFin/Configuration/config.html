@@ -2846,6 +2846,7 @@
             }
 
             function validBuilderId(id) {
+                if (id === 'source:v1:53f7a696156864b35ecf31acea817af9') return false;
                 return id === 'space' || id === 'separator' || /^jellyfin:(?:movies|shows|audio-player|back|cast|collections|favorites|folders|home|live-tv|more|playlists|search|syncplay|user-menu)$/.test(id) || /^jellyfin:view:[\da-f-]{16,64}$/.test(id) || /^(?:je|sf|kt):[a-z0-9-]{1,64}$/.test(id) || /^source:v1:[\da-f]{32}$/.test(id);
             }
 
@@ -4489,6 +4490,13 @@
                 }
             }
 
+            function handleKefinHomeConfigLoad(event) {
+                // KefinTweaks announces readiness before its default Home settings script executes.
+                if (event.target.tagName === 'SCRIPT' && /\/homeScreenConfig2\.js(?:[?#]|$)/.test(event.target.src)) {
+                    handleHeaderCatalogChanged();
+                }
+            }
+
             function handleProviderRefresh() {
                 if (document.visibilityState === 'visible' && document.documentElement.contains(page) && page.offsetParent !== null) {
                     refreshProviderAvailability();
@@ -4498,6 +4506,8 @@
             function showConfigurationPage() {
                 window.addEventListener('sleekfin:header-catalog-changed', handleHeaderCatalogChanged);
                 window.addEventListener('focus', handleProviderRefresh);
+                document.addEventListener('kefinTweaksLoaded', handleHeaderCatalogChanged);
+                document.addEventListener('load', handleKefinHomeConfigLoad, true);
                 document.addEventListener('visibilitychange', handleProviderRefresh);
                 startPreviewMeasurements();
                 loadConfiguration();
@@ -4506,6 +4516,8 @@
             function hideConfigurationPage() {
                 window.removeEventListener('sleekfin:header-catalog-changed', handleHeaderCatalogChanged);
                 window.removeEventListener('focus', handleProviderRefresh);
+                document.removeEventListener('kefinTweaksLoaded', handleHeaderCatalogChanged);
+                document.removeEventListener('load', handleKefinHomeConfigLoad, true);
                 document.removeEventListener('visibilitychange', handleProviderRefresh);
                 stopPreviewMeasurements();
                 providerRequest += 1;

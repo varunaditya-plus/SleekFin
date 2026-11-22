@@ -18,7 +18,9 @@ html.sleekfin-header-mounted [data-sleekfin-legacy-cluster] {
     gap: var(--sleekfin-header-item-spacing);
     height: calc(var(--sleekfin-header-item-height) + var(--sleekfin-header-bar-padding) + var(--sleekfin-header-bar-padding));
     max-width: calc(100vw - var(--sleekfin-page-gutter) - var(--sleekfin-page-gutter));
+    min-width: 0;
     overflow: hidden;
+    overflow: clip;
     padding: var(--sleekfin-header-bar-padding);
     pointer-events: auto;
 }
