@@ -63,12 +63,24 @@ https://raw.githubusercontent.com/varunaditya-plus/SleekFin/main/manifest.json
 3. Now, in the sidebar, go to **Plugins**, select **All** in the filters above the plugins, click SleekFin, and click **Install**.
 4. Now you have to restart your Jellyfin instance. Go to **Dashboard** and click the **Restart** button. You're done!
 
-### Configuration
-After installation, go to **Dashboard → SleekFin**. The **Overview** tab groups feature toggles and the SleekFin accent colour picker under **General options**. Save and refresh Jellyfin to apply an accent colour change. Our **UI Builder** gives you live editors for the elements we reskin, letting you tweak them to your liking.
-Under **UI Builder → Header bar**, **Logo and server name CSS**, **Header CSS**, and **Item CSS**, Admins can refine the header styles using CSS, allowing more in depth customization of the header. The names in the CSS Names (eg. logo-and-server-name) expand to SleekFin's CSS selectors. Combine them with standard CSS selectors and pseudo-classes, as in `header-bar header-item:hover` to go even further. Editing CSS styles will update the preview immediately. The editor is a complete embedded code editor, so you can use **Cmd/Ctrl+F** to find text, **Tab** for indentation and accepting suggestions and **Escape**, then **Tab** to move focus out of the editor.
+## Configuration
+<details><summary><b>What to look through after installation</b></summary>
 
+After installation, go to **Dashboard → SleekFin**. The **Overview** tab groups feature toggles and the SleekFin accent colour picker under **General options**. Save and refresh Jellyfin to apply an accent colour change.
+
+</details>
+
+<details><summary><b>UI Builders and editing CSS</b></summary>
+
+Our **UI Builder** gives you live editors for the elements we reskin, letting you tweak them to your liking. Under **UI Builder → Header bar**, **Logo and server name CSS**, **Header CSS**, and **Item CSS**, Admins can refine the header styles using CSS, allowing more in depth customization of the header. The names in the CSS Names (eg. logo-and-server-name) expand to SleekFin's CSS selectors. Combine them with standard CSS selectors and pseudo-classes, as in `header-bar header-item:hover` to go even further. Editing CSS styles will update the preview immediately. The editor is a complete embedded code editor, so you can use **Cmd/Ctrl+F** to find text, **Tab** for indentation and accepting suggestions and **Escape**, then **Tab** to move focus out of the editor.
+
+</details>
+
+<details><summary><b>User customization</b></summary>
 
 Users can open **SleekFin** from the profile menu to personalize hero content, detail-page options, and appearance. By default, users use server defaults. Saved preferences apply only to the account it has been edited on. Admins can go to **UI Builder → User modal** to control which settings users can change or turn off the user menu entirely. Hidden settings use the server defaults. Users can reset all preferences to the server defaults from the modal.
+
+</details>
 
 ## Compatibility
 
