@@ -398,120 +398,20 @@
             z-index: 0;
         }
 
-        #sleekFinConfigurationPage .sleekfin-builder-preview-header {
-            height: var(--sleekfin-preview-header-height, 80px);
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 0;
-            z-index: 1;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-menu {
+        .sleekfin-builder-live-sample:not([data-sleekfin-header-item]) {
             align-items: center;
             background: transparent;
             border: 0;
             border-radius: 8px;
-            color: #fff;
-            display: flex;
-            height: 48px;
-            justify-content: center;
-            left: 20px;
-            padding: 0;
-            position: absolute;
-            top: calc((var(--sleekfin-preview-header-height, 80px) - 48px) / 2);
-            width: 48px;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-brand {
-            align-items: center;
-            color: var(--sleekfin-preview-brand-color, #fff);
-            display: flex;
-            font: 600 14px/1 Inter, "Noto Sans", sans-serif;
-            gap: var(--sleekfin-preview-brand-gap, 10px);
-            height: var(--sleekfin-preview-logo-height, 36px);
-            left: 20px;
-            max-width: 32%;
-            position: absolute;
-            top: calc((var(--sleekfin-preview-header-height, 80px) - var(--sleekfin-preview-logo-height, 36px)) / 2);
-            transform: none;
-            white-space: nowrap;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview[data-brand-position="Center"] .sleekfin-builder-preview-brand {
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview[data-brand-position="Right"] .sleekfin-builder-preview-brand {
-            left: auto;
-            right: 20px;
-            transform: none;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview.is-brand-hidden .sleekfin-builder-preview-brand,
-        #sleekFinConfigurationPage .sleekfin-builder-preview[data-brand-display="None"] .sleekfin-builder-preview-brand {
-            display: none;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-bar {
-            -webkit-backdrop-filter: blur(18px) saturate(140%);
-            align-items: center;
-            backdrop-filter: blur(18px) saturate(140%);
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012)), rgba(22, 22, 24, 0.82);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 12px;
-            box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), 0 6px 14px -6px rgba(0, 0, 0, 0.55);
             box-sizing: border-box;
-            display: flex;
-            gap: var(--sleekfin-preview-item-gap, 2px);
-            height: calc(var(--sleekfin-preview-item-height, 32px) + var(--sleekfin-preview-bar-padding, 4px) + var(--sleekfin-preview-bar-padding, 4px));
-            max-width: calc(100% - var(--sleekfin-preview-left-reserve, 20px) - var(--sleekfin-preview-right-reserve, 20px));
-            overflow: hidden;
-            padding: var(--sleekfin-preview-bar-padding, 4px);
-            position: absolute;
-            right: var(--sleekfin-preview-right-reserve, 20px);
-            top: calc((var(--sleekfin-preview-header-height, 80px) - var(--sleekfin-preview-item-height, 32px) - var(--sleekfin-preview-bar-padding, 4px) - var(--sleekfin-preview-bar-padding, 4px)) / 2);
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview[data-bar-position="Left"] .sleekfin-builder-preview-bar {
-            left: var(--sleekfin-preview-left-reserve, 20px);
-            right: auto;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview[data-bar-position="Center"] .sleekfin-builder-preview-bar {
-            left: var(--sleekfin-preview-center, 50%);
-            right: auto;
-            transform: translateX(-50%);
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview.is-mobile .sleekfin-builder-preview-bar {
-            bottom: 12px;
-            left: 50%;
-            max-width: calc(100% - 24px);
-            right: auto;
-            top: auto;
-            transform: translateX(-50%);
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview.is-mobile .sleekfin-builder-preview-header {
-            height: 100%;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-live-sample {
-            align-items: center;
-            background: var(--sleekfin-preview-item-background, transparent);
-            border: 0;
-            border-radius: 8px;
-            box-sizing: border-box;
-            color: var(--sleekfin-preview-item-color, rgba(255, 255, 255, 0.7));
+            color: var(--sleekfin-header-item-text, rgba(255, 255, 255, 0.7));
             display: inline-flex;
             flex: 0 0 auto;
             font: 500 13px/1 Inter, "Noto Sans", sans-serif;
             gap: 6px;
-            height: var(--sleekfin-preview-item-height, 32px);
+            height: var(--sleekfin-header-item-height, 32px);
             justify-content: center;
-            min-height: var(--sleekfin-preview-item-height, 32px);
+            min-height: var(--sleekfin-header-item-height, 32px);
             min-width: 0;
             padding: 0 12px;
             position: relative;
@@ -527,55 +427,8 @@
             user-select: none;
         }
 
-        #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-overflowed,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-overflow-toggle[hidden],
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer[hidden] {
-            display: none;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-overflow-toggle {
-            align-items: center;
-            background: var(--sleekfin-preview-item-background, transparent);
-            border: 0;
-            border-radius: 8px;
-            color: var(--sleekfin-preview-item-color, rgba(255, 255, 255, 0.7));
-            display: inline-flex;
-            flex: 0 0 var(--sleekfin-preview-item-height, 32px);
-            height: var(--sleekfin-preview-item-height, 32px);
-            justify-content: center;
-            padding: 0;
-            width: var(--sleekfin-preview-item-height, 32px);
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-overflow-caret {
-            border-left: 1.5px solid currentColor;
-            border-top: 1.5px solid currentColor;
-            height: 7px;
-            margin-bottom: 4px;
-            transform: rotate(225deg);
-            width: 7px;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview.is-mobile .sleekfin-builder-preview-overflow-caret {
-            margin-bottom: 0;
-            margin-top: 4px;
-            transform: rotate(45deg);
-        }
-
         #sleekFinConfigurationPage .sleekfin-builder-preview-drawer {
-            -webkit-backdrop-filter: blur(18px) saturate(140%);
-            backdrop-filter: blur(18px) saturate(140%);
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012)), rgba(22, 22, 24, 0.92);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 12px;
-            box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), 0 10px 24px -8px rgba(0, 0, 0, 0.72);
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
             max-height: 115px;
-            overflow-y: auto;
-            padding: 6px;
             position: absolute;
             z-index: 3;
         }
@@ -590,99 +443,11 @@
             user-select: none;
         }
 
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer button {
-            align-items: center;
-            background: transparent;
-            border: 0;
-            border-radius: 8px;
-            color: var(--sleekfin-preview-item-color, rgba(255, 255, 255, 0.7));
-            display: flex;
-            flex: 0 0 auto;
-            font: 500 13px/1 Inter, "Noto Sans", sans-serif;
-            gap: 10px;
-            min-height: 34px;
-            padding: 0 10px;
-            text-align: left;
-            width: 100%;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer button > [data-sleekfin-header-source-visual] {
+        .sleekfin-builder-preview-drawer button > [data-sleekfin-header-source-visual] {
             align-items: center;
             display: inline-flex;
             gap: 6px;
             min-width: 0;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer button.is-unavailable {
-            color: #ff5252;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon {
-            align-items: center;
-            display: inline-flex;
-            flex: 0 0 18px;
-            justify-content: center;
-            min-height: 18px;
-            position: relative;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon:empty {
-            display: none;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-separator {
-            flex: 0 0 11px;
-            height: 11px;
-            margin: 0 8px;
-            position: relative;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-separator::before {
-            background: rgba(255, 255, 255, 0.16);
-            content: "";
-            height: 1px;
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 5px;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-space {
-            flex: 0 0 8px;
-            height: 8px;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon svg,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon .material-icons {
-            font-size: 18px !important;
-            height: 18px !important;
-            line-height: 18px !important;
-            width: 18px !important;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon .MuiButton-startIcon,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon .MuiButton-endIcon {
-            margin: 0 !important;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon img,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon [data-sleekfin-header-source-avatar] {
-            border-radius: 50%;
-            height: 18px !important;
-            width: 18px !important;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon .je-as-sup {
-            font-size: 9px;
-            font-weight: 700;
-            line-height: 1;
-            position: absolute;
-            right: -2px;
-            top: -2px;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer-icon .je-as-sup:empty {
-            display: none;
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-being-dragged {
@@ -693,53 +458,40 @@
             opacity: 0.35;
         }
 
-        #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-active .sleekfin-builder-live-sample {
-            background: var(--sleekfin-preview-active-background, rgba(255, 255, 255, 0.12));
-            box-shadow: inset 0 1px rgba(255, 255, 255, 0.14);
-            color: var(--sleekfin-preview-active-color, #fff);
-            font-weight: 600;
-            opacity: var(--sleekfin-preview-active-opacity, 1);
-        }
-
         #sleekFinConfigurationPage .sleekfin-builder-preview-item .sleekfin-builder-live-sample {
             cursor: grab;
-            opacity: 1;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-item .sleekfin-builder-live-sample:hover {
-            background: var(--sleekfin-preview-active-background, rgba(255, 255, 255, 0.12));
-            color: var(--sleekfin-preview-active-color, #fff);
-            opacity: var(--sleekfin-preview-hover-opacity, 1);
+            justify-content: center;
+            position: relative;
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-live-sample.is-icon-only {
-            min-width: var(--sleekfin-preview-item-height, 32px);
+            min-width: var(--sleekfin-header-item-height, 32px);
             padding: 0;
-            width: var(--sleekfin-preview-item-height, 32px);
+            width: var(--sleekfin-header-item-height, 32px);
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-space {
             height: 1px;
-            width: var(--sleekfin-preview-item-height, 32px);
+            width: var(--sleekfin-header-item-height, 32px);
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-separator {
             background: rgba(255, 255, 255, 0.12);
-            height: calc(var(--sleekfin-preview-item-height, 32px) - 16px);
+            height: calc(var(--sleekfin-header-item-height, 32px) - 16px);
             margin: 0 6px;
             width: 1px;
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-space .sleekfin-builder-live-sample,
         #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-separator .sleekfin-builder-live-sample {
-            height: var(--sleekfin-preview-item-height, 32px);
+            height: var(--sleekfin-header-item-height, 32px);
             inset: 50% auto auto 50%;
             min-height: 0;
             opacity: 0;
             padding: 0;
             position: absolute;
             transform: translate(-50%, -50%);
-            width: var(--sleekfin-preview-item-height, 32px);
+            width: var(--sleekfin-header-item-height, 32px);
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-preview-empty {
@@ -750,7 +502,7 @@
             color: rgba(255, 255, 255, 0.62);
             display: flex;
             font: 500 11px/1 Inter, "Noto Sans", sans-serif;
-            height: var(--sleekfin-preview-item-height, 32px);
+            height: var(--sleekfin-header-item-height, 32px);
             padding: 0 10px;
             white-space: nowrap;
         }
@@ -853,14 +605,14 @@
             border: 1px solid var(--cardBackground, rgba(255, 255, 255, 0.12));
             border-radius: 8px;
             max-width: 100%;
-            min-width: var(--sleekfin-preview-item-height, 32px);
+            min-width: var(--sleekfin-header-item-height, 32px);
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-item .sleekfin-builder-live-sample.is-space {
             border: 1px dashed var(--divider, rgba(255, 255, 255, 0.2));
             box-shadow: none;
             padding: 0;
-            width: var(--sleekfin-preview-item-height, 32px);
+            width: var(--sleekfin-header-item-height, 32px);
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-item .sleekfin-builder-live-sample.is-separator {
@@ -873,7 +625,7 @@
         #sleekFinConfigurationPage .sleekfin-builder-item .sleekfin-builder-live-sample.is-separator:before {
             background: rgba(255, 255, 255, 0.35);
             content: "";
-            height: calc(var(--sleekfin-preview-item-height, 32px) - 16px);
+            height: calc(var(--sleekfin-header-item-height, 32px) - 16px);
             width: 1px;
         }
 
@@ -890,7 +642,6 @@
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-item.is-unavailable .sleekfin-builder-live-sample .material-icons,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-unavailable .sleekfin-builder-live-sample,
         #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-unavailable .sleekfin-builder-live-sample .material-icons {
             color: #ff5252;
         }
@@ -906,65 +657,6 @@
             border: 1px solid var(--divider, rgba(255, 255, 255, 0.2));
             box-sizing: border-box;
             overflow: hidden;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-menu:empty {
-            display: none;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview.has-menu[data-brand-position="Left"] .sleekfin-builder-preview-brand {
-            left: 76px;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-brand > [data-sleekfin-header-source-visual],
-        #sleekFinConfigurationPage .sleekfin-builder-preview-menu > [data-sleekfin-header-source-visual] {
-            align-items: center;
-            display: inline-flex;
-            gap: var(--sleekfin-preview-brand-gap, 10px);
-            height: 100%;
-            min-width: 0;
-            white-space: nowrap;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-menu > [data-sleekfin-header-source-visual] {
-            justify-content: center;
-            width: 100%;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-brand [data-sleekfin-header-source-icon] {
-            flex: 0 0 var(--sleekfin-preview-logo-height, 36px);
-            height: var(--sleekfin-preview-logo-height, 36px) !important;
-            margin: 0 !important;
-            width: var(--sleekfin-preview-logo-height, 36px) !important;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-brand [data-sleekfin-header-source-icon] img,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-brand [data-sleekfin-header-source-icon] svg,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-brand img,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-brand svg {
-            height: var(--sleekfin-preview-logo-height, 36px) !important;
-            max-height: none !important;
-            max-width: none !important;
-            object-fit: contain;
-            width: var(--sleekfin-preview-logo-height, 36px) !important;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview-menu [data-sleekfin-header-source-icon],
-        #sleekFinConfigurationPage .sleekfin-builder-preview-menu svg,
-        #sleekFinConfigurationPage .sleekfin-builder-preview-menu .material-icons {
-            font-size: 24px !important;
-            height: 24px !important;
-            margin: 0 !important;
-            width: 24px !important;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview[data-brand-display="Logo"] .sleekfin-builder-preview-brand [data-sleekfin-header-source-label],
-        #sleekFinConfigurationPage .sleekfin-builder-preview[data-brand-display="ServerName"] .sleekfin-builder-preview-brand [data-sleekfin-header-source-icon] {
-            display: none;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-builder-preview[data-brand-display="ServerName"] .sleekfin-builder-preview-brand > [data-sleekfin-header-source-visual] {
-            gap: 0;
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-content {
@@ -1416,14 +1108,35 @@
             margin: 0;
         }
 
+        #sleekFinConfigurationPage .sleekfin-header-css,
         #sleekFinConfigurationPage .sleekfin-builder-config-text {
-            flex: 1 1 auto;
             font: 13px/1.5 monospace;
-            min-height: 240px;
             min-width: 0;
             overflow: auto;
             padding: 12px;
             resize: vertical;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-header-css-editor .CodeMirror {
+            border: 2px solid var(--cardBackground, transparent);
+            font: 13px/1.5 monospace;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-header-css-editor .CodeMirror-focused {
+            border-color: var(--accent, #00a4dc);
+        }
+
+        #sleekFinConfigurationPage .sleekfin-header-css-editor .CodeMirror-lines {
+            padding: 12px 0;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-header-css-editor .cm-comment {
+            color: #929ba5;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-builder-config-text {
+            flex: 1 1 auto;
+            min-height: 240px;
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-config-error {
@@ -1467,7 +1180,7 @@
                 padding-top: 0;
             }
 
-            #sleekFinConfigurationPage .sleekfin-builder-preview-brand {
+            .sleekfin-builder-preview-brand {
                 left: 12px;
                 max-width: 26%;
             }
@@ -2059,13 +1772,13 @@
                     <div class="sleekfin-section-container sleekfin-header-builder-section">
                         <div class="sleekfin-config-section-title">Header bar</div>
                         <div class="sleekfin-builder-shell">
-                        <div id="sleekFinBuilderPreview" class="sleekfin-builder-preview" data-brand-display="Both" data-brand-position="Left" data-bar-position="Right">
-                            <div class="sleekfin-builder-preview-header">
+                        <div id="sleekFinBuilderPreview" class="sleekfin-builder-preview sleekfin-header-theme" data-brand-display="Both" data-brand-position="Left" data-bar-position="Right">
+                            <div class="sleekfin-builder-preview-header" data-sleekfin-header-row="preview" data-sleekfin-header-surface>
                                 <div id="sleekFinBuilderPreviewMenu" class="sleekfin-builder-preview-menu"></div>
-                                <div id="sleekFinBuilderPreviewBrand" class="sleekfin-builder-preview-brand"></div>
-                                <div id="sleekFinBuilderPreviewBar" class="sleekfin-builder-preview-bar"></div>
-                                <div id="sleekFinBuilderPreviewDrawer" class="sleekfin-builder-preview-drawer" hidden></div>
+                                <div id="sleekFinBuilderPreviewBrand" class="sleekfin-builder-preview-brand" data-sleekfin-header-identity></div>
                             </div>
+                            <div id="sleekFinBuilderPreviewBar" class="sleekfin-builder-preview-bar" data-sleekfin-header-bar data-sleekfin-header-item-list data-sleekfin-header-glass></div>
+                            <div id="sleekFinBuilderPreviewDrawer" class="sleekfin-builder-preview-drawer" data-sleekfin-header-item-list data-sleekfin-header-glass hidden></div>
                             <div class="sleekfin-builder-preview-caption">↑ THIS IS A PREVIEW OF THE TOP OF YOUR HOME SCREEN</div>
                         </div>
 
@@ -2101,141 +1814,28 @@
                                 <label class="sleekfin-choice"><input type="radio" name="sleekFinHeaderBarPosition" value="Right" checked /><span>Right</span></label>
                             </div>
                         </div>
-                        <div class="sleekfin-input-row">
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderHeight">Header height</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderHeight" class="sleekfin-input" type="number" min="48" max="160" value="80" />
-                                        <div class="sleekfin-field-description">Total height of the header area.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderLogoHeight">Logo height</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderLogoHeight" class="sleekfin-input" type="number" min="16" max="96" value="36" />
-                                        <div class="sleekfin-field-description">Display height of the server logo.</div>
-                                    </div>
-                                </div>
+                        <div class="sleekfin-input-group">
+                            <label class="sleekfin-label" for="sleekFinHeaderBrandStylesheet">Logo and server name CSS</label>
+                            <div class="sleekfin-header-css-editor">
+                                <textarea id="sleekFinHeaderBrandStylesheet" disabled class="sleekfin-input sleekfin-header-css" rows="7" wrap="off" spellcheck="false"></textarea>
                             </div>
                         </div>
-                        <div class="sleekfin-input-row">
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderServerNameColor">Server name text color</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderServerNameColor" class="sleekfin-input" type="text" value="#FFFFFF" />
-                                        <div class="sleekfin-field-description">Color used for the server name.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderBrandSpacing">Logo/server name spacing</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderBrandSpacing" class="sleekfin-input" type="number" min="0" max="64" value="10" />
-                                        <div class="sleekfin-field-description">Space between the logo and server name.</div>
-                                    </div>
-                                </div>
+                        <div class="sleekfin-input-group">
+                            <label class="sleekfin-label" for="sleekFinHeaderStylesheet">Header CSS</label>
+                            <div class="sleekfin-header-css-editor">
+                                <textarea id="sleekFinHeaderStylesheet" disabled class="sleekfin-input sleekfin-header-css" rows="13" wrap="off" spellcheck="false"></textarea>
                             </div>
                         </div>
-                        <div class="sleekfin-input-row">
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderItemSpacing">Header item spacing</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderItemSpacing" class="sleekfin-input" type="number" min="0" max="48" value="2" />
-                                        <div class="sleekfin-field-description">Space between items in the header bar.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderItemHeight">Header item height</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderItemHeight" class="sleekfin-input" type="number" min="24" max="80" value="32" />
-                                        <div class="sleekfin-field-description">Height of each item in the header bar.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="sleekfin-input-row">
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderBarPadding">Header bar padding</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderBarPadding" class="sleekfin-input" type="number" min="0" max="32" value="4" />
-                                        <div class="sleekfin-field-description">Space inside the header bar.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderItemBackgroundColor">Item background color</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderItemBackgroundColor" class="sleekfin-input" type="text" value="transparent" />
-                                        <div class="sleekfin-field-description">Background color for inactive items.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="sleekfin-input-row">
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderItemTextColor">Item text color</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderItemTextColor" class="sleekfin-input" type="text" value="rgba(255, 255, 255, 0.7)" />
-                                        <div class="sleekfin-field-description">Text and icon color for inactive items.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderActiveItemBackgroundColor">Active item background color</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderActiveItemBackgroundColor" class="sleekfin-input" type="text" value="rgba(255, 255, 255, 0.12)" />
-                                        <div class="sleekfin-field-description">Background color for the active item.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="sleekfin-input-row">
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderActiveItemTextColor">Active item text color</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderActiveItemTextColor" class="sleekfin-input" type="text" value="#FFFFFF" />
-                                        <div class="sleekfin-field-description">Text and icon color for the active item.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderHoverOpacity">Hover opacity</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderHoverOpacity" class="sleekfin-input" type="number" min="0" max="100" value="100" />
-                                        <div class="sleekfin-field-description">Opacity used while hovering over an item.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="sleekfin-input-row">
-                            <div class="sleekfin-input-group">
-                                <div class="sleekfin-field-main">
-                                    <label class="sleekfin-label sleekfin-label--side" for="sleekFinHeaderActiveItemOpacity">Active item opacity</label>
-                                    <div class="sleekfin-input-stack">
-                                        <input id="sleekFinHeaderActiveItemOpacity" class="sleekfin-input" type="number" min="0" max="100" value="100" />
-                                        <div class="sleekfin-field-description">Opacity used for the active item.</div>
-                                    </div>
-                                </div>
+                        <div class="sleekfin-input-group">
+                            <label class="sleekfin-label" for="sleekFinHeaderItemStylesheet">Item CSS</label>
+                            <div class="sleekfin-header-css-editor">
+                                <textarea id="sleekFinHeaderItemStylesheet" disabled class="sleekfin-input sleekfin-header-css" rows="14" wrap="off" spellcheck="false"></textarea>
                             </div>
                         </div>
                         <div class="sleekfin-header-editor-footer">
                             <button class="sleekfin-builder-config-button" type="button" data-sleekfin-config-action="enter" data-sleekfin-config-builder="header">Enter configuration</button>
                             <button class="sleekfin-builder-config-button" type="button" data-sleekfin-config-action="view" data-sleekfin-config-builder="header">View configuration</button>
-                            <button id="sleekFinHeaderReset" class="sleekfin-header-reset" type="button">Reset header defaults</button>
+                            <button id="sleekFinHeaderReset" disabled class="sleekfin-header-reset" type="button">Reset header defaults</button>
                         </div>
                         </div>
                     </div>
@@ -2276,7 +1876,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="sleekfin-save-button">Save</button>
+                <button type="submit" class="sleekfin-save-button" disabled>Save</button>
             </form>
         </div>
     </div>
@@ -2313,6 +1913,7 @@
             var userModalCatalog = null;
             var userModalPreview = null;
             var preview = document.getElementById('sleekFinBuilderPreview');
+            var previewRow = preview && preview.querySelector('[data-sleekfin-header-row]');
             var previewBar = document.getElementById('sleekFinBuilderPreviewBar');
             var palette = document.getElementById('sleekFinBuilderPalette');
             var previewBrand = document.getElementById('sleekFinBuilderPreviewBrand');
@@ -2331,6 +1932,7 @@
             var detailsProviderAvailability = {};
             var configurationAssets = {};
             var configurationSavePromise = null;
+            var saveButton = form && form.querySelector('.sleekfin-save-button');
             var configurationDialog = null;
 
             function loadConfigurationAsset(fileName, style) {
@@ -2340,7 +1942,7 @@
                 var runtimeScript = document.querySelector('script[data-sleekfin-asset="sleekfin-runtime.js"]');
                 var query = runtimeScript && runtimeScript.src.indexOf('?') !== -1 ? runtimeScript.src.slice(runtimeScript.src.indexOf('?')) : '?b=' + Date.now();
                 configurationAssets[fileName] = new Promise(function (resolve, reject) {
-                    var element = existing || document.createElement(style ? 'link' : 'script');
+                    var element = document.createElement(style ? 'link' : 'script');
                     function cleanup() {
                         element.removeEventListener('load', loaded);
                         element.removeEventListener('error', failed);
@@ -2354,16 +1956,17 @@
                     }
                     element.addEventListener('load', loaded);
                     element.addEventListener('error', failed);
-                    if (!existing) {
-                        element.setAttribute('data-sleekfin-asset', fileName);
-                        if (style) {
-                            element.rel = 'stylesheet';
-                            element.href = ApiClient.getUrl('SleekFin/' + fileName) + query;
-                        } else {
-                            element.src = ApiClient.getUrl('SleekFin/' + fileName) + query;
-                        }
-                        document.head.appendChild(element);
+                    element.setAttribute('data-sleekfin-asset', fileName);
+                    var url = ApiClient.getUrl('SleekFin/' + fileName) + query;
+                    if (style) {
+                        element.rel = 'stylesheet';
+                        element.href = url;
+                    } else {
+                        element.src = url;
                     }
+                    // An injected link that already failed will never emit another load event.
+                    if (existing) existing.parentNode.replaceChild(element, existing);
+                    else document.head.appendChild(element);
                 });
                 return configurationAssets[fileName];
             }
@@ -2425,20 +2028,20 @@
                 { id: 'sf:tv', label: 'TV Shows', caption: 'SeerrFin TV' },
                 { id: 'sf:requests', label: 'Requests', caption: 'SeerrFin Requests' },
                 { id: 'sf:letterboxd', label: 'Letterboxd', caption: 'SeerrFin Letterboxd' },
-                { id: 'kt:watchlist', label: 'Watchlist', caption: 'KF Watchlist' },
-                { id: 'kt:games', label: 'Games', caption: 'KF Games' },
-                { id: 'kt:appearance', label: 'Appearance', caption: 'KF Appearance' },
-                { id: 'kt:watch-together', label: 'Watch Together', caption: 'KF Watch Together' },
-                { id: 'kt:settings', label: 'KefinTweaks', caption: 'KF Settings' },
-                { id: 'kt:menu', label: 'Open Menu', caption: 'KF Open Menu' },
-                { id: 'kt:create-section', label: 'Create Section', caption: 'KF Create Section' },
-                { id: 'kt:category-pinned', label: 'Pinned', caption: 'KefinTweaks Pinned' },
-                { id: 'kt:recommendations', label: 'Recommendations', caption: 'KF Recommendations' },
-                { id: 'kt:admin', label: 'Admin Settings', caption: 'KF Admin Settings' },
-                { id: 'kt:breadcrumb-0', label: 'Breadcrumb 1', caption: 'KF Breadcrumb 1' },
-                { id: 'kt:breadcrumb-1', label: 'Breadcrumb 2', caption: 'KF Breadcrumb 2' },
-                { id: 'kt:breadcrumb-2', label: 'Breadcrumb 3', caption: 'KF Breadcrumb 3' },
-                { id: 'kt:breadcrumb-3', label: 'Breadcrumb 4', caption: 'KF Breadcrumb 4' }
+                { id: 'kt:watchlist', label: 'Watchlist', caption: 'KT Watchlist' },
+                { id: 'kt:games', label: 'Games', caption: 'KT Games' },
+                { id: 'kt:appearance', label: 'Appearance', caption: 'KT Appearance' },
+                { id: 'kt:watch-together', label: 'Watch Together', caption: 'KT Watch Together' },
+                { id: 'kt:settings', label: 'KefinTweaks', caption: 'KT Settings' },
+                { id: 'kt:menu', label: 'Open Menu', caption: 'KT Open Menu' },
+                { id: 'kt:create-section', label: 'Create Section', caption: 'KT Create Section' },
+                { id: 'kt:category-pinned', label: 'Pinned', caption: 'KT Pinned' },
+                { id: 'kt:recommendations', label: 'Recommendations', caption: 'KT Recommendations' },
+                { id: 'kt:admin', label: 'Admin Settings', caption: 'KT Admin Settings' },
+                { id: 'kt:breadcrumb-0', label: 'Breadcrumb 1', caption: 'KT Breadcrumb 1' },
+                { id: 'kt:breadcrumb-1', label: 'Breadcrumb 2', caption: 'KT Breadcrumb 2' },
+                { id: 'kt:breadcrumb-2', label: 'Breadcrumb 3', caption: 'KT Breadcrumb 3' },
+                { id: 'kt:breadcrumb-3', label: 'Breadcrumb 4', caption: 'KT Breadcrumb 4' }
             ];
             var selectedBuilderItems = [];
             var hiddenBuilderItems = [];
@@ -2553,36 +2156,32 @@
             var builderDefaults = {
                 HeaderBrandDisplay: 'Both',
                 HeaderBrandPosition: 'Left',
-                HeaderBarPosition: 'Right',
-                HeaderHeight: 80,
-                HeaderLogoHeight: 36,
-                HeaderServerNameColor: '#FFFFFF',
-                HeaderBrandSpacing: 10,
-                HeaderItemSpacing: 2,
-                HeaderItemHeight: 32,
-                HeaderBarPadding: 4,
-                HeaderItemBackgroundColor: 'transparent',
-                HeaderItemTextColor: 'rgba(255, 255, 255, 0.7)',
-                HeaderActiveItemBackgroundColor: 'rgba(255, 255, 255, 0.12)',
-                HeaderActiveItemTextColor: '#FFFFFF',
-                HeaderHoverOpacity: 100,
-                HeaderActiveItemOpacity: 100
+                HeaderBarPosition: 'Right'
             };
-            var builderFields = {
-                HeaderHeight: document.getElementById('sleekFinHeaderHeight'),
-                HeaderLogoHeight: document.getElementById('sleekFinHeaderLogoHeight'),
-                HeaderServerNameColor: document.getElementById('sleekFinHeaderServerNameColor'),
-                HeaderBrandSpacing: document.getElementById('sleekFinHeaderBrandSpacing'),
-                HeaderItemSpacing: document.getElementById('sleekFinHeaderItemSpacing'),
-                HeaderItemHeight: document.getElementById('sleekFinHeaderItemHeight'),
-                HeaderBarPadding: document.getElementById('sleekFinHeaderBarPadding'),
-                HeaderItemBackgroundColor: document.getElementById('sleekFinHeaderItemBackgroundColor'),
-                HeaderItemTextColor: document.getElementById('sleekFinHeaderItemTextColor'),
-                HeaderActiveItemBackgroundColor: document.getElementById('sleekFinHeaderActiveItemBackgroundColor'),
-                HeaderActiveItemTextColor: document.getElementById('sleekFinHeaderActiveItemTextColor'),
-                HeaderHoverOpacity: document.getElementById('sleekFinHeaderHoverOpacity'),
-                HeaderActiveItemOpacity: document.getElementById('sleekFinHeaderActiveItemOpacity')
-            };
+            var builderCssFields = ['HeaderBrandStylesheet', 'HeaderStylesheet', 'HeaderItemStylesheet'];
+            var builderCssDefaults = [];
+            var themeSelector = '.sleekfin-header-theme ';
+            var headerItem = '[data-sleekfin-header-item]';
+            var activeItem = headerItem + '[data-sleekfin-current="true"]';
+            var headerRowSelectors = themeSelector + '[data-sleekfin-header-row="live"],\n[data-sleekfin-header-row="preview"]';
+            var headerCssTargets = Object.assign(Object.create(null), {
+                'logo-and-server-name': '[data-sleekfin-header-identity]',
+                'header-background': '[data-sleekfin-header-surface]',
+                'header-row': '[data-sleekfin-header-row]',
+                'header-bar': '[data-sleekfin-header-bar]',
+                'bar-glass': '[data-sleekfin-header-glass]',
+                'header-item': headerItem,
+                'header-item-list': '[data-sleekfin-header-item-list]',
+                'active-item': activeItem
+            });
+            var headerCssAliases = Object.create(null);
+            Object.keys(headerCssTargets).forEach(function (alias) {
+                headerCssAliases[headerCssTargets[alias]] = alias;
+            });
+            var builderStyleEditors = builderCssFields.map(function (name) {
+                var input = document.getElementById('sleekFin' + name);
+                return { input: input, style: document.createElement('style'), value: '' };
+            });
 
             var missingHeroField = Object.keys(heroFields).some(function (name) { return !heroFields[name]; });
             var missingShapeInput = Object.keys(shapeInputs).some(function (name) { return !shapeInputs[name]; });
@@ -2604,16 +2203,6 @@
                 return undefined;
             }
 
-            function boundedValue(input, fallback) {
-                var value = Number(input.value);
-                var minimum = Number(input.min);
-                var maximum = Number(input.max);
-                if (!isFinite(value)) {
-                    value = fallback;
-                }
-                return Math.min(maximum, Math.max(minimum, Math.round(value)));
-            }
-
             function boundedHeroValue(name) {
                 var bounds = heroBounds[name];
                 var rawValue = heroFields[name].value.trim();
@@ -2628,19 +2217,6 @@
             function heroColor(name) {
                 var value = heroFields[name].value.trim();
                 return validColor(value) ? value : heroDefaults[name];
-            }
-
-            function builderDimensions() {
-                var headerHeight = boundedValue(builderFields.HeaderHeight, builderDefaults.HeaderHeight);
-                var logoHeight = Math.min(boundedValue(builderFields.HeaderLogoHeight, builderDefaults.HeaderLogoHeight), headerHeight);
-                var itemHeight = Math.min(boundedValue(builderFields.HeaderItemHeight, builderDefaults.HeaderItemHeight), headerHeight);
-                var barPadding = Math.min(boundedValue(builderFields.HeaderBarPadding, builderDefaults.HeaderBarPadding), Math.floor((headerHeight - itemHeight) / 2));
-                return {
-                    HeaderBarPadding: barPadding,
-                    HeaderHeight: headerHeight,
-                    HeaderItemHeight: itemHeight,
-                    HeaderLogoHeight: logoHeight
-                };
             }
 
             function validColor(value) {
@@ -2676,12 +2252,7 @@
                     heroFields.HeroPrimaryButtonBackgroundColor,
                     heroFields.HeroPrimaryButtonTextColor,
                     heroFields.HeroSecondaryButtonBackgroundColor,
-                    heroFields.HeroSecondaryButtonTextColor,
-                    builderFields.HeaderServerNameColor,
-                    builderFields.HeaderItemBackgroundColor,
-                    builderFields.HeaderItemTextColor,
-                    builderFields.HeaderActiveItemBackgroundColor,
-                    builderFields.HeaderActiveItemTextColor
+                    heroFields.HeroSecondaryButtonTextColor
                 ];
                 var invalid = null;
                 var index;
@@ -2815,7 +2386,7 @@
 
             function activePlugin(plugins, id, name) {
                 var normalizedId = String(id || '').replace(/-/g, '').toLowerCase();
-                return plugins.some(function (plugin) {
+                return Array.isArray(plugins) && plugins.some(function (plugin) {
                     var pluginName = String(plugin.Name || plugin.name || '').toLowerCase();
                     var status = String(plugin.Status || plugin.status || '').toLowerCase();
                     var matchesId = normalizedId && normalizedPluginId(plugin) === normalizedId;
@@ -2834,7 +2405,7 @@
                     return values;
                 }).catch(function () {
                     setDependencyStatus(false);
-                    return [];
+                    return null;
                 });
             }
 
@@ -2855,7 +2426,7 @@
                 if (item || !validBuilderId(id)) {
                     return item;
                 }
-                item = { id: id, label: id, caption: id, available: false };
+                item = { id: id, label: id, caption: id };
                 builderItems.push(item);
                 return item;
             }
@@ -2891,7 +2462,6 @@
                 Array.prototype.forEach.call(previewBrand.querySelectorAll('img'), function (image) {
                     image.addEventListener('load', updatePreviewMeasurements, { once: true });
                 });
-                updatePreviewMeasurements();
             }
 
             function renderPreviewDrawer() {
@@ -2905,64 +2475,44 @@
                     return;
                 }
                 previewOverflowItems.forEach(function (entry) {
-                    var divider;
-                    var button;
-                    var icon;
-                    var label;
                     var item = entry.item;
-                    var visual;
-                    var iconOnly;
+                    var control = document.createElement(item.structural ? 'div' : 'button');
                     if (item.structural) {
-                        divider = document.createElement('div');
-                        divider.className = 'sleekfin-builder-preview-drawer-' + item.id;
-                        divider.dataset.builderOverflowIndex = Array.prototype.indexOf.call(previewItems, entry.element);
-                        divider.draggable = true;
-                        divider.title = 'Drag ' + item.caption + ' to reorder or remove it';
-                        divider.addEventListener('pointerdown', function (event) { beginBuilderPointer(event, item.id, true, divider, entry.element); });
-                        divider.addEventListener('dragstart', function (event) { beginBuilderDrag(event, item.id, true, divider, entry.element); });
-                        divider.addEventListener('dragend', endBuilderDrag);
-                        previewDrawer.appendChild(divider);
-                        return;
-                    }
-                    visual = cloneHeaderItem(item.id);
-                    iconOnly = item.shape === 'icon-only';
-                    button = document.createElement('button');
-                    button.type = 'button';
-                    button.className = item.available ? '' : 'is-unavailable';
-                    button.dataset.builderOverflowIndex = Array.prototype.indexOf.call(previewItems, entry.element);
-                    button.draggable = true;
-                    button.title = 'Drag ' + item.caption + ' to reorder or remove it';
-                    if (iconOnly) {
-                        icon = document.createElement('span');
-                        icon.className = 'sleekfin-builder-preview-drawer-icon';
-                    }
-                    if (visual) {
+                        control.className = 'sleekfin-builder-preview-drawer-' + item.id;
+                    } else {
+                        var visual = cloneHeaderItem(item.id);
+                        var iconOnly = item.shape === 'icon-only';
+                        control.type = 'button';
+                        control.className = item.available === false ? 'is-unavailable' : '';
+                        control.setAttribute('data-sleekfin-header-item', '');
+                        control.dataset.sleekfinCurrent = entry.element.firstElementChild.dataset.sleekfinCurrent;
                         if (iconOnly) {
-                            while (visual.firstChild) {
+                            var icon = document.createElement('span');
+                            icon.className = 'sleekfin-builder-preview-drawer-icon';
+                            while (visual && visual.firstChild) {
                                 icon.appendChild(visual.firstChild);
                             }
-                        } else {
-                            button.appendChild(visual);
+                            control.appendChild(icon);
                         }
-                    } else if (!iconOnly) {
-                        label = document.createElement('span');
-                        label.textContent = item.label || item.caption;
-                        button.appendChild(label);
+                        if (visual && !iconOnly) {
+                            control.appendChild(visual);
+                        } else {
+                            var label = document.createElement('span');
+                            label.textContent = iconOnly ? item.caption : item.label || item.caption;
+                            control.appendChild(label);
+                        }
+                        control.addEventListener('click', function () {
+                            previewDrawerOpen = false;
+                            renderPreviewDrawer();
+                        });
                     }
-                    if (iconOnly) {
-                        label = document.createElement('span');
-                        label.textContent = item.caption;
-                        button.appendChild(icon);
-                        button.appendChild(label);
-                    }
-                    button.addEventListener('click', function () {
-                        previewDrawerOpen = false;
-                        renderPreviewDrawer();
-                    });
-                    button.addEventListener('pointerdown', function (event) { beginBuilderPointer(event, item.id, true, button, entry.element); });
-                    button.addEventListener('dragstart', function (event) { beginBuilderDrag(event, item.id, true, button, entry.element); });
-                    button.addEventListener('dragend', endBuilderDrag);
-                    previewDrawer.appendChild(button);
+                    control.dataset.builderOverflowIndex = Array.prototype.indexOf.call(previewItems, entry.element);
+                    control.draggable = true;
+                    control.title = 'Drag ' + item.caption + ' to reorder or remove it';
+                    control.addEventListener('pointerdown', function (event) { beginBuilderPointer(event, item.id, true, control, entry.element); });
+                    control.addEventListener('dragstart', function (event) { beginBuilderDrag(event, item.id, true, control, entry.element); });
+                    control.addEventListener('dragend', endBuilderDrag);
+                    previewDrawer.appendChild(control);
                 });
                 previewDrawer.hidden = false;
                 previewBounds = preview.getBoundingClientRect();
@@ -2998,6 +2548,7 @@
                 var caret = document.createElement('span');
                 button.type = 'button';
                 button.className = 'sleekfin-builder-preview-overflow-toggle';
+                button.setAttribute('data-sleekfin-header-item', '');
                 button.title = 'More header items';
                 button.hidden = true;
                 caret.className = 'sleekfin-builder-preview-overflow-caret';
@@ -3068,6 +2619,11 @@
                     }
                     previewBounds = preview.getBoundingClientRect();
                     preview.classList.toggle('is-mobile', previewBounds.width < 900);
+                    var feature = headerFeature();
+                    if (feature && feature.measureHeaderStyles) {
+                        feature.measureHeaderStyles(previewRow, previewBrand, previewBar,
+                            function (name, value) { preview.style.setProperty(name, value); });
+                    }
                     barPosition = preview.dataset.barPosition || builderDefaults.HeaderBarPosition;
                     edge = window.innerWidth <= 768 ? 12 : 20;
                     leftReserve = edge;
@@ -3092,6 +2648,7 @@
                     return;
                 }
                 previewResizeListening = true;
+                builderStyleEditors.forEach(function (editor) { preview.appendChild(editor.style); });
                 window.addEventListener('resize', updateHeroPreview);
                 if (typeof window.ResizeObserver === 'function') {
                     previewResizeObserver = new window.ResizeObserver(updatePreviewMeasurements);
@@ -3108,6 +2665,7 @@
                     return;
                 }
                 previewResizeListening = false;
+                builderStyleEditors.forEach(function (editor) { editor.style.remove(); });
                 window.removeEventListener('resize', updateHeroPreview);
                 if (previewResizeObserver) {
                     previewResizeObserver.disconnect();
@@ -3123,7 +2681,7 @@
                 var discovered = [];
                 builderItems.forEach(function (item) {
                     item.current = false;
-                    item.available = item.structural === true || item.id === 'jellyfin:home' || item.providerEnabled === true;
+                    item.available = item.structural || item.id === 'jellyfin:home' ? true : item.providerEnabled;
                 });
                 sharedBuilderItems.forEach(function (descriptor) {
                     var id = readValue(descriptor, 'Id');
@@ -3131,7 +2689,6 @@
                     if (!item) return;
                     item.label = item.providerLabel || readValue(descriptor, 'Label');
                     item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : readValue(descriptor, 'Caption');
-                    item.available = item.id === 'jellyfin:home';
                 });
                 descriptors.forEach(function (descriptor) {
                     var id = String(descriptor.id || '').toLowerCase();
@@ -3149,10 +2706,10 @@
                         item.label = item.providerLabel || descriptor.label || item.label;
                         item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : descriptor.caption || item.caption;
                     }
-                    item.shape = descriptor.shape || item.shape || 'text-only';
+                    item.shape = descriptor.shape || item.shape;
                     item.current = descriptor.current === true;
-                    item.available = item.id === 'jellyfin:home' || descriptor.available === true;
-                    if (!builderCustomized && descriptor.inline) {
+                    if (item.id !== 'jellyfin:home' && typeof descriptor.available === 'boolean') item.available = descriptor.available;
+                    if (!builderCustomized && descriptor.inline && item.available !== false) {
                         discovered.push(id);
                     }
                 });
@@ -3196,15 +2753,20 @@
                         return;
                     }
 
-                    setBuilderAvailability('je:random', enhancedActive && readValue(enhanced, 'RandomButtonEnabled') === true);
-                    setBuilderAvailability('je:active-streams', enhancedActive && readValue(enhanced, 'ActiveStreamsEnabled') === true);
-                    setBuilderAvailability('je:bookmarks', enhancedActive && nativeFeatureEnabled(enhanced, 'BookmarksEnabled', 'BookmarksUseNativeTab', true));
-                    setBuilderAvailability('je:hidden-content', enhancedActive && nativeFeatureEnabled(enhanced, 'HiddenContentEnabled', 'HiddenContentUseNativeTab', false));
-                    setBuilderAvailability('je:requests', enhancedActive && nativeFeatureEnabled(enhanced, 'DownloadsPageEnabled', 'DownloadsUseNativeTab', true));
-                    setBuilderAvailability('je:calendar', enhancedActive && nativeFeatureEnabled(enhanced, 'CalendarPageEnabled', 'CalendarUseNativeTab', true));
-                    setBuilderAvailability('je:recommendations', enhancedActive && nativeFeatureEnabled(enhanced, 'RecommendationsPageEnabled', 'RecommendationsUseNativeTab', false));
-                    setBuilderAvailability('je:activity', enhancedActive && nativeFeatureEnabled(enhanced, 'ActivityFeedEnabled', 'ActivityFeedUseNativeTab', false));
-                    setBuilderAvailability('je:catchup', enhancedActive && nativeFeatureEnabled(enhanced, 'CatchUpEnabled', 'CatchUpUseNativeTab', false));
+                    var enhancedOptions = {
+                        'je:random': readValue(enhanced, 'RandomButtonEnabled') === true,
+                        'je:active-streams': readValue(enhanced, 'ActiveStreamsEnabled') === true,
+                        'je:bookmarks': nativeFeatureEnabled(enhanced, 'BookmarksEnabled', 'BookmarksUseNativeTab', true),
+                        'je:hidden-content': nativeFeatureEnabled(enhanced, 'HiddenContentEnabled', 'HiddenContentUseNativeTab', false),
+                        'je:requests': nativeFeatureEnabled(enhanced, 'DownloadsPageEnabled', 'DownloadsUseNativeTab', true),
+                        'je:calendar': nativeFeatureEnabled(enhanced, 'CalendarPageEnabled', 'CalendarUseNativeTab', true),
+                        'je:recommendations': nativeFeatureEnabled(enhanced, 'RecommendationsPageEnabled', 'RecommendationsUseNativeTab', false),
+                        'je:activity': nativeFeatureEnabled(enhanced, 'ActivityFeedEnabled', 'ActivityFeedUseNativeTab', false),
+                        'je:catchup': nativeFeatureEnabled(enhanced, 'CatchUpEnabled', 'CatchUpUseNativeTab', false)
+                    };
+                    Object.keys(enhancedOptions).forEach(function (id) {
+                        setBuilderAvailability(id, enhanced ? enhancedOptions[id] : plugins && !enhancedActive ? false : undefined);
+                    });
 
                     var detailTypes = ['Movie', 'Series', 'Season', 'Episode'];
                     var seerrEnabled = enhancedActive && readValue(enhanced, 'JellyseerrEnabled') === true;
@@ -3241,7 +2803,7 @@
                         item.providerLabel = seerrFin ? title : '';
                         item.label = title;
                         item.caption = 'SeerrFin ' + title;
-                        setBuilderAvailability(item.id, seerrFinActive && readValue(tab, 'Enabled') !== false);
+                        setBuilderAvailability(item.id, seerrFin ? readValue(tab, 'Enabled') !== false : plugins && !seerrFinActive ? false : undefined);
                     });
 
                     refreshBuilderCatalog();
@@ -3392,7 +2954,7 @@
                 source.classList.add('is-drag-source');
                 if (item) {
                     draggedBuilderGhost = document.createElement('div');
-                    draggedBuilderGhost.className = 'sleekfin-builder-drag-ghost' + (item.available ? '' : ' is-unavailable');
+                    draggedBuilderGhost.className = 'sleekfin-builder-drag-ghost' + (item.available === false ? ' is-unavailable' : '');
                     draggedBuilderGhost.appendChild(createLiveSample(item));
                     page.appendChild(draggedBuilderGhost);
                     moveBuilderGhost(clientX, clientY);
@@ -3646,8 +3208,9 @@
                 }
             }
 
-            function createLiveSample(item) {
-                var sample = document.createElement('span');
+            function createLiveSample(item, interactive) {
+                var sample = document.createElement(interactive ? 'button' : 'span');
+                if (interactive) sample.type = 'button';
                 var template = item.structural ? null : cloneHeaderItem(item.id);
                 var label;
                 var shape = item.shape || 'text-only';
@@ -3675,12 +3238,14 @@
                 var element = document.createElement('div');
                 var sample = createLiveSample(item);
                 var caption = document.createElement('span');
-                element.className = 'sleekfin-builder-item' + (item.available ? '' : ' is-unavailable');
+                element.className = 'sleekfin-builder-item' + (item.available === false ? ' is-unavailable' : '');
                 element.draggable = true;
                 element.dataset.builderItem = item.id;
-                element.title = 'Drag ' + item.caption + ' into the header' + (item.available ? '' : ' (unavailable in this preview)');
+                element.title = 'Drag ' + item.caption + ' into the header' + (item.available === false ? ' (unavailable in this preview)' : '');
                 caption.className = 'sleekfin-builder-item-caption';
-                caption.textContent = item.caption;
+                caption.textContent = item.id.indexOf('kt:') === 0
+                    ? 'KT ' + (item.caption || item.label || item.id).replace(/^(?:(?:KefinTweaks|KT)\s+|kt:)+/i, '')
+                    : item.caption;
                 element.appendChild(sample);
                 element.appendChild(caption);
                 element.addEventListener('pointerdown', function (event) { beginBuilderPointer(event, item.id, false, element); });
@@ -3698,8 +3263,8 @@
 
             function createPreviewItem(item, active) {
                 var element = document.createElement('div');
-                var main = createLiveSample(item);
-                element.className = 'sleekfin-builder-preview-item' + (active ? ' is-active' : '') + (item.available ? '' : ' is-unavailable');
+                var main = createLiveSample(item, !item.structural);
+                element.className = 'sleekfin-builder-preview-item' + (item.available === false ? ' is-unavailable' : '');
                 if (item.id === 'space') {
                     element.classList.add('is-space');
                 } else if (item.id === 'separator') {
@@ -3707,6 +3272,10 @@
                 }
                 element.draggable = true;
                 element.dataset.builderItem = item.id;
+                if (!item.structural) {
+                    main.setAttribute('data-sleekfin-header-item', '');
+                    main.dataset.sleekfinCurrent = active ? 'true' : 'false';
+                }
                 main.title = 'Drag ' + item.caption + ' to reorder or remove it';
                 element.addEventListener('pointerdown', function (event) { beginBuilderPointer(event, item.id, true, element); });
                 element.addEventListener('dragstart', function (event) { beginBuilderDrag(event, item.id, true, element); });
@@ -3738,7 +3307,7 @@
 
                 if (activeVisibleIndex === -1) {
                     visibleItems.some(function (item, index) {
-                        if (item.available && item.shape !== 'space' && item.shape !== 'separator') {
+                        if (item.available && !item.structural) {
                             activeVisibleIndex = index;
                             return true;
                         }
@@ -3761,32 +3330,119 @@
                 updateUnsavedChanges();
             }
 
+            function rewriteHeaderSelector(selector, compact, nested) {
+                if (!nested) {
+                    if (compact && selector.replace(/\s+/g, ' ').replace(/ *, */g, ', ') === headerRowSelectors.replace('\n', ' ')) return 'header-row';
+                    if (!compact && selector === 'header-row') return headerRowSelectors;
+                }
+
+                var atRule = /^@([\w-]+)/.exec(selector);
+                if (atRule && !/^(?:scope|supports)$/i.test(atRule[1])) return selector;
+
+                var tokens = /\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\[(?:\\[\s\S]|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|[^\]"'\\])*\](?:\[data-sleekfin-current="true"\])?|(?:[-\w\u0080-\uFFFF]|\\(?:[\da-fA-F]{1,6}(?:\r\n|[\t\n\f\r ])?|[^\r\n\f]))+|[(),]/g;
+                var parts = [];
+                var copied = 0;
+                var branch = 0;
+                var contexts = [];
+                var match;
+                while ((match = tokens.exec(selector)) !== null) {
+                    var token = match[0];
+                    var start = match.index;
+                    var context = contexts.length ? contexts[contexts.length - 1] : !atRule;
+                    if (token === '(') {
+                        var prefix = selector.slice(0, start);
+                        if (context && /:(?:nth-child|nth-last-child)$/i.test(prefix)) contexts.push('nth');
+                        else contexts.push(Boolean(context && /:(?:is|where|not|has|matches|-webkit-any|-moz-any|host|host-context|slotted|cue|current)$/i.test(prefix)
+                            || atRule && (/^scope$/i.test(atRule[1]) && !contexts.length
+                                || /^supports$/i.test(atRule[1]) && /(?:[\s(])selector$/i.test(prefix))));
+                        continue;
+                    }
+                    if (token === ')') {
+                        contexts.pop();
+                        continue;
+                    }
+                    if (token === ',' && !contexts.length) branch = tokens.lastIndex;
+                    if (context === 'nth' && token.toLowerCase() === 'of') contexts[contexts.length - 1] = true;
+                    if (context !== true) continue;
+
+                    var replacement = (compact ? headerCssAliases : headerCssTargets)[token];
+                    if (!replacement) continue;
+                    var previous = selector.charAt(start - 1);
+                    var next = selector.charAt(tokens.lastIndex);
+                    if (compact && (previous && !/[\s,(>+~|]/.test(previous) || /[-\w\\\u0080-\uFFFF]/.test(next))) continue;
+                    var before = contexts.length ? '' : selector.slice(branch, start);
+                    if (compact && !contexts.length && !nested) {
+                        if (before.trim() === themeSelector.trim()) start = branch + /^\s*/.exec(before)[0].length;
+                        else if (!before.trim()) continue;
+                    }
+                    if (!compact) {
+                        // A name replaces a type selector. Classes, IDs, pseudo names and namespaces stay literal.
+                        if (/[.#:@]/.test(previous) || previous === '|' && selector.charAt(start - 2) !== '|'
+                            || next === '|' && selector.charAt(tokens.lastIndex + 1) !== '|') continue;
+                        if (!contexts.length && !nested && !before.trim()) replacement = themeSelector + replacement;
+                    }
+                    parts.push(selector.slice(copied, start), replacement);
+                    copied = tokens.lastIndex;
+                }
+                return parts.join('') + selector.slice(copied);
+            }
+
+            function rewriteHeaderCssSelectors(css, compact) {
+                var tokens = /\/\*[\s\S]*?(?:\*\/|$)|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\\[\s\S]|[()[\]{};]/g;
+                var parts = [];
+                var start = 0;
+                var copied = 0;
+                var brackets = 0;
+                var styleRules = [];
+                var valueDepth = null;
+                var match;
+                while ((match = tokens.exec(css)) !== null) {
+                    var token = match[0];
+                    if (token === '(' || token === '[') brackets++;
+                    if (token === ')' || token === ']') brackets = Math.max(0, brackets - 1);
+                    if (brackets || (token !== '{' && token !== '}' && token !== ';')) continue;
+
+                    // Custom properties can contain literal blocks that resemble CSS rules.
+                    if (valueDepth !== null) {
+                        if (token === '{') valueDepth++;
+                        else if (valueDepth && token === '}') valueDepth--;
+                        else if (!valueDepth) valueDepth = null;
+                        if (valueDepth !== null) continue;
+                    }
+                    if (token === '{') {
+                        var prelude = css.slice(start, match.index);
+                        var leading = /^(?:\s|\/\*[\s\S]*?\*\/)*/.exec(prelude)[0].length;
+                        var selector = prelude.slice(leading).trim();
+                        if (/^--[^:;{}]+:/.test(selector)) {
+                            valueDepth = 1;
+                        } else {
+                            var nested = styleRules[styleRules.length - 1];
+                            var replacement = rewriteHeaderSelector(selector, compact, nested);
+                            if (replacement !== selector) {
+                                parts.push(css.slice(copied, start + leading), replacement);
+                                copied = start + leading + selector.length;
+                            }
+                            styleRules.push(nested || selector.charAt(0) !== '@');
+                        }
+                    } else if (token === '}') styleRules.pop();
+                    start = tokens.lastIndex;
+                }
+                return parts.join('') + css.slice(copied);
+            }
+
+            function headerEditorCss(editor) {
+                return editor.input.value === editor.originalText ? editor.originalCss : rewriteHeaderCssSelectors(editor.input.value, false);
+            }
+
             function updatePreviewStyles() {
-                var dimensions = builderDimensions();
-                var headerHeight = dimensions.HeaderHeight;
-                var logoHeight = dimensions.HeaderLogoHeight;
-                var brandSpacing = boundedValue(builderFields.HeaderBrandSpacing, builderDefaults.HeaderBrandSpacing);
-                var itemSpacing = boundedValue(builderFields.HeaderItemSpacing, builderDefaults.HeaderItemSpacing);
-                var itemHeight = dimensions.HeaderItemHeight;
-                var barPadding = dimensions.HeaderBarPadding;
-                var hoverOpacity = boundedValue(builderFields.HeaderHoverOpacity, builderDefaults.HeaderHoverOpacity) / 100;
-                var activeOpacity = boundedValue(builderFields.HeaderActiveItemOpacity, builderDefaults.HeaderActiveItemOpacity) / 100;
                 preview.dataset.brandDisplay = selectedRadio('sleekFinHeaderBrandDisplay', builderDefaults.HeaderBrandDisplay);
                 preview.dataset.brandPosition = selectedRadio('sleekFinHeaderBrandPosition', builderDefaults.HeaderBrandPosition);
                 preview.dataset.barPosition = selectedRadio('sleekFinHeaderBarPosition', builderDefaults.HeaderBarPosition);
-                page.style.setProperty('--sleekfin-preview-header-height', headerHeight + 'px');
-                page.style.setProperty('--sleekfin-preview-logo-height', logoHeight + 'px');
-                page.style.setProperty('--sleekfin-preview-brand-color', builderFields.HeaderServerNameColor.value || builderDefaults.HeaderServerNameColor);
-                page.style.setProperty('--sleekfin-preview-brand-gap', brandSpacing + 'px');
-                page.style.setProperty('--sleekfin-preview-item-gap', itemSpacing + 'px');
-                page.style.setProperty('--sleekfin-preview-item-height', itemHeight + 'px');
-                page.style.setProperty('--sleekfin-preview-bar-padding', barPadding + 'px');
-                page.style.setProperty('--sleekfin-preview-item-background', builderFields.HeaderItemBackgroundColor.value || builderDefaults.HeaderItemBackgroundColor);
-                page.style.setProperty('--sleekfin-preview-item-color', builderFields.HeaderItemTextColor.value || builderDefaults.HeaderItemTextColor);
-                page.style.setProperty('--sleekfin-preview-active-background', builderFields.HeaderActiveItemBackgroundColor.value || builderDefaults.HeaderActiveItemBackgroundColor);
-                page.style.setProperty('--sleekfin-preview-active-color', builderFields.HeaderActiveItemTextColor.value || builderDefaults.HeaderActiveItemTextColor);
-                page.style.setProperty('--sleekfin-preview-hover-opacity', String(hoverOpacity));
-                page.style.setProperty('--sleekfin-preview-active-opacity', String(activeOpacity));
+                builderStyleEditors.forEach(function (editor) {
+                    if (editor.value === editor.input.value) return;
+                    editor.value = editor.input.value;
+                    editor.style.textContent = headerEditorCss(editor);
+                });
                 updatePreviewMeasurements();
             }
 
@@ -3796,15 +3452,11 @@
                     url: ApiClient.getUrl('/System/Info/Public'),
                     dataType: 'json'
                 });
-                return request.then(function (information) {
+                return request.catch(function () { return null; }).then(function (information) {
                     if (currentLoad(loadId)) {
-                        previewServerName = information.ServerName || information.serverName || 'Jellyfin';
+                        previewServerName = information && (information.ServerName || information.serverName) || 'Jellyfin';
                         refreshPreviewChrome();
-                    }
-                }).catch(function () {
-                    if (currentLoad(loadId)) {
-                        previewServerName = 'Jellyfin';
-                        refreshPreviewChrome();
+                        updatePreviewMeasurements();
                     }
                 });
             }
@@ -4019,9 +3671,16 @@
                 setRadio('sleekFinHeaderBrandDisplay', readValue(configuration, 'HeaderBrandDisplay'), builderDefaults.HeaderBrandDisplay);
                 setRadio('sleekFinHeaderBrandPosition', readValue(configuration, 'HeaderBrandPosition'), builderDefaults.HeaderBrandPosition);
                 setRadio('sleekFinHeaderBarPosition', readValue(configuration, 'HeaderBarPosition'), builderDefaults.HeaderBarPosition);
-                Object.keys(builderFields).forEach(function (name) {
-                    var value = readValue(configuration, name);
-                    builderFields[name].value = value === undefined ? builderDefaults[name] : value;
+                builderStyleEditors.forEach(function (editor, index) {
+                    var css = readValue(configuration, builderCssFields[index]);
+                    editor.originalCss = rewriteHeaderCssSelectors(typeof css === 'string' ? css : builderCssDefaults[index] || '', false);
+                    editor.input.value = rewriteHeaderCssSelectors(editor.originalCss, true);
+                    editor.originalText = editor.input.value;
+                    editor.value = null;
+                    if (editor.view && editor.view.getValue() !== editor.input.value) {
+                        editor.view.setValue(editor.input.value);
+                        editor.view.clearHistory();
+                    }
                 });
                 refreshBuilderCatalog();
             }
@@ -4091,14 +3750,92 @@
                 userModalPreview.update(userModalCatalog.filter(function (field) { return document.getElementById('sleekFinUserModal-' + field.id).checked; }), configuration);
             }
 
+            function mountCssEditor(codeMirror, input) {
+                var aliases = Object.keys(headerCssTargets);
+                var view = codeMirror.fromTextArea(input, {
+                    mode: 'css', theme: 'material-darker', lineNumbers: true, indentUnit: 4, tabSize: 4,
+                    autoCloseBrackets: true, leaveSubmitMethodAlone: true, screenReaderLabel: input.labels[0].textContent,
+                    extraKeys: {
+                        'Cmd-F': 'findPersistent', 'Ctrl-F': 'findPersistent', 'Ctrl-Space': 'autocomplete',
+                        Tab: 'insertSoftTab', 'Shift-Tab': 'indentLess', 'Cmd-/': 'toggleComment', 'Ctrl-/': 'toggleComment'
+                    },
+                    hintOptions: {
+                        completeSingle: false,
+                        extraKeys: { Tab: function (editor, hints) { hints.pick(); } },
+                        hint: function (editor) {
+                            var hint = codeMirror.hint.css(editor);
+                            if (hint) return hint;
+                            var cursor = editor.getCursor();
+                            var token = editor.getTokenAt(cursor);
+                            var prefix = token.string.slice(0, cursor.ch - token.start);
+                            var list = aliases.filter(function (name) { return prefix && name.indexOf(prefix) === 0; });
+                            if (list.length) return { list: list, from: codeMirror.Pos(cursor.line, token.start), to: codeMirror.Pos(cursor.line, token.end) };
+                        }
+                    }
+                });
+                view.setSize(null, 'calc(' + input.rows * 1.5 + 'em + 28px)');
+                view.on('change', function () {
+                    var value = view.getValue();
+                    if (value === input.value) return;
+                    input.value = value;
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+                view.on('inputRead', function (editor, change) {
+                    if (change.origin === '+input' && /^[\w-]+$/.test(change.text[0]) && !editor.state.completionActive) editor.showHint();
+                });
+                var escapeTab = false;
+                view.on('keydown', function (editor, event) {
+                    if (escapeTab && event.key === 'Tab') event.codemirrorIgnore = true;
+                    escapeTab = event.key === 'Escape';
+                });
+                return view;
+            }
+
+            function setConfigurationReady(ready, codeMirror) {
+                saveButton.disabled = !ready;
+                headerReset.disabled = !ready || !builderCssDefaults.length;
+                builderStyleEditors.forEach(function (editor) {
+                    editor.input.disabled = !ready;
+                    if (!ready && editor.view) {
+                        editor.view.toTextArea();
+                        editor.view = null;
+                    } else if (ready && codeMirror && !editor.view) {
+                        try {
+                            editor.view = mountCssEditor(codeMirror, editor.input);
+                        } catch (error) {
+                            console.warn('[SleekFin] CSS editor could not start. Using the textarea.', error);
+                        }
+                    }
+                });
+            }
+
             function loadConfiguration() {
                 var request = ++loadRequest;
+                setConfigurationReady(false);
                 savedConfigurationState = null;
                 updateUnsavedChanges();
                 return (configurationSavePromise || Promise.resolve()).then(function () {
                     if (!currentLoad(request)) return null;
                     Dashboard.showLoadingMsg();
-                    return Promise.all([ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins(), ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/UserSettings/Fields') }).catch(function () { return null; }), loadConfigurationAsset('sleekfin-form-controls.css', true), loadHeaderCatalog(), loadBuilderLibraryNames()]);
+                    var layout = ['sleekfin-header-layout.css', 'sleekfin-header-brand-layout.css', 'sleekfin-header-item-layout.css'];
+                    var layoutReady = Promise.all(layout.map(function (file) { return loadConfigurationAsset(file, true); })).catch(function (error) {
+                        console.warn('[SleekFin] Header preview layout could not load.', error);
+                    });
+                    var defaults = ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/Header/DefaultStyles') }).catch(function () {
+                        console.warn('[SleekFin] Header defaults could not load. Reload this page to use Reset.');
+                        return null;
+                    });
+                    var cssEditorReady = Promise.all([
+                        loadConfigurationAsset('sleekfin-codemirror.css', true),
+                        window.SleekFin && window.SleekFin.CodeMirror ? null : loadConfigurationAsset('sleekfin-codemirror.js', false)
+                    ]).then(function () { return window.SleekFin && window.SleekFin.CodeMirror; }).catch(function (error) {
+                        console.warn('[SleekFin] CSS editor could not load. Using the textarea.', error);
+                    });
+                    return Promise.all([
+                        ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins(),
+                        ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/UserSettings/Fields') }).catch(function () { return null; }),
+                        loadConfigurationAsset('sleekfin-form-controls.css', true), loadHeaderCatalog(), loadBuilderLibraryNames(), defaults, layoutReady, cssEditorReady
+                    ]);
                 })
                     .then(function (results) {
                         if (!results || !currentLoad(request)) {
@@ -4107,6 +3844,11 @@
                         var configuration = results[0];
                         sharedBuilderItems = Array.isArray(results[4]) ? results[4] : [];
                         builderLibraryNames = results[5];
+                        builderCssDefaults = Array.isArray(results[6]) && results[6].length === builderCssFields.length &&
+                            results[6].every(function (css) { return typeof css === 'string'; }) ? results[6] : [];
+                        if (!builderCssDefaults.length && builderCssFields.some(function (name) { return typeof readValue(configuration, name) !== 'string'; })) {
+                            throw new Error('Header styles could not load.');
+                        }
                         userModalEnabledInput.checked = readValue(configuration, 'UserModalEnabled') !== false;
                         renderUserModalFields(configuration, results[2]);
                         enabledInput.checked = readValue(configuration, 'HeaderEnabled') !== false;
@@ -4134,14 +3876,15 @@
                                 if (!builder || !currentLoad(request)) return;
                                 builder.load(configuration);
                                 if (page.querySelector('.sleekfin-page-panel.is-active[data-sleekfin-builder-panel="details"]')) builder.show();
+                            }).catch(function (error) {
+                                console.warn('[SleekFin] Details preview could not load.', error);
                             })
-                        ]);
-                    })
-                    .then(function () {
-                        if (currentLoad(request)) {
+                        ]).then(function () {
+                            if (!currentLoad(request)) return;
                             savedConfigurationState = configurationState();
+                            setConfigurationReady(true, results[8]);
                             updateUnsavedChanges();
-                        }
+                        });
                     })
                     .catch(function () {
                         if (currentLoad(request)) {
@@ -4178,15 +3921,13 @@
             }
 
             function saveBuilderConfiguration(configuration) {
-                var dimensions = builderDimensions();
                 configuration.HeaderItemOrder = builderCustomized ? selectedBuilderItems.join(',') : '';
                 configuration.HeaderHiddenItems = builderCustomized ? hiddenBuilderItems.join(',') : '';
                 configuration.HeaderBrandDisplay = selectedRadio('sleekFinHeaderBrandDisplay', builderDefaults.HeaderBrandDisplay);
                 configuration.HeaderBrandPosition = selectedRadio('sleekFinHeaderBrandPosition', builderDefaults.HeaderBrandPosition);
                 configuration.HeaderBarPosition = selectedRadio('sleekFinHeaderBarPosition', builderDefaults.HeaderBarPosition);
-                Object.keys(builderFields).forEach(function (name) {
-                    var input = builderFields[name];
-                    configuration[name] = dimensions[name] === undefined ? (input.type === 'number' ? boundedValue(input, builderDefaults[name]) : input.value.trim()) : dimensions[name];
+                builderStyleEditors.forEach(function (editor, index) {
+                    configuration[builderCssFields[index]] = headerEditorCss(editor);
                 });
             }
 
@@ -4198,15 +3939,57 @@
                 return configuration;
             }
 
+            function replaceLegacyDeclaration(stylesheet, label, value) {
+                var declaration = new RegExp('(^[ \\t]+[\\w-]+: )[^;\\r\\n]+(; /\\* ' + label + '\\.)', 'm');
+                return stylesheet.replace(declaration, function (match, prefix, suffix) {
+                    return prefix + value + suffix;
+                });
+            }
+
+            function migrateHeaderShare(settings) {
+                var legacyProperties = [
+                    { HeaderLogoHeight: ['Logo height', 'px'], HeaderBrandSpacing: ['Logo/server name spacing', 'px'], HeaderServerNameColor: ['Server name text color'] },
+                    { HeaderHeight: ['Header height', 'px'], HeaderItemSpacing: ['Header item spacing', 'px'], HeaderBarPadding: ['Header bar padding', 'px'] },
+                    {
+                        HeaderItemHeight: ['Header item height', 'px'],
+                        HeaderItemBackgroundColor: ['Item background color'],
+                        HeaderItemTextColor: ['Item text color'],
+                        HeaderActiveItemBackgroundColor: ['Active item background color'],
+                        HeaderActiveItemTextColor: ['Active item text color'],
+                        HeaderHoverOpacity: ['Hover opacity', '%'],
+                        HeaderActiveItemOpacity: ['Active item opacity', '%']
+                    }
+                ];
+                var migrated = Object.assign({}, settings);
+                legacyProperties.forEach(function (properties, group) {
+                    var field = builderCssFields[group];
+                    Object.keys(properties).forEach(function (name) {
+                        if (!Object.prototype.hasOwnProperty.call(settings, name)) return;
+                        var property = properties[name];
+                        var value = settings[name];
+                        if (property[1] ? typeof value !== 'number' || !isFinite(value) : typeof value !== 'string' || !validColor(value)) {
+                            throw new Error('Invalid value for ' + name + '.');
+                        }
+                        delete migrated[name];
+                        if (Object.prototype.hasOwnProperty.call(settings, field)) return;
+                        var stylesheet = migrated[field] || builderCssDefaults[group];
+                        if (!stylesheet) throw new Error('Header defaults could not load.');
+                        migrated[field] = replaceLegacyDeclaration(stylesheet, property[0], value + (property[1] || ''));
+                    });
+                });
+                return migrated;
+            }
+
             function applyBuilderShare(builder, payload) {
                 if (!payload || payload.builder !== builder || !payload.settings || typeof payload.settings !== 'object' || Array.isArray(payload.settings)) {
                     throw new Error('Enter a configuration exported from this UI builder.');
                 }
                 var configuration = builderConfiguration(builder);
-                var keys = Object.keys(payload.settings);
+                var settings = builder === 'header' ? migrateHeaderShare(payload.settings) : payload.settings;
+                var keys = Object.keys(settings);
                 if (!keys.length) throw new Error('The configuration has no settings.');
                 keys.forEach(function (name) {
-                    var value = payload.settings[name];
+                    var value = settings[name];
                     if (!Object.prototype.hasOwnProperty.call(configuration, name)) throw new Error('Unknown setting: ' + name);
                     if (typeof value !== typeof configuration[name] || typeof value === 'number' && !isFinite(value)) throw new Error('Invalid value for ' + name + '.');
                     if (/Color$/.test(name) && !validColor(value) && !(builder === 'details' && /^theme (accent|muted)$/i.test(value.trim()))) throw new Error('Invalid color for ' + name + '.');
@@ -4222,10 +4005,6 @@
                     applyHeroConfiguration(configuration);
                 } else {
                     applyBuilderConfiguration(configuration);
-                    Object.keys(builderFields).forEach(function (name) {
-                        var input = builderFields[name];
-                        if (input.type === 'number') input.value = String(boundedValue(input, builderDefaults[name]));
-                    });
                 }
                 updateUnsavedChanges();
             }
@@ -4234,6 +4013,7 @@
                 var trigger = event.target.closest('[data-sleekfin-config-action]');
                 if (!trigger || configurationDialog) return;
                 var builder = trigger.dataset.sleekfinConfigBuilder;
+                if (saveButton.disabled || builder === 'details' && !detailsBuilder) return;
                 var names = { hero: 'Hero carousel', header: 'Header bar', details: 'Detail page hero' };
                 var viewing = trigger.dataset.sleekfinConfigAction === 'view';
                 var helper = Dashboard.dialogHelper;
@@ -4293,7 +4073,7 @@
                 var contentOrder = selectedSources();
                 var request = loadRequest;
                 var savedState;
-                if (configurationSavePromise) return;
+                if (saveButton.disabled || configurationSavePromise) return;
                 var client = ApiClient;
                 if (heroEnabledInput.checked && !contentOrder.length) {
                     Dashboard.alert('Select at least one hero content source.');
@@ -4302,7 +4082,7 @@
                 if (!validateColors()) {
                     return;
                 }
-                if (!detailsBuilder || !detailsBuilder.validate()) return;
+                if (detailsBuilder && !detailsBuilder.validate()) return;
                 var changes = {
                     UserModalEnabled: userModalEnabledInput.checked,
                     HeaderEnabled: enabledInput.checked,
@@ -4318,7 +4098,7 @@
                 if (userModalCatalog) changes.UserModalFields = Array.prototype.map.call(userModalFields.querySelectorAll('input:checked'), function (input) { return input.value; }).join(',');
                 saveHeroConfiguration(changes, contentOrder);
                 saveBuilderConfiguration(changes);
-                changes = detailsBuilder.write(changes);
+                if (detailsBuilder) changes = detailsBuilder.write(changes);
                 savedState = configurationState(contentOrder);
                 Dashboard.showLoadingMsg();
 
@@ -4367,6 +4147,7 @@
                     element.classList.toggle('is-active', element.dataset.sleekfinBuilderPanel === panel);
                 });
                 if (panel === 'home') {
+                    builderStyleEditors.forEach(function (editor) { if (editor.view) editor.view.refresh(); });
                     updatePreviewMeasurements();
                     updateHeroPreview();
                 }
@@ -4421,8 +4202,8 @@
                 input.addEventListener('change', updatePreviewStyles);
             });
 
-            Object.keys(builderFields).forEach(function (name) {
-                builderFields[name].addEventListener('input', updatePreviewStyles);
+            builderStyleEditors.forEach(function (editor) {
+                editor.input.addEventListener('input', updatePreviewStyles);
             });
 
             previewBar.addEventListener('dragover', function (event) {
@@ -4520,6 +4301,7 @@
                 document.removeEventListener('load', handleKefinHomeConfigLoad, true);
                 document.removeEventListener('visibilitychange', handleProviderRefresh);
                 stopPreviewMeasurements();
+                setConfigurationReady(false);
                 providerRequest += 1;
                 loadRequest += 1;
                 Dashboard.hideLoadingMsg();

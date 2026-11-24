@@ -13,6 +13,10 @@ namespace Jellyfin.Plugin.SleekFin.Controllers;
 [Authorize]
 public sealed class SleekFinHeaderController(UserSettingsService settings, HeaderCatalogService catalog, IAuthorizationContext authorization) : ControllerBase
 {
+    [HttpGet("DefaultStyles")]
+    [Authorize(Policy = Policies.RequiresElevation)]
+    public ActionResult<IReadOnlyList<string>> GetDefaultStyles() => Ok(HeaderConfiguration.DefaultStyles);
+
     [HttpGet("Catalog")]
     [Authorize(Policy = Policies.RequiresElevation)]
     public ActionResult<IReadOnlyList<HeaderCatalogItem>> GetCatalog(CancellationToken cancellationToken)
@@ -53,19 +57,7 @@ public sealed class SleekFinHeaderController(UserSettingsService settings, Heade
             brandDisplay = configuration.HeaderBrandDisplay,
             brandPosition = configuration.HeaderBrandPosition,
             barPosition = configuration.HeaderBarPosition,
-            height = configuration.HeaderHeight,
-            logoHeight = configuration.HeaderLogoHeight,
-            serverNameColor = configuration.HeaderServerNameColor,
-            brandSpacing = configuration.HeaderBrandSpacing,
-            itemSpacing = configuration.HeaderItemSpacing,
-            itemHeight = configuration.HeaderItemHeight,
-            barPadding = configuration.HeaderBarPadding,
-            itemBackgroundColor = configuration.HeaderItemBackgroundColor,
-            itemTextColor = configuration.HeaderItemTextColor,
-            activeItemBackgroundColor = configuration.HeaderActiveItemBackgroundColor,
-            activeItemTextColor = configuration.HeaderActiveItemTextColor,
-            hoverOpacity = configuration.HeaderHoverOpacity,
-            activeItemOpacity = configuration.HeaderActiveItemOpacity
+            styles = HeaderConfiguration.GetStyles(configuration)
         });
     }
 }

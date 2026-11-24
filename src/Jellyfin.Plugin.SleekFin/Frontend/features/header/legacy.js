@@ -10,17 +10,20 @@ export function createLegacyAdapter(brand) {
     const right = header.querySelector('.headerRight');
     const tabs = header.querySelector('.headerTabs');
     const menu = left?.querySelector('.mainDrawerButton') || null;
-    const cluster = dom.element('<div data-sleekfin-legacy-cluster="true"></div>');
+    const cluster = dom.element('<div data-sleekfin-legacy-cluster="true" data-sleekfin-header-bar></div>');
+    const mode = layoutMode();
+    if (mode !== 'compact') cluster.setAttribute('data-sleekfin-header-glass', '');
     const headerMount = createMount({
       actions: right,
       cluster,
       header,
       isTv: isTvLayout(),
       kind: 'legacy',
-      layoutMode: layoutMode(),
+      layoutMode: mode,
       menu,
       nav: tabs,
       settingsSignature: settingsSignature(settings),
+      toolbar: top,
     });
 
     top.appendChild(cluster);
@@ -34,6 +37,8 @@ export function createLegacyAdapter(brand) {
         .forEach((element) => move(headerMount, element, cluster));
     }
     move(headerMount, right, cluster);
+    cluster.querySelectorAll('button.headerButton, button.paper-icon-button-light')
+      .forEach((item) => mark(headerMount, item, 'data-sleekfin-header-item', ''));
     brand.ensureFallback(headerMount.isTv ? header : document.body);
     headerMount.proxy = createHeaderProxy(headerMount, cluster, right, settings);
     headerMount.updateBrandOverlap = () => brand.updateOverlap(headerMount);
@@ -54,6 +59,7 @@ export function createLegacyAdapter(brand) {
       mount.isTv !== isTvLayout() ||
       mount.layoutMode !== layoutMode() ||
       !dom.isConnected(mount.cluster) ||
+      mount.toolbar !== surface.header.querySelector('.headerTop') ||
       mount.nav !== surface.header.querySelector('.headerTabs') ||
       mount.actions !== surface.header.querySelector('.headerRight') ||
       mount.menu !== surface.header.querySelector('.mainDrawerButton') ||

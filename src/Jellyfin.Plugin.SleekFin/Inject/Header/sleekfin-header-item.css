@@ -1,0 +1,23 @@
+.sleekfin-header-theme [data-sleekfin-header-item] {
+    background: transparent; /* Item background color. Background color for inactive items. */
+    color: rgba(255, 255, 255, 0.7); /* Item text color. Text and icon color for inactive items. */
+    border-radius: 8px; /* Item corner radius. */
+}
+
+.sleekfin-header-theme [data-sleekfin-header-bar] [data-sleekfin-header-item] {
+    height: 32px; /* Header item height. Height of each item in the header bar. */
+}
+
+.sleekfin-header-theme [data-sleekfin-header-item]:hover {
+    opacity: 1; /* Hover opacity. Opacity used while hovering over an item. */
+}
+
+.sleekfin-header-theme [data-sleekfin-header-item-list] [data-sleekfin-header-item]:hover,
+.sleekfin-header-theme [data-sleekfin-header-item][data-sleekfin-current="true"] {
+    background: rgba(255, 255, 255, 0.12); /* Active item background color. Background color for the active item. */
+    color: #FFFFFF; /* Active item text color. Text and icon color for the active item. */
+}
+
+.sleekfin-header-theme [data-sleekfin-header-item][data-sleekfin-current="true"] {
+    opacity: 1; /* Active item opacity. Opacity used for the active item. */
+}

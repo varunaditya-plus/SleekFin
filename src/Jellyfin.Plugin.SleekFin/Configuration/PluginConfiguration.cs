@@ -68,6 +68,13 @@ public sealed class PluginConfiguration : BasePluginConfiguration
 
     public string HeaderBarPosition { get; set; } = HeaderConfiguration.DefaultBarPosition;
 
+    public string? HeaderBrandStylesheet { get; set; }
+
+    public string? HeaderStylesheet { get; set; }
+
+    public string? HeaderItemStylesheet { get; set; }
+
+    // Released header inputs are read when upgrading to stylesheets.
     public int HeaderHeight { get; set; } = HeaderConfiguration.DefaultHeight;
 
     public int HeaderLogoHeight { get; set; } = HeaderConfiguration.DefaultLogoHeight;

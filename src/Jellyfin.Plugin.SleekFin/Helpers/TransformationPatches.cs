@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Jellyfin.Plugin.SleekFin.Configuration;
 using Jellyfin.Plugin.SleekFin.Model;
@@ -80,19 +82,20 @@ public static class TransformationPatches
         string personInnerRadius = ShapeRadius(configuration.CastCrewShape, 3, 9);
         contents = contents.Replace("</head>", $"<style data-sleekfin-asset=\"accent-color\">html.sleekfin-main-ui:root{{--sleekfin-accent:{configuration.AccentColor};--sleekfin-card-button-radius:{cardButtonRadius};--sleekfin-card-play-radius:{cardPlayRadius};--sleekfin-card-radius:{cardRadius};--sleekfin-card-inner-radius:{cardInnerRadius};--sleekfin-compact-card-radius:{compactCardRadius};--sleekfin-person-radius:{personRadius};--sleekfin-person-inner-radius:{personInnerRadius};}}</style></head>", StringComparison.Ordinal);
 
-        contents = contents.Replace("</head>", $"{CreateBootScript(configuration)}</head>", StringComparison.Ordinal);
+        contents = contents.Replace("</head>", $"{CreateBootScript(configuration, cacheQuery)}</head>", StringComparison.Ordinal);
 
         return contents;
     }
 
-    private static string CreateBootScript(PluginConfiguration configuration)
+    private static string CreateBootScript(PluginConfiguration configuration, string cacheQuery)
     {
         string headerEnabled = configuration.HeaderEnabled ? "true" : "false";
         string heroEnabled = configuration.HeroEnabled ? "true" : "false";
-        string headerHeight = configuration.HeaderHeight.ToString(CultureInfo.InvariantCulture);
+        var headerDefaultAssets = FrontendAssets.HeaderStyles.Select(asset => $"../SleekFin/{asset.FileName}{cacheQuery}");
+        string headerDefaults = HtmlEncoder.Default.Encode(JsonSerializer.Serialize(headerDefaultAssets));
         string heroMobileHeight = configuration.HeroMobileHeight.ToString(CultureInfo.InvariantCulture);
         string heroDesktopHeight = configuration.HeroDesktopHeight.ToString(CultureInfo.InvariantCulture);
-        return $"<script data-sleekfin-boot>(function(){{'use strict';var r=document.documentElement,t=(location.hash.slice(1)||location.pathname+location.search).replace(/^!+/,''),i=t.search(/[?&]/),p=(i<0?t:t.slice(0,i)).replace(/^[!\\/]+/,'/').replace(/\\/+$/,'')||'/',d=p==='/dashboard'||p.indexOf('/dashboard/')===0||p==='/configurationpage'||p==='/metadata'||p==='/video';r.dataset.sleekfinHeaderEnabled='{headerEnabled}';r.dataset.sleekfinHeroEnabled='{heroEnabled}';r.dataset.sleekfinDropdownStyle='{configuration.DropdownStyle}';r.dataset.sleekfinMediaCardShape='{configuration.MediaCardShape}';r.dataset.sleekfinCastCrewShape='{configuration.CastCrewShape}';r.style.setProperty('--sleekfin-header-height','{headerHeight}px');r.style.setProperty('--sleekfin-hero-mobile-height','{heroMobileHeight}vh');r.style.setProperty('--sleekfin-hero-desktop-height','{heroDesktopHeight}vh');if({headerEnabled}&&!d)r.classList.add('sleekfin-header-boot-loading');if({heroEnabled}&&!/[?&]seerrfinTab=[^&]+/.test(t)&&(p==='/'||/(^|\\/)home\\/?$/.test(p)))r.classList.add('sleekfin-hero-boot-loading');if({headerEnabled}||{heroEnabled})setTimeout(function(){{r.classList.remove('sleekfin-header-boot-loading','sleekfin-hero-boot-loading');}},4000);}})();</script>";
+        return $"<script data-sleekfin-boot data-sleekfin-header-default-assets=\"{headerDefaults}\">(function(){{'use strict';var r=document.documentElement,t=(location.hash.slice(1)||location.pathname+location.search).replace(/^!+/,''),i=t.search(/[?&]/),p=(i<0?t:t.slice(0,i)).replace(/^[!\\/]+/,'/').replace(/\\/+$/,'')||'/',d=p==='/dashboard'||p.indexOf('/dashboard/')===0||p==='/configurationpage'||p==='/metadata'||p==='/video';r.dataset.sleekfinHeaderEnabled='{headerEnabled}';r.dataset.sleekfinHeroEnabled='{heroEnabled}';r.dataset.sleekfinDropdownStyle='{configuration.DropdownStyle}';r.dataset.sleekfinMediaCardShape='{configuration.MediaCardShape}';r.dataset.sleekfinCastCrewShape='{configuration.CastCrewShape}';r.style.setProperty('--sleekfin-hero-mobile-height','{heroMobileHeight}vh');r.style.setProperty('--sleekfin-hero-desktop-height','{heroDesktopHeight}vh');if({headerEnabled}&&!d)r.classList.add('sleekfin-header-boot-loading');if({heroEnabled}&&!/[?&]seerrfinTab=[^&]+/.test(t)&&(p==='/'||/(^|\\/)home\\/?$/.test(p)))r.classList.add('sleekfin-hero-boot-loading');if({headerEnabled}||{heroEnabled})setTimeout(function(){{r.classList.remove('sleekfin-header-boot-loading','sleekfin-hero-boot-loading');}},4000);}})();</script>";
     }
 
     // Browsers scale oversized radii down to half the shortest side, so Circle stays round on square artwork and becomes a capsule on posters.

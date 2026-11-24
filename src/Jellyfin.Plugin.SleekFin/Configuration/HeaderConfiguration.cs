@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
+using Jellyfin.Plugin.SleekFin.Helpers;
 
 namespace Jellyfin.Plugin.SleekFin.Configuration;
 
@@ -45,6 +47,17 @@ internal static class HeaderConfiguration
     private static readonly string[] BrandDisplays = ["None", "Logo", "ServerName", "Both"];
     private static readonly string[] Positions = ["Left", "Center", "Right"];
 
+    private static readonly Lazy<IReadOnlyList<string>> EmbeddedStyles = new(() =>
+        FrontendAssets.HeaderStyles.Select(asset =>
+        {
+            using var stream = typeof(SleekFinPlugin).Assembly.GetManifestResourceStream(asset.ResourceName)
+                ?? throw new InvalidOperationException($"Missing header stylesheet {asset.ResourceName}.");
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }).ToArray());
+
+    public static IReadOnlyList<string> DefaultStyles => EmbeddedStyles.Value;
+
     public static void Normalize(PluginConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
@@ -56,20 +69,53 @@ internal static class HeaderConfiguration
         configuration.HeaderBrandDisplay = NormalizeOption(configuration.HeaderBrandDisplay, BrandDisplays, DefaultBrandDisplay);
         configuration.HeaderBrandPosition = NormalizeOption(configuration.HeaderBrandPosition, Positions, DefaultBrandPosition);
         configuration.HeaderBarPosition = NormalizeOption(configuration.HeaderBarPosition, Positions, DefaultBarPosition);
-        configuration.HeaderHeight = Math.Clamp(configuration.HeaderHeight, 48, 160);
-        configuration.HeaderLogoHeight = Math.Clamp(configuration.HeaderLogoHeight, 16, Math.Min(96, configuration.HeaderHeight));
-        configuration.HeaderServerNameColor = NormalizeColor(configuration.HeaderServerNameColor, DefaultServerNameColor);
-        configuration.HeaderBrandSpacing = Math.Clamp(configuration.HeaderBrandSpacing, 0, 64);
-        configuration.HeaderItemSpacing = Math.Clamp(configuration.HeaderItemSpacing, 0, 48);
-        configuration.HeaderItemHeight = Math.Clamp(configuration.HeaderItemHeight, 24, Math.Min(80, configuration.HeaderHeight));
-        configuration.HeaderBarPadding = Math.Clamp(configuration.HeaderBarPadding, 0, Math.Min(32, (configuration.HeaderHeight - configuration.HeaderItemHeight) / 2));
-        configuration.HeaderItemBackgroundColor = NormalizeColor(configuration.HeaderItemBackgroundColor, DefaultItemBackgroundColor);
-        configuration.HeaderItemTextColor = NormalizeColor(configuration.HeaderItemTextColor, DefaultItemTextColor);
-        configuration.HeaderActiveItemBackgroundColor = NormalizeColor(configuration.HeaderActiveItemBackgroundColor, DefaultActiveItemBackgroundColor);
-        configuration.HeaderActiveItemTextColor = NormalizeColor(configuration.HeaderActiveItemTextColor, DefaultActiveItemTextColor);
-        configuration.HeaderHoverOpacity = Math.Clamp(configuration.HeaderHoverOpacity, 0, 100);
-        configuration.HeaderActiveItemOpacity = Math.Clamp(configuration.HeaderActiveItemOpacity, 0, 100);
+        if (configuration.HeaderBrandStylesheet is not null && configuration.HeaderStylesheet is not null && configuration.HeaderItemStylesheet is not null)
+        {
+            return;
+        }
+
+        int height = Math.Clamp(configuration.HeaderHeight, 48, 160);
+        int itemHeight = Math.Clamp(configuration.HeaderItemHeight, 24, Math.Min(80, height));
+
+        configuration.HeaderBrandStylesheet ??= ApplyInputValues(DefaultStyles[0],
+            ("Logo height", Pixels(Math.Clamp(configuration.HeaderLogoHeight, 16, Math.Min(96, height)))),
+            ("Logo/server name spacing", Pixels(Math.Clamp(configuration.HeaderBrandSpacing, 0, 64))),
+            ("Server name text color", NormalizeColor(configuration.HeaderServerNameColor, DefaultServerNameColor)));
+        configuration.HeaderStylesheet ??= ApplyInputValues(DefaultStyles[1],
+            ("Header height", Pixels(height)),
+            ("Header item spacing", Pixels(Math.Clamp(configuration.HeaderItemSpacing, 0, 48))),
+            ("Header bar padding", Pixels(Math.Clamp(configuration.HeaderBarPadding, 0, Math.Min(32, (height - itemHeight) / 2)))));
+        configuration.HeaderItemStylesheet ??= ApplyInputValues(DefaultStyles[2],
+            ("Header item height", Pixels(itemHeight)),
+            ("Item background color", NormalizeColor(configuration.HeaderItemBackgroundColor, DefaultItemBackgroundColor)),
+            ("Item text color", NormalizeColor(configuration.HeaderItemTextColor, DefaultItemTextColor)),
+            ("Active item background color", NormalizeColor(configuration.HeaderActiveItemBackgroundColor, DefaultActiveItemBackgroundColor)),
+            ("Active item text color", NormalizeColor(configuration.HeaderActiveItemTextColor, DefaultActiveItemTextColor)),
+            ("Hover opacity", Opacity(configuration.HeaderHoverOpacity)),
+            ("Active item opacity", Opacity(configuration.HeaderActiveItemOpacity)));
     }
+
+    public static string[] GetStyles(PluginConfiguration configuration) =>
+    [
+        configuration.HeaderBrandStylesheet ?? DefaultStyles[0],
+        configuration.HeaderStylesheet ?? DefaultStyles[1],
+        configuration.HeaderItemStylesheet ?? DefaultStyles[2]
+    ];
+
+    private static string ApplyInputValues(string stylesheet, params (string Label, string Value)[] inputs)
+    {
+        foreach ((string label, string value) in inputs)
+        {
+            string declaration = $@"(?m)^([ \t]+[\w-]+: )[^;\r\n]+(; /\* {Regex.Escape(label)}\.)";
+            stylesheet = Regex.Replace(stylesheet, declaration, match => match.Groups[1].Value + value + match.Groups[2].Value);
+        }
+
+        return stylesheet;
+    }
+
+    private static string Pixels(int value) => FormattableString.Invariant($"{value}px");
+
+    private static string Opacity(int value) => FormattableString.Invariant($"{Math.Clamp(value, 0, 100) / 100m:0.##}");
 
     public static IReadOnlyList<string> GetItems(string? value, bool preserveDuplicates = false)
     {

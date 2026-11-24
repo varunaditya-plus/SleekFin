@@ -4,12 +4,14 @@ import { HEADER_SOURCE_ROOT_SELECTOR, KEFIN_HOME_SELECTOR, KEFIN_SOURCE_SELECTOR
 import { createLegacyAdapter } from './legacy.js';
 import { createModernAdapter } from './modern.js';
 import { DEFAULT_SETTINGS, isItemId, normalizeSettings } from './settings.js';
-import { findSurface, layoutMode } from './shared.js';
+import { findSurface, layoutMode, measureHeaderStyles, setStyle } from './shared.js';
 
 const ROOT_BOOT_LOADING_CLASS = 'sleekfin-header-boot-loading';
-const ROOT_CLASS = 'sleekfin-header-mounted';
+const ROOT_CLASSES = ['sleekfin-header-mounted', 'sleekfin-header-theme'];
 const ROOT_LOADING_CLASS = 'sleekfin-header-loading';
 const SOURCE_CACHE_KEY = 'sleekfin:header-sources:v2';
+const VISUAL_CACHE_KEY = 'sleekfin:header-visuals:v1';
+const PORTABLE_ICON_TAGS = new Set(['span', 'svg', 'g', 'path', 'circle', 'ellipse', 'line', 'rect', 'polygon', 'polyline', 'defs', 'clippath', 'mask', 'lineargradient', 'radialgradient', 'stop', 'title', 'desc', 'use']);
 const HEADER_SOURCE_SELECTOR = `${HEADER_SOURCE_ROOT_SELECTOR}, ${KEFIN_HOME_SELECTOR}, ${KEFIN_SOURCE_SELECTOR}`;
 const MAX_CATALOG_ITEMS = 256;
 const SETTINGS_CHANGED_EVENT = 'sleekfin:header-settings-changed';
@@ -18,7 +20,6 @@ const PUBLIC_PATHS = new Set(['/addserver', '/selectserver', '/login', '/forgotp
 const DISABLED_SETTINGS = Object.freeze({ ...DEFAULT_SETTINGS, enabled: false });
 const PUBLIC_SETTINGS = Object.freeze(normalizeSettings({
   enabled: document.documentElement.dataset.sleekfinHeaderEnabled === 'true',
-  height: Number.parseFloat(document.documentElement.style.getPropertyValue('--sleekfin-header-height')) || DEFAULT_SETTINGS.height,
 }));
 
 function sourceTemplate(html) {
@@ -44,59 +45,95 @@ function isExcludedRoute() {
   return isDashboardRoute() || appRoute() === '/video';
 }
 
-function cachedHeaderSources(scope = currentScope()) {
-  try {
-    const stored = JSON.parse(window.sessionStorage.getItem(SOURCE_CACHE_KEY) || 'null');
-    if (!scope.userId || stored?.serverId !== scope.serverId || stored?.userId !== scope.userId) return { catalog: [], chrome: {}, scopeKey: scope.key };
+function portableIcon(template) {
+  // Keep vector and font icons across tabs without persisting image or stylesheet URLs.
+  return template.matches('[data-sleekfin-header-source-visual]:not([data-sleekfin-header-source-visual="text-only"])') &&
+    [template, ...template.querySelectorAll('*')].every((element) => PORTABLE_ICON_TAGS.has(element.localName.toLowerCase()) &&
+      Array.from(element.attributes).every(({ name, value }) => !/^(?:on|src|data-.*(?:url|token|key)$)/i.test(name) &&
+        !/(?:url\s*\(|\\)/i.test(value) && (!/^(?:xlink:)?href$/i.test(name) || value.startsWith('#'))));
+}
 
-    const catalog = (Array.isArray(stored.catalog) ? stored.catalog : [])
-      .slice(0, MAX_CATALOG_ITEMS)
-      .map((record) => ({ ...record, key: String(record.key || ''), template: sourceTemplate(record.template) }))
-      .filter((record) => record.key && record.template);
-    const chrome = {};
+function readSourceCache(storage, key, scope) {
+  try {
+    const stored = JSON.parse(window[storage].getItem(key) || 'null');
+    return stored?.serverId === scope.serverId && stored.userId === scope.userId ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+function cachedHeaderSources(scope = currentScope()) {
+  const catalog = new Map();
+  const chrome = {};
+  if (scope.key) {
+    const stored = readSourceCache('sessionStorage', SOURCE_CACHE_KEY, scope);
+    const visuals = readSourceCache('localStorage', VISUAL_CACHE_KEY, scope);
+    [
+      [stored?.catalog, false],
+      [visuals?.catalog, true],
+    ].forEach(([records, portable]) => {
+      if (!Array.isArray(records)) return;
+      records.slice(0, MAX_CATALOG_ITEMS).forEach((record) => {
+        const key = String(record?.key || '');
+        if (!isItemId(key) || catalog.has(key) || catalog.size >= MAX_CATALOG_ITEMS) return;
+
+        const template = sourceTemplate(record.template);
+        if (!template || portable && !portableIcon(template)) return;
+        // A remembered icon is independent of whether its control is enabled on this client.
+        catalog.set(key, {
+          ...record,
+          aliases: Array.isArray(record.aliases) ? record.aliases.filter((alias) => typeof alias === 'string' && isItemId(alias)) : [],
+          caption: typeof record.caption === 'string' ? record.caption : key,
+          key,
+          label: typeof record.label === 'string' ? record.label : key,
+          template,
+          ...(portable ? { remembered: true, nativeHidden: undefined, current: false } : {}),
+        });
+      });
+    });
     ['brand', 'menu'].forEach((part) => {
-      const record = stored.chrome?.[part];
+      const record = stored?.chrome?.[part];
       const template = sourceTemplate(record?.template);
       if (template) chrome[part] = { kind: record.kind || '', label: record.label || '', template };
     });
     if (layoutMode() === 'desktop' && chrome.menu?.kind === 'modern') delete chrome.menu;
-    return { catalog, chrome, scopeKey: scope.key };
-  } catch {
-    return { catalog: [], chrome: {}, scopeKey: scope.key };
   }
+  return { catalog: [...catalog.values()], chrome, scopeKey: scope.key };
 }
 
-function cacheHeaderSources(catalog, chrome) {
-  try {
-    const scope = currentScope();
-    if (!scope.userId) return '';
+function cacheHeaderSources(catalog, chrome, rememberIcons = false) {
+  const scope = currentScope();
+  if (!scope.key) return;
 
-    window.sessionStorage.setItem(
-      SOURCE_CACHE_KEY,
-      JSON.stringify({
-        catalog: catalog.map((record) => ({
-          aliases: record.aliases,
-          caption: record.caption,
-          current: record.current,
-          inline: record.inline,
-          key: record.key,
-          label: record.label,
-          nativeHidden: record.nativeHidden,
-          template: record.template.outerHTML,
-        })),
-        chrome: Object.fromEntries(
-          ['brand', 'menu']
-            .filter((part) => chrome[part])
-            .map((part) => [part, { kind: chrome[part].kind, label: chrome[part].label, template: chrome[part].template.outerHTML }]),
-        ),
-        serverId: scope.serverId,
-        userId: scope.userId,
-      }),
-    );
-    return scope.key;
-  } catch {
-    return '';
-  }
+  const serialize = (record) => ({ ...record, template: record.template.outerHTML });
+  try {
+    window.sessionStorage.setItem(SOURCE_CACHE_KEY, JSON.stringify({
+      catalog: catalog.map(serialize),
+      chrome: Object.fromEntries(Object.entries(chrome).map(([part, record]) => [part, serialize(record)])),
+      serverId: scope.serverId,
+      userId: scope.userId,
+    }));
+  } catch {}
+
+  if (!rememberIcons) return;
+  try {
+    const visuals = catalog.filter((record) => !record.dashboard && portableIcon(record.template)).map((record) => ({
+      aliases: record.aliases,
+      caption: record.caption,
+      inline: record.inline,
+      key: record.key,
+      label: record.label,
+      template: record.template.outerHTML,
+    }));
+    if (!visuals.length) return;
+    const serialized = JSON.stringify({ catalog: visuals, serverId: scope.serverId, userId: scope.userId });
+    if (window.localStorage.getItem(VISUAL_CACHE_KEY) !== serialized) window.localStorage.setItem(VISUAL_CACHE_KEY, serialized);
+  } catch {}
+}
+
+function dashboardLegacyHeader() {
+  // Jellyfin Web 12 keeps the native legacy controls mounted even on its React dashboard.
+  return document.querySelector('.skinHeader:not(.osdHeader) .headerTop')?.closest('.skinHeader') || null;
 }
 
 function createHeaderFeature() {
@@ -153,14 +190,13 @@ function createHeaderFeature() {
     delete nextChrome.menu;
     state.chrome = nextChrome;
     state.chromeSignature = chromeSignature(nextChrome);
-    const cacheScope = cacheHeaderSources(state.catalog, state.chrome);
-    if (cacheScope) state.sourceCacheScope = cacheScope;
+    cacheHeaderSources(state.catalog, state.chrome);
     notifyCatalogChanged();
   }
 
-  function hydrateHeaderSourceCache() {
+  function hydrateHeaderSourceCache(force = false) {
     const scope = currentScope();
-    if (!scope.key || scope.key === state.sourceCacheScope) return;
+    if (!scope.key || (!force && scope.key === state.sourceCacheScope)) return;
 
     const restored = cachedHeaderSources(scope);
     const nextCatalog = restored.catalog;
@@ -278,54 +314,70 @@ function createHeaderFeature() {
       });
   }
 
-  function captureHeaderSources(surface, kefinOnly = false) {
-    if (!surface || !currentScope().userId) return;
+  function captureHeaderSources(surface, dashboard = false) {
+    if ((!surface && !dashboard) || !currentScope().key) return;
 
     let records = discoverHeaderControls(surface);
-    if (kefinOnly) {
-      const kefin = records.filter((record) => record.key.startsWith('kt:'));
-      kefin.forEach((record) => {
-        if (record.source.matches('.kefinTweaks-breadcrumb-element')) record.inline = !record.nativeHidden;
+    if (dashboard) {
+      const merged = new Map(state.catalog
+        .filter((record) => !record.dashboard)
+        .map((record) => [record.key, record]));
+      records.forEach((record) => {
+        if (!isItemId(record.key) || record.key.startsWith('source:')) return;
+        const previous = merged.get(record.key);
+        if (previous && !previous.remembered && !record.key.startsWith('kt:')) return;
+        merged.set(record.key, {
+          ...record,
+          dashboard: true,
+          current: false,
+          inline: record.source.matches('.kefinTweaks-breadcrumb-element') && !record.nativeHidden,
+        });
       });
-      records = [...state.catalog.filter((record) => !record.key.startsWith('kt:')), ...kefin];
+
+      const legacy = dashboardLegacyHeader();
+      if (legacy && legacy !== surface?.header) {
+        discoverHeaderControls({ header: legacy, kind: 'legacy' }).forEach((record) => {
+          if (!record.key.startsWith('jellyfin:') || record.fallback || merged.has(record.key)) return;
+          merged.set(record.key, { ...record, dashboard: true, current: false, inline: false, nativeHidden: undefined });
+        });
+      }
+      records = [...merged.values()];
     } else {
       refreshHeaderUserViews(records);
       if (!state.viewRequest) reportHeaderItems(records);
+      const liveKeys = new Set();
+      records.forEach((record) => {
+        liveKeys.add(record.key);
+        record.aliases?.forEach((alias) => liveKeys.add(alias));
+      });
+      const retained = state.catalog
+        .filter((record) => !liveKeys.has(record.key))
+        .map((record) => ({ ...record, current: false, inline: false, nativeHidden: record.dashboard || record.remembered ? undefined : true }));
+      records.push(...retained);
     }
-    const liveKeys = new Set();
-    records.forEach((record) => {
-      liveKeys.add(record.key);
-      record.aliases?.forEach((alias) => liveKeys.add(alias));
-    });
-    const retained = state.catalog.filter((record) => !liveKeys.has(record.key)).map((record) => ({ ...record, current: false, inline: false, nativeHidden: true }));
-    const catalog = [...records, ...retained].slice(0, MAX_CATALOG_ITEMS);
+    const catalog = records.slice(0, MAX_CATALOG_ITEMS);
     const signature = catalogSignature(catalog);
     let changed = false;
-    if (records.length && signature !== state.catalogSignature) {
+    if (signature !== state.catalogSignature) {
       state.catalog = catalog.map((record) => ({
         aliases: record.aliases,
         caption: record.caption,
         current: record.current,
+        dashboard: record.dashboard,
+        remembered: record.remembered,
         inline: record.inline,
         key: record.key,
         label: record.label,
         nativeHidden: record.nativeHidden,
-        template: record.template.cloneNode(true),
+        template: record.template,
       }));
       state.catalogSignature = signature;
       changed = true;
     }
 
     const discoveredChrome = discoverHeaderChrome(surface);
-    const nextChrome = { ...state.chrome };
-    ['brand', 'menu'].forEach((part) => {
-      const record = discoveredChrome[part];
-      if (!record) {
-        if (part === 'menu' && surface.kind === 'modern' && layoutMode() === 'desktop') delete nextChrome.menu;
-        return;
-      }
-      nextChrome[part] = { ...record, template: record.template.cloneNode(true) };
-    });
+    const nextChrome = { ...state.chrome, ...discoveredChrome };
+    if (!discoveredChrome.menu && surface?.kind === 'modern' && layoutMode() === 'desktop') delete nextChrome.menu;
     const nextChromeSignature = chromeSignature(nextChrome);
     if (nextChromeSignature !== state.chromeSignature) {
       state.chrome = nextChrome;
@@ -334,8 +386,7 @@ function createHeaderFeature() {
     }
 
     if (changed) {
-      const cacheScope = cacheHeaderSources(state.catalog, state.chrome);
-      if (cacheScope) state.sourceCacheScope = cacheScope;
+      cacheHeaderSources(state.catalog, state.chrome, !dashboard);
       notifyCatalogChanged();
     }
   }
@@ -350,7 +401,7 @@ function createHeaderFeature() {
   function unmount() {
     cleanupMount();
     brand.removeFallback();
-    document.documentElement.classList.remove(ROOT_CLASS);
+    document.documentElement.classList.remove(...ROOT_CLASSES);
   }
 
   function reconcile() {
@@ -386,17 +437,23 @@ function createHeaderFeature() {
       cleanupMount();
       brand.removeFallback();
       state.mount = adapter.mount(surface.header, state.settings);
-      document.documentElement.classList.add(ROOT_CLASS);
+      document.documentElement.classList.add(...ROOT_CLASSES);
       finishLoading();
     }
-    adapter.refresh(state.mount);
+    const mount = state.mount;
+    const root = document.documentElement;
+    const bar = mount.layoutMode === 'compact' ? mount.proxy : mount.cluster || mount.proxy;
+    measureHeaderStyles(mount.toolbar,
+      mount.header.querySelector('[data-sleekfin-header-identity]') || document.querySelector('.sleekfin-header-fallback-brand'),
+      bar, (name, value) => setStyle(mount, root, name, value));
+    adapter.refresh(mount);
     captureHeaderSources(surface);
   }
 
   function watchSourceChanges(surface) {
     state.sourceObserver.disconnect();
     const external = Array.from(document.querySelectorAll(HEADER_SOURCE_SELECTOR)).filter((source) => !source.closest('.skinHeader, header.MuiAppBar-root, [data-sleekfin-header-proxy], .sleekfin-builder-preview'));
-    const roots = [surface?.header, ...external.filter((source) => !external.some((parent) => parent !== source && parent.contains(source)))].filter(Boolean);
+    const roots = [...new Set([surface?.header, isDashboardRoute() ? dashboardLegacyHeader() : null, ...external.filter((source) => !external.some((parent) => parent !== source && parent.contains(source)))])].filter(Boolean);
     roots.forEach((root) => state.sourceObserver.observe(root, { attributes: true, attributeOldValue: true, characterData: true, childList: true, subtree: true }));
     state.sourceObserver.observe(document.head, { attributes: true, attributeFilter: ['href', 'disabled', 'media'], attributeOldValue: true, childList: true, characterData: true, subtree: true });
     [document.documentElement, document.body].forEach((root) => state.sourceObserver.observe(root, { attributes: true, attributeFilter: ['class', 'data-active-page'], attributeOldValue: true }));
@@ -447,9 +504,8 @@ function createHeaderFeature() {
       .then((settings) => {
         if (!state.started || request !== state.settingsRequest || requestScope !== currentScope().key) return;
 
-        hydrateHeaderSourceCache();
         const normalized = normalizeSettings(settings);
-        state.publicSettings = normalizeSettings({ enabled: normalized.enabled, height: normalized.height });
+        state.publicSettings = normalizeSettings({ enabled: normalized.enabled });
         state.settingsResolved = true;
         state.settingsRetryDelay = 1000;
         state.settings = normalized;
@@ -481,6 +537,12 @@ function createHeaderFeature() {
     if (event.target === document || event.target.classList.contains('page')) watchHeader(event);
   }
 
+  function onVisualCacheChange(event) {
+    if (event.key !== VISUAL_CACHE_KEY || !isDashboardRoute()) return;
+    hydrateHeaderSourceCache(true);
+    scheduleReconcile();
+  }
+
   function onStylesheetLoad(event) {
     if (event.target.matches?.('link[rel="stylesheet"]')) scheduleReconcile();
   }
@@ -498,6 +560,7 @@ function createHeaderFeature() {
       })) scheduleReconcile();
     });
     window.addEventListener(SETTINGS_CHANGED_EVENT, requestSettings);
+    window.addEventListener('storage', onVisualCacheChange);
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
     document.addEventListener('load', onStylesheetLoad, true);
     state.stopWatching = dom.watchSpa(watchHeader, {
@@ -523,6 +586,7 @@ function createHeaderFeature() {
     state.settingsRetryTimer = 0;
     state.settingsRequest += 1;
     window.removeEventListener(SETTINGS_CHANGED_EVENT, requestSettings);
+    window.removeEventListener('storage', onVisualCacheChange);
     document.removeEventListener('scroll', onScroll, true);
     document.removeEventListener('load', onStylesheetLoad, true);
     state.stopWatching?.();
@@ -547,7 +611,7 @@ function createHeaderFeature() {
     return cloneChromeTemplate(state.chrome, part);
   }
 
-  return { cloneCatalogItem, cloneChromePart, getCatalog, start, stop };
+  return { cloneCatalogItem, cloneChromePart, getCatalog, measureHeaderStyles, start, stop };
 }
 
 const features = (window.SleekFinFeatures = window.SleekFinFeatures || {});

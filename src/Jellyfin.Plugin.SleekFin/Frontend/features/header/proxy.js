@@ -120,6 +120,7 @@ function activateProxy(mount, record, anchor) {
 function createProxyButton(mount, record) {
   const button = document.createElement('button');
   button.type = 'button';
+  button.setAttribute('data-sleekfin-header-item', '');
   button.setAttribute('data-sleekfin-header-proxy-item', record.key);
   record.button = button;
   renderProxyVisual(record);
@@ -136,6 +137,7 @@ function createOverflowToggle() {
   const button = document.createElement('button');
   const caret = document.createElement('span');
   button.type = 'button';
+  button.setAttribute('data-sleekfin-header-item', '');
   button.title = 'More header items';
   button.setAttribute('data-sleekfin-header-overflow-toggle', 'true');
   button.setAttribute('data-sleekfin-header-overflow-hidden', 'true');
@@ -389,6 +391,9 @@ export function createHeaderProxy(mount, parent, before, settings) {
 
   const proxy = document.createElement('div');
   proxy.setAttribute('data-sleekfin-header-proxy', mount.kind);
+  proxy.setAttribute('data-sleekfin-header-bar', '');
+  proxy.setAttribute('data-sleekfin-header-item-list', '');
+  if (mount.layoutMode === 'compact') proxy.setAttribute('data-sleekfin-header-glass', '');
   mount.proxyEntries = resolved.records.map((record) => {
     const element = record.source ? createProxyButton(mount, record) : createStructuralItem(record.key);
     proxy.appendChild(element);

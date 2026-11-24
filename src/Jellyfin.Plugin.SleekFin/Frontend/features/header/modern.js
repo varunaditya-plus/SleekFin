@@ -5,10 +5,12 @@ import { settingsSignature } from './settings.js';
 import { applySettings, cleanup as cleanupShared, createMount, directChildren, layoutMode, mark, setStyle, updateScrolledState } from './shared.js';
 
 function updateActiveControls(mount) {
-  const links = mount.header.querySelectorAll('[data-sleekfin-header-segment] a[href]:not([data-sleekfin-header-brand])');
-  links.forEach((link) => {
-    const href = link.getAttribute('href') || '';
-    mark(mount, link, 'data-sleekfin-current', href && window.location.href.includes(href) ? 'true' : 'false');
+  const items = mount.header.querySelectorAll('[data-sleekfin-header-segment] button, [data-sleekfin-header-segment] a:not([data-sleekfin-header-brand])');
+  items.forEach((item) => {
+    mark(mount, item, 'data-sleekfin-header-item', '');
+    if (!item.matches('a[href]')) return;
+    const href = item.getAttribute('href');
+    mark(mount, item, 'data-sleekfin-current', href && window.location.href.includes(href) ? 'true' : 'false');
   });
   mount.header.querySelectorAll('button[id*="-link-"]').forEach((button) => {
     const tab = document.getElementById(button.id.replace('-link-', '-btn-'));
@@ -92,7 +94,6 @@ export function createModernAdapter(brand) {
 
     applySettings(headerMount, settings);
     mark(headerMount, header, 'data-sleekfin-header', 'modern');
-    mark(headerMount, toolbar, 'data-sleekfin-header-toolbar');
     if (parts.brand) {
       brand.useNative(headerMount, parts.brand);
     } else {
@@ -141,7 +142,7 @@ export function createModernAdapter(brand) {
   }
 
   function needsReplacement(mount, surface, settings) {
-    if (mount.header !== surface.header || !dom.isConnected(mount.toolbar) || !mount.toolbar.hasAttribute('data-sleekfin-header-toolbar')) return true;
+    if (mount.header !== surface.header || !dom.isConnected(mount.toolbar) || !mount.toolbar.hasAttribute('data-sleekfin-header-row')) return true;
     if (mount.layoutMode !== layoutMode()) return true;
     if (mount.settingsSignature !== settingsSignature(settings) || needsProxyReplacement(mount, settings)) return true;
 

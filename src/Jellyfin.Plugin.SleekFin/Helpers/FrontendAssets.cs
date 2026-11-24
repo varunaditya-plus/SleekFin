@@ -18,6 +18,13 @@ public static class FrontendAssets
         public string ResourceName => $"Jellyfin.Plugin.SleekFin.Inject.{Folder}.{FileName}";
     }
 
+    public static IReadOnlyList<Asset> HeaderStyles { get; } =
+    [
+        new("sleekfin-header-brand.css", "Header"),
+        new("sleekfin-header.css", "Header"),
+        new("sleekfin-header-item.css", "Header")
+    ];
+
     public static IReadOnlyList<Asset> Ordered { get; } =
     [
         new("sleekfin-fonts.css", "Theme"),
@@ -32,10 +39,10 @@ public static class FrontendAssets
         new("sleekfin-section-heading.css", "Components"),
         new("sleekfin-fact.css", "Components"),
         new("sleekfin-meta.css", "Components"),
-        new("sleekfin-header-shared.css", "Header"),
-        new("sleekfin-header-brand.css", "Header"),
-        new("sleekfin-header-modern.css", "Header"),
-        new("sleekfin-header-legacy.css", "Header"),
+        new("sleekfin-header-boot.css", "Header"),
+        new("sleekfin-header-layout.css", "Header"),
+        new("sleekfin-header-brand-layout.css", "Header"),
+        new("sleekfin-header-item-layout.css", "Header"),
         new("sleekfin-je-components.css", "JellyfinEnhanced"),
         new("sleekfin-je-active-streams.css", "JellyfinEnhanced"),
         new("sleekfin-hero.css", "Hero", Feature.Hero),
@@ -62,7 +69,9 @@ public static class FrontendAssets
         new("sleekfin-details.js", "Build", Feature.Details)
     ];
 
-    public static IReadOnlyDictionary<string, Asset> ByFileName { get; } = Ordered.Concat([
+    public static IReadOnlyDictionary<string, Asset> ByFileName { get; } = Ordered.Concat(HeaderStyles).Concat([
+        new Asset("sleekfin-codemirror.js", "Configuration"),
+        new Asset("sleekfin-codemirror.css", "Configuration"),
         new Asset("sleekfin-details-builder.js", "Build"),
         new Asset("sleekfin-details-builder.css", "Configuration"),
         new Asset("sleekfin-details-builder-fields.css", "Configuration"),

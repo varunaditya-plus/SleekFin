@@ -87,6 +87,7 @@ export function createBrandController(isActive) {
     removeFallback();
     const fallback = document.createElement('a');
     fallback.className = 'sleekfin-header-fallback-brand';
+    fallback.setAttribute('data-sleekfin-header-identity', '');
     fallback.href = '#/';
     parent.appendChild(fallback);
     state.fallback = fallback;
@@ -96,6 +97,7 @@ export function createBrandController(isActive) {
   function useNative(mount, nativeBrand) {
     readServerName(nativeBrand);
     mark(mount, nativeBrand, 'data-sleekfin-header-brand');
+    mark(mount, nativeBrand, 'data-sleekfin-header-identity', '');
     removeFallback();
   }
 

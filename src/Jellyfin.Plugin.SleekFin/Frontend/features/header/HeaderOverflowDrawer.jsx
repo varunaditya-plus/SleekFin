@@ -54,7 +54,7 @@ export function HeaderOverflowDrawer({ anchor, onActivate, onClose, records }) {
   return (
     <div data-sleekfin-header-overflow-layer>
       <div data-sleekfin-header-overflow-backdrop onClick={onClose} />
-      <div class="focuscontainer" data-sleekfin-header-overflow-drawer onClick={(event) => event.stopPropagation()} ref={drawer} style={style}>
+      <div class="focuscontainer" data-sleekfin-header-overflow-drawer data-sleekfin-header-item-list data-sleekfin-header-glass onClick={(event) => event.stopPropagation()} ref={drawer} style={style}>
         {records.map((record, index) => {
           if (record.key === 'separator') return <div data-sleekfin-header-overflow-separator key={`${record.key}-${index}`} />;
           if (record.key === 'space') return <div data-sleekfin-header-overflow-space key={`${record.key}-${index}`} />;
@@ -64,6 +64,7 @@ export function HeaderOverflowDrawer({ anchor, onActivate, onClose, records }) {
               type="button"
               data-sleekfin-current={record.current ? 'true' : 'false'}
               data-sleekfin-header-overflow-full={iconOnly ? 'true' : 'false'}
+              data-sleekfin-header-item
               data-sleekfin-header-overflow-item={record.key}
               disabled={record.disabled}
               key={`${record.key}-${index}`}

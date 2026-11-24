@@ -617,7 +617,7 @@ export function discoverHeaderControls(surface) {
 export function catalogDescriptors(records) {
   const descriptors = records.map((record) => ({
     aliases: Array.isArray(record.aliases) ? record.aliases : [],
-    available: !record.nativeHidden,
+    available: typeof record.nativeHidden === 'boolean' ? !record.nativeHidden : undefined,
     caption: LABELS[record.label] || record.caption,
     current: record.current,
     id: record.key,
@@ -637,7 +637,7 @@ export function catalogDescriptors(records) {
     const id = kefinCategoryKey(categoryId);
     const existing = descriptors.find((descriptor) => descriptor.id === id);
     // The Home preview uses KefinTweaks settings because the rail hides on the dashboard.
-    const available = categoryFiltersEnabled && (categoryId !== 'pinned' || existing?.available === true);
+    const available = categoryFiltersEnabled ? categoryId === 'pinned' ? existing?.available : true : false;
     if (existing) {
       existing.available = available;
       return;
@@ -651,7 +651,7 @@ export function catalogDescriptors(records) {
     const target = String(link?.url || '').trim() || (link?.action ? `action:${String(link.action).trim()}` : '');
     if (!label || !target) return;
     const id = kefinLinkKey(`${label}||${target}`);
-    if (!descriptors.some((descriptor) => descriptor.id === id)) descriptors.push({ aliases: [], available: false, caption: `KefinTweaks ${label}`, current: false, id, inline: false, label, shape: 'text-only' });
+    if (!descriptors.some((descriptor) => descriptor.id === id)) descriptors.push({ aliases: [], available: kefin?.enabled === false ? false : undefined, caption: `KefinTweaks ${label}`, current: false, id, inline: false, label, shape: 'text-only' });
   });
   return descriptors;
 }
@@ -677,7 +677,7 @@ export function chromeSignature(chrome) {
 }
 
 export function catalogSignature(records) {
-  return records.map((record) => `${record.key}|${record.caption}|${record.current}|${record.inline}|${record.nativeHidden}|${record.aliases?.join(',')}|${record.template.outerHTML}`).join('\n');
+  return records.map((record) => `${record.key}|${record.caption}|${record.current}|${record.inline}|${record.nativeHidden}|${record.dashboard}|${record.remembered}|${record.aliases?.join(',')}|${record.template.outerHTML}`).join('\n');
 }
 
 export function legacyAlias(key, records) {

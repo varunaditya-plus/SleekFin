@@ -1,0 +1,23 @@
+.sleekfin-header-theme [data-sleekfin-header-surface] {
+    background: transparent; /* Background behind the header. */
+}
+
+.sleekfin-header-theme [data-sleekfin-header-row="live"],
+[data-sleekfin-header-row="preview"] {
+    height: 80px; /* Header height. Total height of the header area. */
+}
+
+.sleekfin-header-theme [data-sleekfin-header-bar] {
+    gap: 2px; /* Header item spacing. Space between items in the header bar. */
+    padding: 4px; /* Header bar padding. Space inside the header bar. */
+}
+
+.sleekfin-header-theme [data-sleekfin-header-row]::after,
+.sleekfin-header-theme [data-sleekfin-header-glass] {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.012) 100%), rgba(22, 22, 24, 0.82); /* Bar and overflow background. */
+    border: 1px solid rgba(255, 255, 255, 0.07); /* Bar and overflow border. */
+    border-radius: 12px; /* Bar and overflow corner radius. */
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), 0 6px 14px -6px rgba(0, 0, 0, 0.55); /* Bar and overflow shadow. */
+    -webkit-backdrop-filter: blur(18px) saturate(140%); /* Glass effect in Safari. */
+    backdrop-filter: blur(18px) saturate(140%); /* Glass effect. */
+}

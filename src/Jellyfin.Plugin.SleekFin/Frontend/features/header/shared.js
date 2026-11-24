@@ -1,5 +1,13 @@
 import { dom } from '../../shared/runtime.js';
 
+let defaultStyleUrls = [];
+try {
+  const urls = JSON.parse(document.querySelector('[data-sleekfin-boot]')?.dataset.sleekfinHeaderDefaultAssets || '[]');
+  if (Array.isArray(urls)) defaultStyleUrls = urls.filter((url) => typeof url === 'string' && url.startsWith('../SleekFin/'));
+} catch {
+  console.warn('[SleekFin] The default header stylesheet list could not be read.');
+}
+
 export function isTvLayout() {
   return document.documentElement.classList.contains('layout-tv') || Boolean(document.body?.classList.contains('layout-tv'));
 }
@@ -70,29 +78,44 @@ export function setStyle(mount, element, name, value, priority) {
 
 export function applySettings(mount, settings) {
   const root = document.documentElement;
-  const variables = {
-    '--sleekfin-header-active-background': settings.activeItemBackgroundColor,
-    '--sleekfin-header-active-opacity': String(settings.activeItemOpacity / 100),
-    '--sleekfin-header-active-text': settings.activeItemTextColor,
-    '--sleekfin-header-bar-padding': `${settings.barPadding}px`,
-    '--sleekfin-header-bar-top': `${(settings.height - settings.itemHeight - 2 * settings.barPadding) / 2}px`,
-    '--sleekfin-header-brand-gap': `${settings.brandSpacing}px`,
-    '--sleekfin-header-brand-top': `${(settings.height - settings.logoHeight) / 2}px`,
-    '--sleekfin-header-height': `${settings.height}px`,
-    '--sleekfin-header-hover-opacity': String(settings.hoverOpacity / 100),
-    '--sleekfin-header-item-background': settings.itemBackgroundColor,
-    '--sleekfin-header-item-height': `${settings.itemHeight}px`,
-    '--sleekfin-header-item-spacing': `${settings.itemSpacing}px`,
-    '--sleekfin-header-item-text': settings.itemTextColor,
-    '--sleekfin-header-logo-height': `${settings.logoHeight}px`,
-    '--sleekfin-header-name-color': settings.serverNameColor,
-  };
-
-  Object.keys(variables).forEach((name) => setStyle(mount, root, name, variables[name]));
+  mount.styles = settings.styles
+    ? settings.styles.filter(Boolean).map((css) => {
+      const style = document.createElement('style');
+      style.textContent = css;
+      return document.head.appendChild(style);
+    })
+    : defaultStyleUrls.map((url) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = url;
+      return document.head.appendChild(link);
+    });
   mark(mount, root, 'data-sleekfin-header-bar-position', settings.barPosition.toLowerCase());
   mark(mount, root, 'data-sleekfin-header-brand-display', settings.brandDisplay.toLowerCase());
   mark(mount, root, 'data-sleekfin-header-brand-position', settings.brandPosition.toLowerCase());
   mark(mount, root, 'data-sleekfin-header-layout', mount.layoutMode);
+  mark(mount, mount.header, 'data-sleekfin-header-surface', '');
+  mark(mount, mount.toolbar, 'data-sleekfin-header-row', 'live');
+}
+
+// These dimensions also position elements outside the header, including the detail page and mobile dock.
+export function measureHeaderStyles(row, brand, bar, write) {
+  const rowStyle = row && window.getComputedStyle(row);
+  const brandStyle = brand && window.getComputedStyle(brand);
+  const barStyle = bar && window.getComputedStyle(bar);
+  const item = bar?.querySelector('[data-sleekfin-header-overflow-toggle], .sleekfin-builder-preview-overflow-toggle') ||
+    bar?.querySelector('[data-sleekfin-header-item]');
+  [
+    [rowStyle?.height, 'height', 80],
+    [brandStyle?.height, 'logo-height', 36],
+    [brandStyle?.columnGap, 'brand-gap', 10],
+    [barStyle?.columnGap, 'item-spacing', 2],
+    [barStyle?.paddingTop, 'bar-padding', 4],
+    [item && window.getComputedStyle(item).height, 'item-height', 32],
+  ].forEach(([size, name, fallback]) => {
+    const value = /^-?\d*\.?\d+px$/.test(size) ? Number.parseFloat(size) : fallback;
+    write(`--sleekfin-header-measured-${name}`, `${Math.round(value * 16) / 16}px`);
+  });
 }
 
 export function directChildren(element) {
@@ -172,6 +195,7 @@ export function cleanup(mount) {
   }
   mount.resizeObserver?.disconnect();
   mount.overflow?.destroy();
+  mount.styles?.forEach((style) => style.remove());
   restoreOwnedAttributes(mount);
   restoreOwnedStyles(mount);
   restoreMovedNodes(mount);
