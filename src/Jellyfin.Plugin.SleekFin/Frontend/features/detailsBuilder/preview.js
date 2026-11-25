@@ -1,15 +1,35 @@
 import { dom, item } from '../../shared/runtime.js';
 import { createHero } from '../details/hero.jsx';
-import { DEFAULT_SETTINGS } from '../details/settings.js';
+import { DEFAULT_SETTINGS, DETAIL_TYPE_LABELS } from '../details/settings.js';
 import { createTrackPickers } from '../details/trackPickers.js';
 
-const TYPES = ['Movie', 'Series', 'Season', 'Episode'];
+const TYPES = Object.keys(DETAIL_TYPE_LABELS);
 
 function titleElement(className, text, tag = 'h1') {
   const element = document.createElement(tag);
   element.className = className;
   element.textContent = text || '';
   return element;
+}
+
+function personFacts(mediaItem) {
+  function parseDate(value) {
+    const date = new Date(value || NaN);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  const birth = parseDate(mediaItem.PremiereDate);
+  const death = parseDate(mediaItem.EndDate);
+  const end = death || new Date();
+  const birthdayPending = birth && (end.getMonth() < birth.getMonth() || (end.getMonth() === birth.getMonth() && end.getDate() < birth.getDate()));
+  const age = birth ? end.getFullYear() - birth.getFullYear() - Number(birthdayPending) : -1;
+  const ageLabel = age >= 0 ? ` (${age} years old)` : '';
+  const location = mediaItem.ProductionLocations?.[0];
+  return [
+    birth && `Born: ${birth.toLocaleDateString()}${death ? '' : ageLabel}`,
+    death && `Died: ${death.toLocaleDateString()}${ageLabel}`,
+    location && `Birth place: ${location}`,
+  ];
 }
 
 export function createPreview(host, { onItem } = {}) {
@@ -20,6 +40,13 @@ export function createPreview(host, { onItem } = {}) {
   const logo = page.querySelector('.detailLogo');
   const overview = page.querySelector('.overview');
   const languages = page.querySelector('.itemMiscInfo-primary');
+  const personFields = ['itemBirthday', 'itemDeathDate', 'itemBirthLocation'].map((id) => {
+    const element = document.createElement('p');
+    element.id = id;
+    element.className = 'hide';
+    page.querySelector('.detailPageWrapperContainer').appendChild(element);
+    return element;
+  });
   const actions = page.querySelector('.mainDetailButtons');
   const form = page.querySelector('.trackSelections');
   const metadata = page.querySelector('.itemDetailsGroup');
@@ -46,19 +73,22 @@ export function createPreview(host, { onItem } = {}) {
   hero = createHero(page, { preview: true });
   const heroElement = page.querySelector('.sleekfin-details-hero');
   const stack = page.querySelector('.sleekfin-details-stack');
+  const cover = page.querySelector('.sleekfin-details-cover');
   function framePreview() {
     cropFrame = 0;
     if (destroyed || !current || !dom.isVisible(viewport)) return;
     const heroBounds = heroElement.getBoundingClientRect();
     const content = stack.getBoundingClientRect();
-    const top = content.top - heroBounds.top;
-    const bottom = content.bottom - heroBounds.top;
+    const coverBounds = !cover.hidden ? cover.getBoundingClientRect() : content;
+    const top = Math.min(content.top, coverBounds.top) - heroBounds.top;
+    const bottom = Math.max(content.bottom, coverBounds.bottom) - heroBounds.top;
     const height = heroBounds.height;
     const mobile = viewport.dataset.mobile === 'true';
     const minimum = mobile ? 620 : 346;
     const bottomInset = height - bottom;
     const trim = mobile ? 0 : Math.min(40, bottomInset);
-    const preferredHeight = settings.verticalAlignment === 'Top' ? bottom + 24 : settings.verticalAlignment === 'Center' ? content.height + 128 : content.height + 24 + bottomInset - trim;
+    const contentHeight = bottom - top;
+    const preferredHeight = settings.verticalAlignment === 'Top' ? bottom + 24 : settings.verticalAlignment === 'Center' ? contentHeight + 128 : contentHeight + 24 + bottomInset - trim;
     const frameHeight = Math.min(height, Math.max(minimum, preferredHeight));
     const position = settings.verticalAlignment === 'Top' ? 0 : settings.verticalAlignment === 'Center' ? (top + bottom - frameHeight) / 2 : height - frameHeight - trim;
     const offset = Math.max(0, Math.min(height - frameHeight, position));
@@ -198,6 +228,11 @@ export function createPreview(host, { onItem } = {}) {
     }
     name.appendChild(titleElement('itemName', displayName, child ? 'h3' : 'h1'));
     if (mediaItem.OriginalTitle && mediaItem.OriginalTitle !== mediaItem.Name) name.appendChild(titleElement('itemName originalTitle', mediaItem.OriginalTitle, 'h4'));
+    const lifeFacts = mediaItem.Type === 'Person' ? personFacts(mediaItem) : [];
+    personFields.forEach((element, index) => {
+      element.textContent = lifeFacts[index] || '';
+      element.classList.toggle('hide', !lifeFacts[index]);
+    });
     overview.textContent = mediaItem.Overview || '';
     overview.classList.toggle('hide', !mediaItem.Overview);
     renderLanguages(mediaItem);
@@ -241,20 +276,36 @@ export function createPreview(host, { onItem } = {}) {
     }
     if (!samples.has(type)) {
       const userId = client.getCurrentUserId();
-      const request = client.getItems(userId, { IncludeItemTypes: type, Recursive: true, Limit: 24, SortBy: 'Random', EnableTotalRecordCount: false, EnableImages: true }).then(async (result) => {
-        const candidate = (result.Items || []).find((entry) => item.imageUrl(entry, 'Backdrop', { inherit: true })) || result.Items?.[0];
+      const query = { Limit: 24, SortBy: 'Random', EnableTotalRecordCount: false, EnableImages: true };
+      const request = (async () => {
+        let candidates;
+        if (type === 'Trailer') {
+          // The user-scoped item list hides local trailer extras. Resolve them through their owner.
+          const owners = await currentClient.getItems(userId, { ...query, IncludeItemTypes: 'Movie,Series,Season,Episode,BoxSet,Video', Recursive: true, HasTrailer: true, Fields: 'LocalTrailerCount' });
+          const owner = owners.Items?.find((entry) => entry.LocalTrailerCount > 0);
+          candidates = owner ? await currentClient.getLocalTrailers(userId, owner.Id) : [];
+        } else {
+          const result = type === 'Person' ? await currentClient.getPeople(userId, query) : await currentClient.getItems(userId, { ...query, IncludeItemTypes: type, Recursive: true });
+          candidates = result.Items || [];
+        }
+        const candidate = candidates.find((entry) => type === 'Person' ? entry.ImageTags?.Primary : item.imageUrl(entry, 'Backdrop', { inherit: true })) || candidates[0];
         if (!candidate) return null;
-        const mediaItem = await currentClient.getItem(userId, candidate.Id);
+        let mediaItem = await currentClient.getItem(userId, candidate.Id);
         const seasons = type === 'Series' ? (await currentClient.getSeasons(mediaItem.Id, { userId })).Items || [] : [];
+        if (type === 'Playlist') {
+          const count = await currentClient.getJSON(currentClient.getUrl(`Playlists/${mediaItem.Id}/Items`, { UserId: userId, Limit: 0 }))
+            .then((result) => result.TotalRecordCount).catch(() => undefined);
+          if (count != null) mediaItem = { ...mediaItem, ChildCount: count };
+        }
         return { mediaItem, seasons };
-      });
+      })();
       samples.set(type, request);
       request.catch(() => { if (samples.get(type) === request) samples.delete(type); });
     }
     samples.get(type).then((sample) => {
       if (destroyed || token !== generation || currentClient !== window.ApiClient) return;
       if (!sample) {
-        setStatus('empty', `No ${type.toLowerCase()} available for preview.`);
+        setStatus('empty', `No ${DETAIL_TYPE_LABELS[type].toLowerCase()} available for preview.`);
         return;
       }
       current = sample;

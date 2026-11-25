@@ -3,7 +3,8 @@ html.sleekfin-main-ui .card:is(.personCard, [data-type="Person"]) {
     --sleekfin-card-inner-radius: var(--sleekfin-person-inner-radius);
 }
 
-html.sleekfin-main-ui .card:is([data-type], .chapterCard):not(.sleekfin-details-episode) .cardScalable {
+html.sleekfin-main-ui .card:is([data-type], .chapterCard):not(.sleekfin-details-episode) .cardScalable,
+.sleekfin-details-playlist-items > .listItem > .listItemImage {
     background: var(--sleekfin-surface);
     border: 1px solid var(--sleekfin-border);
     border-radius: var(--sleekfin-card-radius);
@@ -187,7 +188,8 @@ html.sleekfin-main-ui .card[data-type] :is(.cardTextCentered, .cardTextCentered 
     text-align: start !important;
 }
 
-html.sleekfin-main-ui .card[data-type] :is(.countIndicator, .playedIndicator, .mediaSourceIndicator, .videoIndicator) {
+html.sleekfin-main-ui .card[data-type] :is(.countIndicator, .playedIndicator, .mediaSourceIndicator, .videoIndicator),
+.sleekfin-details-playlist-items :is(.playedIndicator, .mediaSourceIndicator) {
     background: rgba(16, 17, 19, 0.86) !important;
     border: var(--sleekfin-glass-border);
     border-radius: var(--sleekfin-card-button-radius);
@@ -201,13 +203,15 @@ html.sleekfin-main-ui .card[data-type] :is(.missingIndicator, .unairedIndicator)
     color: #fff;
 }
 
-html.sleekfin-main-ui .card[data-type] .itemProgressBar {
+html.sleekfin-main-ui .card[data-type] .itemProgressBar,
+.sleekfin-details-playlist-items .listItemProgressBar {
     background: rgba(150, 154, 161, 0.28);
     height: 3px;
 }
 
 html.sleekfin-main-ui .card[data-type] .itemProgressBarForeground,
-html.sleekfin-main-ui .card[data-type] .itemLinearProgress .MuiLinearProgress-bar {
+html.sleekfin-main-ui .card[data-type] .itemLinearProgress .MuiLinearProgress-bar,
+.sleekfin-details-playlist-items .itemProgressBarForeground {
     background: var(--sleekfin-accent) !important;
 }
 
@@ -250,4 +254,19 @@ html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .sleekfin-details
 html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .sleekfin-details-episode-list[data-view="grid"] .sleekfin-details-episode-number {
     left: 15%;
     top: 15%;
+}
+
+html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .sleekfin-details-playlist-items .sleekfin-details-playlist-position {
+    inset-block-start: 15%;
+    inset-inline-start: 15%;
+}
+
+html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .sleekfin-details-playlist-movie .cardOverlayButton-br {
+    inline-size: max-content;
+    max-inline-size: calc(100% - 24px);
+    justify-content: center;
+}
+
+html.sleekfin-main-ui[data-sleekfin-media-card-shape="Circle"] .sleekfin-details-playlist-movie .sleekfin-details-playlist-position {
+    inset-block-start: calc(15% - 4px);
 }

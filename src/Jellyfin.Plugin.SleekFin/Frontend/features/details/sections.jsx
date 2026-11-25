@@ -1,4 +1,5 @@
 import { dom, h, render, SectionHeading } from '../../shared/runtime.js';
+import { createPlaylist } from './playlist.jsx';
 
 function createHeading(original) {
   const root = document.createElement('div');
@@ -19,9 +20,14 @@ function removeHeading({ heading, original, next }, section) {
   heading.remove();
 }
 
-export function createSections(page, initialSeasons) {
+export function createSections(page, initialSeasons, playlistOptions) {
   const records = new Map();
   const seasonCards = new Map();
+  const playlist = playlistOptions && createPlaylist(page, playlistOptions);
+  const nestedSections = {
+    BoxSet: '.collectionItems > .verticalSection > .sectionTitleContainer',
+    Person: '#childrenContent > .verticalSection > .sectionTitleContainer',
+  }[page.dataset.sleekfinItemType];
 
   function restoreSeasonCard(record) {
     record.added.forEach((node) => node.remove());
@@ -137,17 +143,32 @@ export function createSections(page, initialSeasons) {
   }
 
   function reconcile(seasons = initialSeasons) {
-    page.querySelectorAll('.detailVerticalSection, .jellyseerr-details-section').forEach(add);
+    page.querySelectorAll('.detailVerticalSection, .jellyseerr-details-section').forEach((section) => {
+      if (!playlist || section.id !== 'listChildrenCollapsible') add(section);
+    });
+    playlist?.reconcile();
+    if (nestedSections) {
+      records.forEach((record, section) => {
+        if (page.contains(section)) return;
+        removeHeading(record, section);
+        records.delete(section);
+      });
+      page.querySelectorAll(nestedSections).forEach(add);
+    }
     reconcileSeasonCards(seasons);
   }
 
   reconcile();
   return {
+    updatePlaylist(compactEpisodes) {
+      playlist?.update(compactEpisodes);
+    },
     destroy() {
       records.forEach(removeHeading);
       records.clear();
       seasonCards.forEach(restoreSeasonCard);
       seasonCards.clear();
+      playlist?.destroy();
     },
     reconcile,
   };

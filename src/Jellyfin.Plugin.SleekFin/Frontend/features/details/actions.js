@@ -86,7 +86,7 @@ export function createActions(container, page, initialSettings) {
   container.append(spacer, trigger, overflow);
 
   function observe() {
-    observer.observe(page, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'title', 'disabled', 'data-isfavorite', 'data-played', 'data-sleekfin-can-download'] });
+    observer.observe(page, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'title', 'disabled', 'data-isfavorite', 'data-played', 'data-sleekfin-can-download', 'data-sleekfin-playlist-empty'] });
   }
 
   function queue() {
@@ -276,6 +276,7 @@ export function createActions(container, page, initialSettings) {
       const left = settings.leftActions || DEFAULT_SETTINGS.leftActions;
       const right = settings.rightActions || DEFAULT_SETTINGS.rightActions;
       const hidden = settings.hiddenActions || [];
+      const emptyPlaylist = container.dataset.sleekfinPlaylistEmpty === 'true';
       let unlisted = left.length;
       const visible = [];
       records.forEach((record) => {
@@ -283,12 +284,14 @@ export function createActions(container, page, initialSettings) {
         const index = left.indexOf(record.id);
         const rightIndex = right.indexOf(record.id);
         record.side = index >= 0 || rightIndex < 0 ? 'left' : 'right';
-        setAttribute(record.unit, 'data-sleekfin-action-hidden', hidden.includes(record.id));
+        const emptyPlayback = emptyPlaylist && ['play', 'replay', 'shuffle'].includes(record.id);
+        const configuredHidden = hidden.includes(record.id);
+        setAttribute(record.unit, 'data-sleekfin-action-hidden', emptyPlayback || configuredHidden);
         const order = index >= 0 ? index : rightIndex >= 0 ? 10000 + rightIndex : unlisted++;
         if (record.unit.style.order !== String(order)) record.unit.style.order = order;
-        const isVisible = available(record);
+        const isVisible = !emptyPlayback && available(record);
         record.available = isVisible && !record.control.disabled && record.control.getAttribute('aria-disabled') !== 'true' && !record.control.classList.contains('jellyseerr-report-unavailable-icon');
-        if (isVisible && !hidden.includes(record.id)) visible.push(record);
+        if (isVisible && !configuredHidden) visible.push(record);
       });
       visible.sort((a, b) => Number(a.unit.style.order) - Number(b.unit.style.order));
       const nextLayout = JSON.stringify([container.clientWidth, window.innerWidth, settings.buttonOverflow, settings.mobileActionGroups, settings.buttonSpacing, settings.buttonGroupSpacing, settings.buttonContent, settings.desktopButtonHeight, settings.mobileButtonHeight, visible.map(({ id, side, unit, control }) => [id, side, unit.style.order, control.title, control.className])]);

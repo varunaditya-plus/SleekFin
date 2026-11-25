@@ -3,7 +3,7 @@ import { createActions } from './actions.js';
 import { createEpisodes } from './episodes.jsx';
 import { createHero } from './hero.jsx';
 import { createSections } from './sections.jsx';
-import { DEFAULT_SETTINGS, loadSettings } from './settings.js';
+import { DEFAULT_SETTINGS, DETAIL_TYPE_LABELS, loadSettings } from './settings.js';
 import { createSimilar } from './similar.jsx';
 import { createTrackPickers } from './trackPickers.js';
 
@@ -11,7 +11,7 @@ const CONCEALED_CLASS = 'sleekfin-details-concealed';
 const CONCEAL_EVENT = 'sleekfin:details-conceal';
 const DETAIL_PATH = /(^|\/)details\/?$/;
 const HISTORY_METHODS = ['pushState', 'replaceState'];
-const SUPPORTED_TYPES = ['Movie', 'Series', 'Season', 'Episode'];
+const SUPPORTED_TYPES = Object.keys(DETAIL_TYPE_LABELS);
 // Jellyfin activates a page through viewManager.onViewChange, which dispatches these on the page
 // element it just made current, so event.target identifies the page Jellyfin is showing.
 const VIEW_EVENTS = ['viewinit', 'viewbeforeshow', 'viewshow'];
@@ -199,6 +199,7 @@ function applyDetailsSettings(settings) {
   state.mount.hero.render(state.item, state.seasons, settings);
   state.mount.actions.update(settings);
   state.mount.trackPickers.update(settings);
+  state.mount.sections.updatePlaylist(settings.compactEpisodeGridCardsEnabled);
   if (state.mount.episodes && (episodesChanged || seasonPosters)) {
     state.mount.episodes.destroy();
     state.mount.episodes = null;
@@ -246,7 +247,14 @@ function mount() {
   const seasonPosters = state.item.Type === 'Series' && state.settings.seasonPostersEnabled;
   state.page.dataset.sleekfinItemType = state.item.Type;
   state.page.classList.toggle('sleekfin-details-season-posters', seasonPosters);
-  const sections = createSections(state.page, state.seasons);
+  const mediaItem = state.item;
+  const playlistOptions = mediaItem.Type === 'Playlist' ? {
+    client: routeClient(state.currentServerId),
+    id: mediaItem.Id,
+    compactEpisodes: state.settings.compactEpisodeGridCardsEnabled,
+    onFacts: (count, runTimeTicks) => hero.setPlaylistFacts(mediaItem, count, runTimeTicks),
+  } : null;
+  const sections = createSections(state.page, state.seasons, playlistOptions);
   const similar = createSimilar(state.page);
   const trackPickers = createTrackPickers(state.page, hero.actions, state.settings, () => loadDetailsSettings(routeClient(state.currentServerId)), (id) => {
     if (!state.item?.MediaSources?.some((source) => source.Id === id)) return;

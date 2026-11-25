@@ -10,14 +10,17 @@ function downloadEpisode(client, episode) {
   link.remove();
 }
 
-function EpisodeCard({ client, episode, expanded, moreLabel }) {
+export function EpisodeCard({ client, episode, expanded, moreLabel, playlistControls }) {
+  const playlist = Boolean(playlistControls);
   const tv = document.documentElement.classList.contains('layout-tv');
   const score = Number(episode.CommunityRating || 0);
   const userData = episode.UserData || {};
   const progress = Math.max(0, Math.min(100, Number(userData.PlayedPercentage || 0)));
   const imageUrl = item.imageUrl(episode, 'Primary', { maxWidth: 840, quality: 90 });
-  const action = item.actionAttributes(episode);
+  const action = item.actionAttributes(episode, playlist ? 'playallfromhere' : undefined);
   const playbackAction = action['data-action'];
+  const title = playlist ? item.episodeTitle(episode) : episode.Name || '';
+  const seriesLogo = playlist && episode.SeriesId && episode.ParentLogoItemId === episode.SeriesId ? item.imageUrl({ Id: episode.SeriesId, ImageTags: { Logo: episode.ParentLogoImageTag } }, 'Logo', { maxWidth: 192 }) : '';
   const userControls = useRef(null);
   const overview = useRef(null);
   delete action.class;
@@ -25,6 +28,10 @@ function EpisodeCard({ client, episode, expanded, moreLabel }) {
 
   useEffect(() => {
     const holder = userControls.current;
+    if (playlistControls && holder) {
+      holder.appendChild(playlistControls);
+      return () => playlistControls.remove();
+    }
     if (!holder || !episode.UserData) return undefined;
     // Jellyfin's legacy custom-element polyfill expects native markup
     const controls = dom.element('<span class="sleekfin-details-episode-user-actions"><button is="emby-playstatebutton" type="button" class="sleekfin-icon-button sleekfin-control-3d"><span class="material-icons check"></span></button><button is="emby-ratingbutton" type="button" class="sleekfin-icon-button sleekfin-control-3d"><span class="material-icons favorite"></span></button></span>');
@@ -40,16 +47,23 @@ function EpisodeCard({ client, episode, expanded, moreLabel }) {
     holder.appendChild(controls);
     window.CustomElements?.upgradeSubtree?.(controls);
     return () => controls.remove();
-  }, [episode]);
+  }, [episode, playlistControls]);
 
   // Compact and list cards overlay the description on artwork, which leaves no room to expand it.
   useEffect(() => (expanded && !tv && overview.current ? dom.expandableText(overview.current) : undefined), [expanded, tv]);
 
+  const number = (playlist || episode.IndexNumber != null) && (
+    <span class={`sleekfin-details-episode-number sleekfin-control-3d${playlist ? ' sleekfin-details-playlist-position' : ''}`}>{playlist ? '' : `E${episode.IndexNumber}`}</span>
+  );
   const copy = (
     <span class="sleekfin-details-episode-copy">
+      {playlist && episode.SeriesName && <span class="sleekfin-details-episode-series">
+        {seriesLogo && <img src={seriesLogo} alt={episode.SeriesName} draggable={false} key={seriesLogo} onError={(event) => { event.currentTarget.hidden = true; }} />}
+        <span>{episode.SeriesName}</span>
+      </span>}
       <span class="sleekfin-details-episode-heading">
-        {!expanded && episode.IndexNumber != null && <span class="sleekfin-details-episode-number sleekfin-control-3d">{`E${episode.IndexNumber}`}</span>}
-        <span class="sleekfin-details-episode-title cardText">{episode.Name || ''}</span>
+        {!playlist && !expanded && number}
+        {playlist ? <a class="sleekfin-details-episode-title sleekfin-details-playlist-title cardText itemAction" data-action="link" href={`#/details?id=${encodeURIComponent(episode.Id)}&serverId=${encodeURIComponent(action['data-serverid'] || '')}`}>{title}</a> : <span class="sleekfin-details-episode-title cardText">{title}</span>}
       </span>
       <span class="sleekfin-details-episode-overview" ref={overview}>{episode.Overview || ''}</span>
       <span class="sleekfin-details-episode-footer">
@@ -68,27 +82,32 @@ function EpisodeCard({ client, episode, expanded, moreLabel }) {
   );
 
   return (
-    <article {...action} class={`sleekfin-details-episode card card-withuserdata${expanded ? ' sleekfin-details-episode-expanded' : ''}`}>
+    <article {...(playlist ? {} : action)} class={`sleekfin-details-episode card card-withuserdata${expanded ? ' sleekfin-details-episode-expanded' : ''}`}>
       <div class="cardBox cardScalable">
         <button data-action={playbackAction} type="button" class="sleekfin-details-episode-action cardImageContainer itemAction">
-          {imageUrl && <img src={imageUrl} />}
+          {imageUrl && <img src={imageUrl} draggable={playlist ? false : undefined} />}
           {!expanded && <span class="sleekfin-details-episode-shade" />}
           <span class="innerCardFooter">
             {progress > 0 && progress < 100 && <span class="itemProgressBar"><span class="itemProgressBarForeground" style={{ width: `${progress}%` }} /></span>}
           </span>
-          {expanded && episode.IndexNumber != null && <span class="sleekfin-details-episode-number sleekfin-control-3d">{`E${episode.IndexNumber}`}</span>}
-          {!expanded && copy}
+          {(expanded || playlist) && number}
+          {!expanded && !playlist && copy}
         </button>
-        <span class="sleekfin-details-episode-actions">
-          {episode.UserData && <span ref={userControls} />}
-          {episode.CanDownload && typeof client.getItemDownloadUrl === 'function' && (
-            <IconButton class="sleekfin-details-episode-download" icon="download" label="Download" raised strokeWidth={1.75} onClick={() => downloadEpisode(client, episode)} />
+        {playlist && !expanded && copy}
+        <div class="sleekfin-details-episode-actions">
+          {playlist ? <div ref={userControls} /> : (
+            <>
+              {episode.UserData && <span ref={userControls} />}
+              {episode.CanDownload && typeof client.getItemDownloadUrl === 'function' && (
+                <IconButton class="sleekfin-details-episode-download" icon="download" label="Download" raised strokeWidth={1.75} onClick={() => downloadEpisode(client, episode)} />
+              )}
+              <button type="button" class="sleekfin-icon-button sleekfin-control-3d itemAction" data-action="link" title="Episode details"><span class="material-icons info_outline" aria-hidden="true" /></button>
+              <button type="button" class="sleekfin-icon-button sleekfin-control-3d itemAction" data-action="menu" title={moreLabel}><span class="material-icons more_vert" /></button>
+            </>
           )}
-          <button type="button" class="sleekfin-icon-button sleekfin-control-3d itemAction" data-action="link" title="Episode details"><span class="material-icons info_outline" aria-hidden="true" /></button>
-          <button type="button" class="sleekfin-icon-button sleekfin-control-3d itemAction" data-action="menu" title={moreLabel}><span class="material-icons more_vert" /></button>
-        </span>
+        </div>
       </div>
-      {expanded && <button data-action={playbackAction} type="button" tabIndex={tv ? -1 : undefined} class="sleekfin-details-episode-text itemAction">{copy}</button>}
+      {expanded && (playlist ? <div class="sleekfin-details-episode-text">{copy}</div> : <button data-action={playbackAction} type="button" tabIndex={tv ? -1 : undefined} class="sleekfin-details-episode-text itemAction">{copy}</button>)}
     </article>
   );
 }

@@ -47,7 +47,7 @@ Like what you see? Check out the demo at [sleekfin.varunaditya.xyz](https://slee
 - **Configurable home hero:** Adds a full-width hero section above rows on the home page to display your library's content more nicely.
 - **Redesigned home, library, and search pages:** Restyles the carousels, library pages, and search result rows and cards to show content more clearly with consistent spacing and concise info under posters.
 - **Consistent media cards:** Native movie, series, episode, Next Up, Continue Watching, music, and Live TV cards share SleekFin icon controls, status badges, and progress bars. Card buttons, the centered Play button, posters/thumbnails, and cast/crew have separate Square, Squircle, and Circle shape settings under **Cards**.
-- **Updated detail pages:** Redesigns Jellyfin's Movie, Series, Season, and Episode pages with full-page backdrop heroes, title art, and richer metadata. Media settings open from the three-dot action button. The Hero carousel UI Builder can enable trailer backgrounds on detail pages.
+- **Updated detail pages:** Redesigns Jellyfin's movie, series, season, episode, trailer, video, collection, playlist, and people pages. Media settings open from the three dot action button. The Hero carousel UI Builder can enable trailer backgrounds on detail pages.
 - **Upgraded cast and recommendations:** Restyles cast into a clean horizontal row and turns similar titles into a dedicated **You may like** section with backdrop/poster imagery, ratings, years, and media types.
 
 ## Installation

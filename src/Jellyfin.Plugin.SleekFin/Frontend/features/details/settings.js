@@ -1,3 +1,8 @@
+export const DETAIL_TYPE_LABELS = Object.freeze({
+  Movie: 'Movie', Series: 'Series', Season: 'Season', Episode: 'Episode', Trailer: 'Trailer', Video: 'Video',
+  BoxSet: 'Collection', Playlist: 'Playlist', Person: 'Person',
+});
+
 export const SETTING_DEFINITIONS = Object.freeze([
   Object.freeze({ key: 'desktopHeight', property: 'DetailsDesktopHeight', label: 'Desktop hero height (vh)', default: 85, min: 40, max: 100, type: 'integer' }),
   Object.freeze({ key: 'mobileHeight', property: 'DetailsMobileHeight', label: 'Mobile hero height (vh)', default: 85, min: 40, max: 100, type: 'integer' }),

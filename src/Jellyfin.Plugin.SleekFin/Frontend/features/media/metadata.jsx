@@ -1,6 +1,6 @@
 import { dom, h, item, Meta, render } from '../../shared/runtime.js';
 
-function facts(mediaItem, type, original) {
+export function cardFacts(mediaItem, type, original) {
   const values = [];
   const score = Number(mediaItem?.CommunityRating || 0);
   const episode = mediaItem?.ParentIndexNumber && mediaItem?.IndexNumber ? `S${mediaItem.ParentIndexNumber}:E${mediaItem.IndexNumber}` : '';
@@ -79,7 +79,7 @@ function metadataElement(card, source) {
   return element;
 }
 
-function fitMetadata(element) {
+export function fitMetadata(element) {
   if (!dom.isVisible(element)) return;
 
   const entries = Array.from(element.children);
@@ -103,6 +103,6 @@ export function renderMetadata(card, mediaItem) {
   const element = metadataElement(card, source);
   if (!dom.isConnected(element)) return;
 
-  render(<Meta values={facts(mediaItem, type, source?.textContent.trim() || '')} />, element);
+  render(<Meta values={cardFacts(mediaItem, type, source?.textContent.trim() || '')} />, element);
   fitMetadata(element);
 }

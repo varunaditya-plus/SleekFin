@@ -15,6 +15,16 @@ export function typeLabel(type) {
   return type === 'Series' ? 'TV Show' : type || '';
 }
 
+export function episodeTitle(item) {
+  const season = item.ParentIndexNumber != null ? `S${item.ParentIndexNumber}` : '';
+  const episode = item.IndexNumber != null ? `E${item.IndexNumber}${item.IndexNumberEnd != null ? `-E${item.IndexNumberEnd}` : ''}` : '';
+  return `${season}${episode}${season || episode ? ' - ' : ''}${item.Name || ''}`;
+}
+
+export function canDownload(item) {
+  return ['Movie', 'Episode', 'Trailer', 'Video'].includes(item.Type) && item.CanDownload === true && (!window.NativeShell || window.NativeShell.AppHost.supports('filedownload'));
+}
+
 export function imageUrl(item, type, options) {
   const client = window.ApiClient;
   const settings = options || {};
@@ -66,6 +76,8 @@ export function actionAttributes(item, action) {
 
 export default {
   actionAttributes,
+  canDownload,
+  episodeTitle,
   formatRuntime,
   imageUrl,
   typeLabel,

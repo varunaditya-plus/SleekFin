@@ -128,7 +128,7 @@ html.layout-tv .sleekfin-details-season-card:focus-within .cardScalable {
     border-color: var(--sleekfin-accent) !important;
 }
 
-html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailVerticalSection .cardScalable {
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] :is(.detailVerticalSection, .collectionItems) .cardScalable {
     background: var(--sleekfin-surface);
     border: 1px solid var(--sleekfin-border);
     border-radius: var(--sleekfin-card-radius);
@@ -136,17 +136,400 @@ html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailVert
     overflow: hidden;
 }
 
-html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailVerticalSection :is(.cardContent, .cardImageContainer, .blurhash-canvas) {
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] :is(.detailVerticalSection, .collectionItems) :is(.cardContent, .cardImageContainer, .blurhash-canvas) {
     border-radius: var(--sleekfin-card-inner-radius);
 }
 
-html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailVerticalSection .cardText {
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] :is(.detailVerticalSection, .collectionItems) .cardText {
     color: var(--sleekfin-text);
     font-family: var(--sleekfin-font-family);
 }
 
-html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] .detailVerticalSection .cardText-secondary {
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] :is(.detailVerticalSection, .collectionItems) .cardText-secondary {
     color: var(--sleekfin-muted);
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details][data-sleekfin-item-type="BoxSet"] .collectionItems > .verticalSection,
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details][data-sleekfin-item-type="Person"] #childrenContent > .verticalSection:not(.hide) ~ .verticalSection {
+    margin-top: 36px;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details] :is(.collectionItems, #childrenContent) .sectionTitleContainer:has(> .sleekfin-details-section-heading) {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    margin: 0 0 20px;
+    padding: 0;
+}
+
+.sectionTitleContainer > .sleekfin-details-section-heading {
+    margin: 0;
+}
+
+.sectionTitleContainer > .sleekfin-details-section-heading + .clearLink {
+    flex: none;
+    margin: 0 !important;
+}
+
+.sectionTitleContainer > .sleekfin-details-section-heading + .clearLink .more {
+    background: var(--sleekfin-surface-raised);
+    border: 1px solid var(--sleekfin-border);
+    border-radius: 999px;
+    color: var(--sleekfin-text);
+    margin: 0;
+}
+
+html.sleekfin-details-mounted #itemDetailPage[data-sleekfin-details]:is([data-sleekfin-item-type="BoxSet"], [data-sleekfin-item-type="Person"]) :is(.collectionItems, #childrenContent) > .verticalSection > .itemsContainer,
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items {
+    padding-inline: 0;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items {
+    --sleekfin-playlist-card-width: 184px;
+    align-items: start;
+    container: sleekfin-playlist / inline-size;
+    counter-reset: sleekfin-playlist-position;
+    display: grid;
+    gap: 32px 12px;
+    grid-template-columns: repeat(auto-fill, minmax(0, min(100%, var(--sleekfin-playlist-card-width))));
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items > .listItem {
+    align-items: stretch;
+    background: transparent;
+    border: 0;
+    box-sizing: border-box;
+    color: var(--sleekfin-text);
+    /* Jellyfin's style containment would scope the position counter to each card. */
+    contain: layout;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    min-width: 0;
+    padding: 0;
+    position: relative;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items > .listItem:not(.sortable-fallback) {
+    counter-increment: sleekfin-playlist-position;
+}
+
+.sleekfin-details-playlist-position {
+    font-variant-numeric: tabular-nums;
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
+    justify-content: center;
+    min-inline-size: 30px;
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+}
+
+.sleekfin-details-playlist-position::before {
+    content: counter(sleekfin-playlist-position);
+}
+
+.sleekfin-details-playlist-items > .sortable-fallback .sleekfin-details-playlist-position {
+    display: none;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items > [data-sleekfin-playlist-shape="poster"] {
+    --sleekfin-playlist-artwork-ratio: 2 / 3;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items > [data-sleekfin-playlist-shape="landscape"] {
+    --sleekfin-playlist-artwork-ratio: 16 / 9;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemImage {
+    aspect-ratio: var(--sleekfin-playlist-artwork-ratio, 1);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    height: auto;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+}
+
+.sleekfin-details-playlist-items > .listItem:is(:hover, :focus-within) > .listItemImage {
+    border-color: var(--sleekfin-border-hover);
+}
+
+.sleekfin-details-playlist-artwork {
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    pointer-events: none;
+    position: absolute;
+    transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+    width: 100%;
+}
+
+@media (hover: hover) {
+    html:not(.layout-tv) .sleekfin-details-playlist-items > .listItem:hover .sleekfin-details-playlist-artwork {
+        transform: scale(1.06);
+    }
+
+    .sleekfin-details-playlist-items > .listItem:hover .sleekfin-details-playlist-title {
+        color: var(--sleekfin-accent);
+    }
+}
+
+html.layout-tv .sleekfin-details-playlist-items > .listItem:focus-within .sleekfin-details-playlist-artwork {
+    transform: scale(1.06);
+}
+
+html.layout-tv .sleekfin-details-playlist-items > .listItem:focus > .listItemImage {
+    border-color: var(--sleekfin-accent);
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items :is(.mediaSourceIndicator, .listItemIndicators) {
+    inset: auto;
+    inset-block-end: 8px;
+    z-index: 1;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .mediaSourceIndicator {
+    inset-inline-start: 8px;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemIndicators {
+    /* Jellyfin shrinks this indicator to fit 80px list thumbnails on smaller screens. */
+    font-size: 14px !important;
+    inset-inline-end: 8px;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemProgressBar {
+    z-index: 1;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemBody {
+    display: flex;
+    gap: 4px;
+    min-width: 0;
+    padding: 10px 2px 0;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemBodyText {
+    color: var(--sleekfin-text);
+    font: 500 13px/1.375 var(--sleekfin-font-family);
+    overflow-wrap: anywhere;
+    padding: 0;
+    white-space: normal;
+}
+
+.sleekfin-details-playlist-title {
+    color: inherit;
+    text-decoration: none;
+    transition: color 180ms ease;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items :is(.listItemBodyText.secondary:not(:only-child), .listItemMediaInfo) {
+    color: var(--sleekfin-muted);
+    font: 400 11px/1.2 var(--sleekfin-font-family);
+    margin: 0;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemMediaInfo:not(:empty) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 6px;
+    overflow-wrap: anywhere;
+    padding: 4px 2px 0;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemMediaInfo > .mediaInfoItem {
+    margin: 0;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listViewDragHandle {
+    display: none;
+}
+
+@media (hover: hover) {
+    #itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-editable :is(.listItemImage, .sleekfin-details-episode-action, .sleekfin-details-playlist-movie .cardImageContainer) {
+        cursor: grab;
+    }
+
+    #itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-editable :is(.listItemImage, .sleekfin-details-episode-action, .sleekfin-details-playlist-movie .cardImageContainer):active,
+    #itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-editable .sortable-chosen :is(.listItemImage, .sleekfin-details-episode-action, .sleekfin-details-playlist-movie .cardImageContainer) {
+        cursor: grabbing;
+    }
+
+    .sleekfin-details-playlist-items > .listItem :is(.listViewUserDataButtons, .sleekfin-details-episode-actions) {
+        transition: opacity 200ms ease;
+    }
+
+    .sleekfin-details-playlist-items > .listItem:not(:is(:hover, :focus-within)) :is(.listViewUserDataButtons, .sleekfin-details-episode-actions) {
+        opacity: 0;
+    }
+
+    #itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items > .listItem:not(:is(:hover, :focus-within)) .listItemButton {
+        pointer-events: none;
+    }
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items > .listItem > .listViewUserDataButtons:not(:empty) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
+    justify-content: flex-end;
+    max-inline-size: calc(100% - 48px);
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listViewUserDataButtons:empty {
+    display: none;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemButton.sleekfin-icon-button {
+    border-radius: var(--sleekfin-card-button-radius);
+    height: 32px;
+    padding: 0;
+    pointer-events: auto;
+    width: 32px;
+}
+
+#itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items .listItemButton > .material-icons {
+    font-size: 18px;
+}
+
+.sleekfin-details-playlist-movie > .cardBox {
+    /* Jellyfin's directional card margins would add a second gap inside each playlist track. */
+    margin: 0 !important;
+}
+
+.sleekfin-details-playlist-movie .cardContent > img {
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    position: absolute;
+    width: 100%;
+}
+
+.sleekfin-details-playlist-movie .cardOverlayButton-br {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-inline-size: calc(100% - 48px);
+    pointer-events: none;
+}
+
+@media (hover: none) {
+    .sleekfin-details-playlist-movie :is(.cardOverlayContainer, .cardOverlayButton-hover) {
+        opacity: 1;
+    }
+}
+
+.sleekfin-details-playlist-episode .listViewUserDataButtons:not(:empty) {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+}
+
+.sleekfin-details-playlist-episode .sleekfin-details-episode-actions {
+    pointer-events: none;
+}
+
+.sleekfin-details-playlist-episode .sleekfin-details-episode-text {
+    cursor: auto;
+}
+
+.sleekfin-details-playlist-episode .sleekfin-details-episode:not(.sleekfin-details-episode-expanded) .sleekfin-details-episode-copy {
+    pointer-events: none;
+}
+
+.sleekfin-details-playlist-episode .sleekfin-details-episode-title {
+    overflow-wrap: anywhere;
+    pointer-events: auto;
+}
+
+.sleekfin-details-playlist-episode .sleekfin-details-episode-series {
+    color: var(--sleekfin-muted);
+    font: 500 13px/14px var(--sleekfin-font-family);
+    margin-block-end: 3px;
+}
+
+.sleekfin-details-playlist-episode .sleekfin-details-episode-series img:not([hidden]) {
+    display: block;
+    height: auto;
+    max-height: 13px;
+    max-width: 35%;
+    object-fit: contain;
+    object-position: start;
+    width: auto;
+}
+
+.sleekfin-details-playlist-episode .sleekfin-details-episode-series img:not([hidden]) + span {
+    display: none;
+}
+
+html.layout-mobile #itemDetailPage[data-sleekfin-details][data-sleekfin-item-type="Playlist"] .detailPagePrimaryContent {
+    /* Legacy mobile adds padding to this full-width wrapper inside SleekFin's gutters. */
+    padding-inline: 0 !important;
+}
+
+/* A landscape card spans two tracks when both tracks and their gap fit. */
+@container sleekfin-playlist (min-width: 380px) {
+    .sleekfin-details-playlist-items > [data-sleekfin-playlist-shape="landscape"] {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 599px) {
+    #itemDetailPage[data-sleekfin-details] .sleekfin-details-playlist-items {
+        --sleekfin-playlist-card-width: min(184px, calc(40vw - 10px));
+        gap: 24px 10px;
+    }
+
+    .sleekfin-details-playlist-items .sleekfin-details-playlist-position {
+        font-size: 12px;
+        inset-inline-start: 6px;
+        padding-inline: 4px;
+    }
+
+    .sleekfin-details-playlist-episode .sleekfin-details-episode:not(.sleekfin-details-episode-expanded) {
+        min-block-size: 126px;
+    }
+
+    .sleekfin-details-playlist-episode .sleekfin-details-episode:not(.sleekfin-details-episode-expanded) .sleekfin-details-episode-copy {
+        padding: 8px 12px;
+    }
+
+    .sleekfin-details-playlist-episode .sleekfin-details-episode:not(.sleekfin-details-episode-expanded) :is(.sleekfin-details-episode-series, .sleekfin-details-episode-title, .sleekfin-details-episode-overview) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sleekfin-details-playlist-episode .sleekfin-details-episode:not(.sleekfin-details-episode-expanded) .sleekfin-details-episode-title {
+        font-size: 15px;
+        line-height: 18px;
+    }
+
+    .sleekfin-details-playlist-episode .sleekfin-details-episode:not(.sleekfin-details-episode-expanded) .sleekfin-details-episode-overview {
+        font-size: 12px;
+        line-height: 16px;
+        margin-top: 3px;
+    }
+
+    .sleekfin-details-playlist-episode .sleekfin-details-episode:not(.sleekfin-details-episode-expanded) .sleekfin-details-episode-footer {
+        line-height: 14px;
+        margin-top: 3px;
+    }
+
+    @container sleekfin-playlist (min-width: min(378px, calc(80vw - 10px))) {
+        .sleekfin-details-playlist-items > [data-sleekfin-playlist-shape="landscape"] {
+            grid-column: span 2;
+        }
+    }
 }
 
 html.sleekfin-details-mounted :is(#castCollapsible, #similarCollapsible) > [is="emby-scroller"] {

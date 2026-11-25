@@ -3,6 +3,8 @@ import { applySettings } from './presentation.js';
 import { DEFAULT_SETTINGS } from './settings.js';
 import { createTrailerPreview } from './trailer.js';
 
+const ARTWORK_FALLBACK_TYPES = ['Trailer', 'Video', 'BoxSet', 'Playlist'];
+
 function goBack() {
   if (window.history.length > 1) {
     window.history.back();
@@ -18,6 +20,10 @@ function factValues(mediaItem, seasons, settings) {
     values.push({ className: 'sleekfin-details-score', icon: 'star', text: score.toFixed(1) });
   }
   if (settings.showYear) values.push({ text: item.year(mediaItem) });
+  if (settings.showRuntime && ['BoxSet', 'Playlist'].includes(mediaItem.Type) && mediaItem.ChildCount != null) {
+    const count = mediaItem.ChildCount;
+    values.push({ text: `${count} ${count === 1 ? 'item' : 'items'}` });
+  }
   if (settings.showRuntime && mediaItem.Type === 'Series') {
     const count = seasons.filter((season) => Number(season.IndexNumber) > 0).length;
     values.push({ text: count ? `${count}${count === 1 ? ' Season' : ' Seasons'}` : 'Series' });
@@ -25,7 +31,9 @@ function factValues(mediaItem, seasons, settings) {
     const count = Number(mediaItem.ChildCount || mediaItem.RecursiveItemCount || 0);
     values.push({ text: count ? `${count}${count === 1 ? ' Episode' : ' Episodes'}` : 'Season' });
   } else if (settings.showRuntime) {
-    values.push({ text: item.formatRuntime(mediaItem.RunTimeTicks) });
+    const seconds = Math.round(Number(mediaItem.RunTimeTicks || 0) / 10000000);
+    const shortVideo = ['Trailer', 'Video'].includes(mediaItem.Type) && seconds > 0 && seconds < 60;
+    values.push({ text: shortVideo ? `${seconds}s` : item.formatRuntime(mediaItem.RunTimeTicks) });
   }
   if (settings.showCertification) values.push({ className: 'sleekfin-details-certification', text: mediaItem.OfficialRating });
   return values;
@@ -41,12 +49,15 @@ export function createHero(page, { preview = false } = {}) {
   let settings = DEFAULT_SETTINGS;
   let restoreSettings = null;
   let destroyOverview = null;
+  let customArtwork;
+  let playlistFacts;
   const backdropOriginal = nativeBackdrop.style.backgroundImage;
   const originalItemId = page.dataset.sleekfinItemId;
   const artwork = dom.element('<div class="sleekfin-details-artwork"></div>');
   nativeBackdrop.appendChild(artwork);
-  const hero = dom.element('<div class="sleekfin-details-hero"><div class="sleekfin-details-back-root"></div><div class="sleekfin-details-stack"><div class="sleekfin-details-title"></div><div class="sleekfin-details-child-title" hidden></div><div class="sleekfin-details-facts"></div><div class="sleekfin-details-genres"></div></div></div>');
+  const hero = dom.element('<div class="sleekfin-details-hero"><div class="sleekfin-details-back-root"></div><img class="sleekfin-details-cover" alt="" hidden><div class="sleekfin-details-stack"><div class="sleekfin-details-title"></div><div class="sleekfin-details-child-title" hidden></div><div class="sleekfin-details-facts"></div><div class="sleekfin-details-life-facts" hidden></div><div class="sleekfin-details-genres"></div></div></div>');
   const backRoot = hero.firstElementChild;
+  const cover = hero.querySelector('.sleekfin-details-cover');
   const stack = hero.querySelector('.sleekfin-details-stack');
   const title = stack.querySelector('.sleekfin-details-title');
   const childTitleRoot = stack.querySelector('.sleekfin-details-child-title');
@@ -55,6 +66,7 @@ export function createHero(page, { preview = false } = {}) {
   const factsRoot = stack.querySelector('.sleekfin-details-facts');
   const factsValuesRoot = dom.element('<span class="sleekfin-details-fact-values"></span>');
   factsRoot.appendChild(factsValuesRoot);
+  const lifeFacts = stack.querySelector('.sleekfin-details-life-facts');
   const genresRoot = stack.querySelector('.sleekfin-details-genres');
   const trailerPreview = createTrailerPreview(page, nativeBackdrop, actions);
   const logo = page.querySelector('.detailLogo');
@@ -79,6 +91,17 @@ export function createHero(page, { preview = false } = {}) {
     moved = [];
   }
 
+  function renderFacts(mediaItem, seasons) {
+    if (mediaItem.Type === 'Playlist') {
+      if (playlistFacts) mediaItem = { ...mediaItem, ...playlistFacts };
+      const empty = String(mediaItem.ChildCount === 0);
+      if (actions.dataset.sleekfinPlaylistEmpty !== empty) actions.dataset.sleekfinPlaylistEmpty = empty;
+    } else if (actions.dataset.sleekfinPlaylistEmpty !== undefined) {
+      delete actions.dataset.sleekfinPlaylistEmpty;
+    }
+    render(<Facts values={mediaItem.Type === 'Person' ? [] : factValues(mediaItem, seasons, settings)} />, factsValuesRoot);
+  }
+
   function renderHero(mediaItem, seasons, nextSettings) {
     page.dataset.sleekfinItemId = mediaItem.Id || '';
     settings = nextSettings;
@@ -88,19 +111,40 @@ export function createHero(page, { preview = false } = {}) {
       destroyOverview?.();
       destroyOverview = settings.descriptionExpandEnabled ? dom.expandableText(overview) : null;
     }
-    const backdropUrl = item.imageUrl(mediaItem, 'Backdrop', { maxWidth: Math.max(960, window.innerWidth), inherit: true, quality: 90 });
+    const isPerson = mediaItem.Type === 'Person';
+    const usesArtworkFallback = ARTWORK_FALLBACK_TYPES.includes(mediaItem.Type);
+    const imageOptions = { maxWidth: Math.max(960, window.innerWidth), quality: 90 };
+
+    let backdropUrl = isPerson ? '' : item.imageUrl(mediaItem, 'Backdrop', { ...imageOptions, inherit: true });
+    if (usesArtworkFallback && !backdropUrl) {
+      backdropUrl = item.imageUrl(mediaItem, 'Thumb', imageOptions);
+      if (!backdropUrl && mediaItem.PrimaryImageAspectRatio >= 1.35) backdropUrl = item.imageUrl(mediaItem, 'Primary', imageOptions);
+    }
+
+    const coverUrl = isPerson || usesArtworkFallback && !backdropUrl ? item.imageUrl(mediaItem, 'Primary', { maxWidth: 640, quality: 90 }) : '';
+    if (cover.getAttribute('src') !== (coverUrl || null)) {
+      cover.hidden = !coverUrl;
+      if (coverUrl) cover.src = coverUrl;
+      else cover.removeAttribute('src');
+    }
+    
+    const compact = isPerson || usesArtworkFallback && !backdropUrl;
+    hero.classList.toggle('sleekfin-details-compact-hero', compact);
+    hero.classList.toggle('sleekfin-details-logo-fallback', isPerson || usesArtworkFallback);
+    hero.classList.toggle('sleekfin-details-person', isPerson);
+    hero.classList.toggle('sleekfin-details-playlist-hero', mediaItem.Type === 'Playlist');
+    if (isPerson && !lifeFacts.childElementCount) ['#itemBirthday', '#itemDeathDate', '#itemBirthLocation'].forEach((selector) => move(page.querySelector(selector), lifeFacts));
+    lifeFacts.hidden = !isPerson;
     const isEpisode = mediaItem.Type === 'Episode';
     const isChild = mediaItem.Type === 'Season' || mediaItem.Type === 'Episode';
-    actions.dataset.sleekfinCanDownload = String(['Movie', 'Episode'].includes(mediaItem.Type) && mediaItem.CanDownload === true && (!window.NativeShell || window.NativeShell.AppHost.supports('filedownload')));
+    actions.dataset.sleekfinCanDownload = String(item.canDownload(mediaItem));
     childTitleRoot.hidden = !isChild;
     hero.classList.toggle('sleekfin-details-has-child-title', isChild);
     hero.classList.toggle('sleekfin-details-episode', isEpisode);
     const nameRoot = mediaItem.Type === 'Season' ? childTitleRoot : title;
     if (name && name.parentNode !== nameRoot) nameRoot.appendChild(name);
     if (isEpisode) {
-      const season = mediaItem.ParentIndexNumber != null ? `S${mediaItem.ParentIndexNumber}` : '';
-      const episode = mediaItem.IndexNumber != null ? `E${mediaItem.IndexNumber}${mediaItem.IndexNumberEnd != null ? `-E${mediaItem.IndexNumberEnd}` : ''}` : '';
-      const heading = `${season}${episode}${season || episode ? ' - ' : ''}${mediaItem.Name || ''}`;
+      const heading = item.episodeTitle(mediaItem);
       if (episodeHeading.textContent !== heading) episodeHeading.textContent = heading;
       if (episodeHeading.parentNode !== childTitleRoot) childTitleRoot.appendChild(episodeHeading);
     } else episodeHeading.remove();
@@ -114,11 +158,13 @@ export function createHero(page, { preview = false } = {}) {
       if (logo && logo.parentNode !== title) title.insertBefore(logo, title.firstChild);
       seriesLink.remove();
     }
-    render(<Facts values={factValues(mediaItem, seasons, settings)} />, factsValuesRoot);
-    render(<Facts values={(mediaItem.Genres || []).map((genre) => ({ text: genre }))} />, genresRoot);
+    renderFacts(mediaItem, seasons);
+    render(<Facts keepTogether values={(mediaItem.Genres || []).map((genre) => ({ text: genre }))} />, genresRoot);
 
-    nativeBackdrop.style.backgroundImage = backdropUrl ? `url("${backdropUrl.replace(/["\\]/g, '\\$&')}")` : '';
-    trailerPreview.update(mediaItem, settings);
+    const background = backdropUrl ? `url("${backdropUrl.replace(/["\\]/g, '\\$&')}")` : '';
+    nativeBackdrop.style.backgroundImage = background;
+    customArtwork = isPerson || usesArtworkFallback ? background : undefined;
+    trailerPreview.update(mediaItem, compact && settings.trailerBackgroundEnabled ? { ...settings, trailerBackgroundEnabled: false } : settings);
     sync();
   }
 
@@ -130,12 +176,12 @@ export function createHero(page, { preview = false } = {}) {
       const backParent = header || hero;
       if (backRoot.parentNode !== backParent) backParent.appendChild(backRoot);
     }
-    const source = Array.from(page.querySelectorAll('.backdropImage')).find((element) => window.getComputedStyle(element).backgroundImage !== 'none');
-    const background = source && window.getComputedStyle(source).backgroundImage;
-    if (background && background !== 'none') {
-      nativeBackdrop.style.backgroundImage = background;
+    if (customArtwork === undefined) {
+      const source = Array.from(page.querySelectorAll('.backdropImage')).find((element) => window.getComputedStyle(element).backgroundImage !== 'none');
+      const background = source && window.getComputedStyle(source).backgroundImage;
+      if (background && background !== 'none') nativeBackdrop.style.backgroundImage = background;
     }
-    const image = nativeBackdrop.style.backgroundImage;
+    const image = customArtwork ?? nativeBackdrop.style.backgroundImage;
     if (artwork.style.backgroundImage !== image) artwork.style.backgroundImage = image;
     hero.classList.toggle('sleekfin-details-has-logo', Boolean(settings.titleTreatment !== 'Text' && logo && !logo.classList.contains('hide') && window.getComputedStyle(logo).backgroundImage !== 'none'));
   }
@@ -146,6 +192,7 @@ export function createHero(page, { preview = false } = {}) {
 
   if (preview) backRoot.remove();
   else render(<IconButton class="sleekfin-details-back" icon="arrowLeft" label="Back" raised onClick={goBack} />, backRoot);
+  cover.onerror = () => { cover.hidden = true; };
   page.addEventListener('click', onHeroClick);
   move(logo, title);
   move(name, title);
@@ -158,12 +205,18 @@ export function createHero(page, { preview = false } = {}) {
 
   return {
     actions,
+    setPlaylistFacts(mediaItem, count = mediaItem.ChildCount, runTimeTicks = mediaItem.RunTimeTicks) {
+      if (playlistFacts?.ChildCount === count && playlistFacts?.RunTimeTicks === runTimeTicks) return;
+      playlistFacts = { ChildCount: count, RunTimeTicks: runTimeTicks };
+      renderFacts(mediaItem, []);
+    },
     destroy() {
       trailerPreview.destroy();
       page.removeEventListener('click', onHeroClick);
       destroyOverview?.();
       restoreSettings?.();
       delete actions.dataset.sleekfinCanDownload;
+      delete actions.dataset.sleekfinPlaylistEmpty;
       render(null, backRoot);
       backRoot.remove();
       render(null, factsValuesRoot);

@@ -1,4 +1,5 @@
 import { setIcon } from '../../components/Icon.jsx';
+import { item as itemHelpers } from '../../shared/runtime.js';
 
 const CACHE_KEY = 'sleekfin-details-action-catalog';
 const MEDIA_TYPES = ['Movie', 'Series', 'Season', 'Episode'];
@@ -144,12 +145,15 @@ export function publishActionCatalog(records, mediaType, itemId) {
 
 function nativeAvailable(id, item) {
   if (!item) return !['replay', 'splitVersions'].includes(id);
-  if (id === 'play') return ['Series', 'Season'].includes(item.Type) || item.LocationType !== 'Virtual';
+  const group = ['BoxSet', 'Playlist'].includes(item.Type);
+  const playableFolder = ['Series', 'Season'].includes(item.Type) || group && item.ChildCount !== 0;
+  
+  if (id === 'play') return group ? playableFolder : playableFolder || item.Type !== 'Person' && item.LocationType !== 'Virtual';
   if (id === 'replay') return nativeAvailable('play', item) && Number(item.UserData?.PlaybackPositionTicks) > 0;
-  if (id === 'download') return ['Movie', 'Episode'].includes(item.Type) && item.CanDownload === true && (!window.NativeShell || window.NativeShell.AppHost.supports('filedownload'));
+  if (id === 'download') return itemHelpers.canDownload(item);
   if (id === 'favorite') return Boolean(item.UserData);
-  if (id === 'watched') return item.MediaType === 'Video' || ['Series', 'Season'].includes(item.Type);
-  if (id === 'shuffle') return ['Series', 'Season'].includes(item.Type);
+  if (id === 'watched') return item.MediaType === 'Video' || ['Series', 'Season', 'BoxSet'].includes(item.Type);
+  if (id === 'shuffle') return playableFolder;
   if (id === 'trailer') return Boolean(item.LocalTrailerCount || item.RemoteTrailers?.length);
   if (id === 'splitVersions') return Boolean(item.MediaSources?.some((source) => source.Type === 'Grouping'));
   return true;
@@ -246,7 +250,9 @@ export function getActionCatalog(item = null, actionIds = []) {
     const providerEnabled = providerTypes ? providerTypes.length > 0 && (!type || providerTypes.includes(type)) : providerAvailable(definition.id, mediaItem);
     const explicitlyDisabled = providerTypes && !providerEnabled || providerDisabled(definition.id) || !providerMatchesItem(definition.id, mediaItem);
     const capturedHere = mediaItem?.Id && entry?.itemId === String(mediaItem.Id) && entry.mediaType === type ? entry.available : undefined;
-    const available = definition.provider === 'Unavailable action' || explicitlyDisabled ? false : fullSample && native ? nativeAvailable(definition.id, mediaItem) : capturedHere ?? (definition.id.startsWith('je:') ? providerEnabled : native && nativeAvailable(definition.id, mediaItem));
+    const preferSample = fullSample && native && !(type === 'BoxSet' && ['play', 'shuffle'].includes(definition.id));
+    const defaultAvailability = definition.id.startsWith('je:') ? providerEnabled : native && nativeAvailable(definition.id, mediaItem);
+    const available = definition.provider !== 'Unavailable action' && !explicitlyDisabled && (preferSample ? defaultAvailability : capturedHere ?? defaultAvailability);
     let label = entry?.label || definition.label;
     if (mediaItem?.UserData) {
       if (definition.id === 'play') label = mediaItem.UserData.PlaybackPositionTicks > 0 ? 'Resume' : 'Play';
