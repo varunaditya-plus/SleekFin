@@ -36,7 +36,8 @@ The ultimate customisation plugin for Jellyfin, which fully reskins Jellyfin to 
     <!-- <td><img width="1720" height="720" alt="Configuration page" src="" /></td> -->
   </tr>
 </table>
-Like what you see? Check out the demo at [sleekfin.varunaditya.xyz](https://sleekfin.varunaditya.xyz/)
+
+Like what you see? Check out the demo at [sleekfin.varunaditya.xyz](https://sleekfin.varunaditya.xyz)
 
 ## Features
 
