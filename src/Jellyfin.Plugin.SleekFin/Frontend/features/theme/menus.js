@@ -7,6 +7,7 @@ const ITEM_SELECTOR = '.actionSheetMenuItem, [role="menuitem"], [role="menuitemc
 const NAVIGATION_EVENTS = ['hashchange', 'popstate', 'pagehide'];
 const OBSERVER_OPTIONS = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class', 'style', 'hidden', 'aria-hidden', 'aria-selected', 'aria-checked', 'aria-disabled', 'aria-expanded', 'data-indeterminate', 'checked', 'disabled', 'value'] };
 const KEY_CODES = { 13: 'Enter', 27: 'Escape', 37: 'ArrowLeft', 38: 'ArrowUp', 39: 'ArrowRight', 40: 'ArrowDown', 138: 'ArrowUp', 139: 'ArrowDown', 140: 'ArrowLeft', 141: 'ArrowRight', 195: 'Enter', 196: 'Escape', 203: 'ArrowUp', 204: 'ArrowDown', 205: 'ArrowLeft', 206: 'ArrowRight', 211: 'ArrowUp', 212: 'ArrowDown', 213: 'ArrowRight', 214: 'ArrowLeft', 461: 'Escape', 10009: 'Escape' };
+const PLAYER_CLICK_GUARD = /\b(?:Firefox|Edge)[ /]/i.test(navigator.userAgent);
 let nextMenuId = 0;
 
 function element(tag, className, text) {
@@ -307,9 +308,10 @@ export function createMenuFeature() {
     ['aria-label', 'aria-labelledby', 'aria-multiselectable'].forEach((name) => { if (list?.hasAttribute(name)) popup.setAttribute(name, list.getAttribute(name)); });
     const fullscreen = legacy && source.classList.contains('actionsheet-fullscreen');
     const tv = fullscreen || document.documentElement.classList.contains('layout-tv');
+    const playerClickGuard = legacy && PLAYER_CLICK_GUARD && Array.from(document.querySelectorAll('#videoOsdPage')).some(isVisible);
     const placement = legacy ? legacyPlacement(source, fullscreen, root) : null;
     const opener = openers.get(source) || (legacy && !source.contains(activeSource) && canRestoreFocus(activeSource) ? activeSource : null);
-    const record = { source, root, popup, legacy, tv, fullscreen, role, kind: !legacy && !list ? 'form' : 'menu', opener, placement, placementStyle: `${source.style.left}|${source.style.top}`, nativeWidth: (fullscreen ? source.querySelector('.actionSheetScroller')?.offsetWidth : source.offsetWidth) || 0, formMaxHeight: window.getComputedStyle(source).maxHeight, list, listId: list?.id || '', rows: [], targets: new WeakMap(), closing: false, restoreFocus: false };
+    const record = { source, root, popup, legacy, tv, fullscreen, playerClickGuard, role, kind: !legacy && !list ? 'form' : 'menu', opener, placement, placementStyle: `${source.style.left}|${source.style.top}`, nativeWidth: (fullscreen ? source.querySelector('.actionSheetScroller')?.offsetWidth : source.offsetWidth) || 0, formMaxHeight: window.getComputedStyle(source).maxHeight, list, listId: list?.id || '', rows: [], targets: new WeakMap(), closing: false, restoreFocus: false };
     record.backdrop = legacy ? source.backdrop || root.previousElementSibling : root.querySelector('.MuiBackdrop-root');
     record.onClosing = () => { record.closing = true; popup.hidden = true; source.classList.add('sleekfin-menu-closing'); if (legacy) record.backdrop?.classList.add('sleekfin-menu-backdrop-closing'); };
     record.onClose = () => release(record);
@@ -399,7 +401,15 @@ export function createMenuFeature() {
     if (!source) return;
     if (!event.target.matches('input[type="checkbox"], input[type="radio"]')) event.preventDefault();
     event.stopImmediatePropagation();
-    if (!disabled(source) && isConnected(source)) source.click();
+    if (!disabled(source) && isConnected(source)) {
+      if (record.playerClickGuard) {
+        // Jellyfin 12's player drops Firefox and legacy Edge clicks unless the click contains the last press target.
+        const Pointer = window.PointerEvent;
+        source.dispatchEvent(Pointer ? new Pointer('pointerdown') : new MouseEvent('mousedown'));
+        source.dispatchEvent(Pointer ? new Pointer('pointerup') : new MouseEvent('mouseup'));
+      }
+      source.click();
+    }
     schedule();
   }
 
@@ -456,11 +466,10 @@ export function createMenuFeature() {
     else if (key === 'ArrowUp') next = index < 0 ? rows.length - 1 : (index + rows.length - 1) % rows.length;
     else if (key === 'Home') next = 0;
     else if (key === 'End') next = rows.length - 1;
-    else if ((key === 'Enter' || key === ' ') && document.activeElement?.matches('.sleekfin-menu-item[role]:not(button)')) {
+    else if ((key === 'Enter' || key === ' ') && rows[index]?.node === document.activeElement && (record.playerClickGuard || !rows[index].node.matches('button'))) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      rows[index]?.source.click();
-      schedule();
+      rows[index]?.node.click();
       return;
     } else if (key?.length === 1 && key !== ' ') {
       const character = key.toLocaleLowerCase();
