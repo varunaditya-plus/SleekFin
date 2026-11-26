@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Fixed Header UI Builder tab options, library availability, correctly highlighted unavailable items in red, and switched CSS editor theme",
+  "changelog": "Fixed audio, subtitle, and settings SleekFin player menus",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-26T09:46:24.0000000Z",
-  "version": "1.8.6.1",
+  "timestamp": "2026-11-26T17:47:51.0000000Z",
+  "version": "1.8.6.2",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
