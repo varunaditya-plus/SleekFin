@@ -1,7 +1,7 @@
 import { dom, h, render } from '../../shared/runtime.js';
 import { HeaderOverflowDrawer } from './HeaderOverflowDrawer.jsx';
 import { getPopupViewport } from '../../shared/popupPosition.js';
-import { HEADER_CONTROL_SELECTOR, JE_LAUNCHER_SELECTOR, KEFIN_HOME_SELECTOR, LABELS, cloneSourceTemplate, currentSource, discoverHeaderControls, legacyAlias, refreshRecordVisual, sourceNativeHidden } from './inventory.js';
+import { HEADER_CONTROL_SELECTOR, JE_LAUNCHER_SELECTOR, KEFIN_HOME_SELECTOR, LABELS, cloneSourceTemplate, currentSource, discoverHeaderControls, legacyAlias, refreshRecordVisual, sourceDisabled, sourceNativeHidden } from './inventory.js';
 import { isTvLayout, mark, setStyle } from './shared.js';
 
 function recordForKey(key, discoveries) {
@@ -47,10 +47,6 @@ function sourceTitle(record) {
   return LABELS[title] || title;
 }
 
-function sourceDisabled(record) {
-  return Boolean(record.source.disabled) || record.source.getAttribute('aria-disabled') === 'true' || record.source.matches('.kefinTweaks-breadcrumb-element') && record.source.style.cursor !== 'pointer';
-}
-
 function renderProxyVisual(record) {
   const template = cloneSourceTemplate(record.template);
   record.button.textContent = '';
@@ -58,7 +54,7 @@ function renderProxyVisual(record) {
   const shape = record.template.getAttribute('data-sleekfin-header-source-visual');
   if (shape === 'icon-only') record.button.setAttribute('data-sleekfin-header-icon-only', 'true');
   else record.button.removeAttribute('data-sleekfin-header-icon-only');
-  record.button.disabled = sourceDisabled(record);
+  record.button.disabled = sourceDisabled(record.source);
   record.button.style.display = record.nativeHidden ? 'none' : '';
   record.button.title = sourceTitle(record);
 }
@@ -126,7 +122,7 @@ function createProxyButton(mount, record) {
   renderProxyVisual(record);
   button.addEventListener('click', (event) => {
     event.stopPropagation();
-    if ((record.key === 'jellyfin:home' || dom.isConnected(record.source)) && !sourceDisabled(record)) {
+    if ((record.key === 'jellyfin:home' || dom.isConnected(record.source)) && !sourceDisabled(record.source)) {
       activateProxy(mount, record, button);
     }
   });
@@ -160,7 +156,7 @@ function createOverflowController(mount, toggle) {
   }
 
   function activate(record, anchor) {
-    if (!record.source || (record.key !== 'jellyfin:home' && !dom.isConnected(record.source)) || sourceDisabled(record)) return;
+    if (!record.source || (record.key !== 'jellyfin:home' && !dom.isConnected(record.source)) || sourceDisabled(record.source)) return;
     activateProxy(mount, record, anchor);
   }
 
@@ -174,7 +170,7 @@ function createOverflowController(mount, toggle) {
   }
 
   function sync(nextRecords) {
-    records = nextRecords.map((record) => ({ ...record, current: record.source ? currentSource(record) : false, disabled: record.source ? sourceDisabled(record) : false }));
+    records = nextRecords.map((record) => ({ ...record, current: record.source ? currentSource(record) : false, disabled: record.source ? sourceDisabled(record.source) : false }));
     draw();
   }
 
@@ -426,7 +422,7 @@ export function refreshHeaderProxy(mount) {
   hideSources(mount);
   mount.proxyRecords.forEach((record) => {
     if (refreshRecordVisual(record)) renderProxyVisual(record);
-    record.button.disabled = sourceDisabled(record);
+    record.button.disabled = sourceDisabled(record.source);
     record.button.style.display = record.nativeHidden ? 'none' : '';
     record.button.title = sourceTitle(record);
     record.button.setAttribute('data-sleekfin-current', currentSource(record) ? 'true' : 'false');

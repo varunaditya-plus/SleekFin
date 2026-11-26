@@ -641,6 +641,7 @@
             width: auto;
         }
 
+        #sleekFinConfigurationPage .sleekfin-builder-item.is-unavailable .sleekfin-builder-item-caption,
         #sleekFinConfigurationPage .sleekfin-builder-item.is-unavailable .sleekfin-builder-live-sample .material-icons,
         #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-unavailable .sleekfin-builder-live-sample .material-icons {
             color: #ff5252;
@@ -723,6 +724,12 @@
             border-color: rgba(255, 82, 82, 0.55);
             box-shadow: none;
             color: #ff5252;
+        }
+
+        #sleekFinConfigurationPage .sleekfin-builder-preview-item.is-unavailable .sleekfin-builder-live-sample,
+        #sleekFinConfigurationPage .sleekfin-builder-preview-drawer button.is-unavailable {
+            outline: 1px solid #ff5252;
+            outline-offset: -1px;
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-note span {
@@ -1117,6 +1124,10 @@
             resize: vertical;
         }
 
+        #sleekFinConfigurationPage .sleekfin-header-css-editor :is(.CodeMirror, .CodeMirror-gutters, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler) {
+            background-color: #141414;
+        }
+
         #sleekFinConfigurationPage .sleekfin-header-css-editor .CodeMirror {
             border: 2px solid var(--cardBackground, transparent);
             font: 13px/1.5 monospace;
@@ -1128,10 +1139,6 @@
 
         #sleekFinConfigurationPage .sleekfin-header-css-editor .CodeMirror-lines {
             padding: 12px 0;
-        }
-
-        #sleekFinConfigurationPage .sleekfin-header-css-editor .cm-comment {
-            color: #929ba5;
         }
 
         #sleekFinConfigurationPage .sleekfin-builder-config-text {
@@ -2048,7 +2055,7 @@
             var builderCustomized = false;
             var builderRefreshPending = false;
             var sharedBuilderItems = [];
-            var builderLibraryNames = {};
+            var builderLibraries = Object.create(null);
             var draggedBuilderItem = '';
             var draggedBuilderElement = null;
             var draggedBuilderFromPreview = false;
@@ -2421,6 +2428,11 @@
                 return id === 'space' || id === 'separator' || /^jellyfin:(?:movies|shows|audio-player|back|cast|collections|favorites|folders|home|live-tv|more|playlists|search|syncplay|user-menu)$/.test(id) || /^jellyfin:view:[\da-f-]{16,64}$/.test(id) || /^(?:je|sf|kt):[a-z0-9-]{1,64}$/.test(id) || /^source:v1:[\da-f]{32}$/.test(id);
             }
 
+            function canonicalBuilderId(id) {
+                if (id === 'kt:more') return 'jellyfin:more';
+                return builderLibraries[id] ? builderLibraries[id].id : id;
+            }
+
             function ensureBuilderItem(id) {
                 var item = builderItem(id);
                 if (item || !validBuilderId(id)) {
@@ -2678,20 +2690,25 @@
             function refreshBuilderCatalog() {
                 var feature = headerFeature();
                 var descriptors = feature && typeof feature.getCatalog === 'function' ? feature.getCatalog() : [];
+                var descriptorIds = new Set(descriptors.map(function (descriptor) { return descriptor.id; }));
                 var discovered = [];
+                Object.keys(builderLibraries).forEach(function (id) {
+                    if (canonicalBuilderId(id) === id) ensureBuilderItem(id);
+                });
                 builderItems.forEach(function (item) {
                     item.current = false;
                     item.available = item.structural || item.id === 'jellyfin:home' ? true : item.providerEnabled;
                 });
                 sharedBuilderItems.forEach(function (descriptor) {
-                    var id = readValue(descriptor, 'Id');
-                    var item = ensureBuilderItem(id === 'kt:more' ? 'jellyfin:more' : id);
+                    var item = ensureBuilderItem(canonicalBuilderId(readValue(descriptor, 'Id')));
                     if (!item) return;
                     item.label = item.providerLabel || readValue(descriptor, 'Label');
                     item.caption = item.providerLabel ? 'SeerrFin ' + item.providerLabel : readValue(descriptor, 'Caption');
                 });
                 descriptors.forEach(function (descriptor) {
-                    var id = String(descriptor.id || '').toLowerCase();
+                    var sourceId = String(descriptor.id || '').toLowerCase();
+                    var id = canonicalBuilderId(sourceId);
+                    if (sourceId !== id && descriptorIds.has(id)) return;
                     var aliases = descriptor.aliases || [];
                     if (aliases.length) {
                         selectedBuilderItems = selectedBuilderItems.map(function (value) { return aliases.indexOf(value) === -1 ? value : id; });
@@ -2709,19 +2726,23 @@
                     item.shape = descriptor.shape || item.shape;
                     item.current = descriptor.current === true;
                     if (item.id !== 'jellyfin:home' && typeof descriptor.available === 'boolean') item.available = descriptor.available;
-                    if (!builderCustomized && descriptor.inline && item.available !== false) {
+                    if (!builderCustomized && descriptor.inline) {
                         discovered.push(id);
                     }
                 });
                 builderItems.forEach(function (item) {
-                    var name = builderLibraryNames[item.id];
-                    if (name) {
-                        item.label = name;
-                        item.caption = 'Jellyfin ' + name;
+                    var library = builderLibraries[item.id];
+                    item.available = library && typeof library.available === 'boolean' ? library.available : item.available === true;
+                    if (library) {
+                        item.label = library.name;
+                        item.caption = 'Jellyfin ' + library.name;
                     }
                 });
                 if (!builderCustomized) {
-                    selectedBuilderItems = discovered;
+                    selectedBuilderItems = discovered.filter(function (id) {
+                        var item = builderItem(id);
+                        return item && item.available;
+                    });
                 } else {
                     selectedBuilderItems = selectedBuilderItems.filter(function (id) { return hiddenBuilderItems.indexOf(id) === -1; });
                 }
@@ -2814,17 +2835,26 @@
                 return ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/Header/Catalog') }).catch(function () { return null; });
             }
 
-            function loadBuilderLibraryNames() {
-                return ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('UserViews', { includeHidden: true }) }).then(function (result) {
-                    var names = {};
-                    var views = readValue(result, 'Items');
-                    if (Array.isArray(views)) views.forEach(function (view) {
-                        var name = readValue(view, 'Name');
-                        var id = 'jellyfin:view:' + String(readValue(view, 'Id') || '').toLowerCase();
-                        if (name && validBuilderId(id)) names[id] = name;
+            function loadBuilderLibraries() {
+                return Promise.all([true, false].map(function (includeHidden) {
+                    return ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('UserViews', { includeHidden: includeHidden }) })
+                        .then(function (result) { return readValue(result, 'Items'); }).catch(function () { return null; });
+                })).then(function (results) {
+                    var libraries = Object.create(null);
+                    var conditional = { boxsets: 'collections', folders: 'folders', livetv: 'live-tv', playlists: 'playlists' };
+                    results.forEach(function (views, index) {
+                        if (!Array.isArray(views)) return;
+                        views.forEach(function (view) {
+                            var name = readValue(view, 'Name');
+                            var sourceId = 'jellyfin:view:' + String(readValue(view, 'Id') || '').toLowerCase();
+                            if (!name || !validBuilderId(sourceId)) return;
+                            var type = String(readValue(view, 'CollectionType') || '').toLowerCase();
+                            var id = Object.prototype.hasOwnProperty.call(conditional, type) ? 'jellyfin:' + conditional[type] : sourceId;
+                            libraries[id] = libraries[sourceId] = { id: id, name: name, available: Array.isArray(results[1]) ? index === 1 : undefined };
+                        });
                     });
-                    return names;
-                }).catch(function () { return {}; });
+                    return libraries;
+                });
             }
 
             function refreshProviderAvailability() {
@@ -3650,8 +3680,7 @@
             function builderList(value, preserveDuplicates) {
                 var seen = [];
                 return String(value || '').split(',').map(function (id) {
-                    id = id.trim().toLowerCase();
-                    return id === 'kt:more' ? 'jellyfin:more' : id;
+                    return canonicalBuilderId(id.trim().toLowerCase());
                 }).filter(function (id) {
                     if (!validBuilderId(id) || (!preserveDuplicates && seen.indexOf(id) !== -1)) {
                         return false;
@@ -3753,7 +3782,7 @@
             function mountCssEditor(codeMirror, input) {
                 var aliases = Object.keys(headerCssTargets);
                 var view = codeMirror.fromTextArea(input, {
-                    mode: 'css', theme: 'material-darker', lineNumbers: true, indentUnit: 4, tabSize: 4,
+                    mode: 'css', theme: 'ayu-dark', lineNumbers: true, indentUnit: 4, tabSize: 4,
                     autoCloseBrackets: true, leaveSubmitMethodAlone: true, screenReaderLabel: input.labels[0].textContent,
                     extraKeys: {
                         'Cmd-F': 'findPersistent', 'Ctrl-F': 'findPersistent', 'Ctrl-Space': 'autocomplete',
@@ -3834,7 +3863,7 @@
                     return Promise.all([
                         ApiClient.getPluginConfiguration(PLUGIN_ID), loadPlugins(),
                         ApiClient.ajax({ type: 'GET', dataType: 'json', url: ApiClient.getUrl('SleekFin/UserSettings/Fields') }).catch(function () { return null; }),
-                        loadConfigurationAsset('sleekfin-form-controls.css', true), loadHeaderCatalog(), loadBuilderLibraryNames(), defaults, layoutReady, cssEditorReady
+                        loadConfigurationAsset('sleekfin-form-controls.css', true), loadHeaderCatalog(), loadBuilderLibraries(), defaults, layoutReady, cssEditorReady
                     ]);
                 })
                     .then(function (results) {
@@ -3843,7 +3872,8 @@
                         }
                         var configuration = results[0];
                         sharedBuilderItems = Array.isArray(results[4]) ? results[4] : [];
-                        builderLibraryNames = results[5];
+                        builderLibraries = results[5];
+                        builderItems = builderItems.filter(function (item) { return canonicalBuilderId(item.id) === item.id; });
                         builderCssDefaults = Array.isArray(results[6]) && results[6].length === builderCssFields.length &&
                             results[6].every(function (css) { return typeof css === 'string'; }) ? results[6] : [];
                         if (!builderCssDefaults.length && builderCssFields.some(function (name) { return typeof readValue(configuration, name) !== 'string'; })) {

@@ -1,6 +1,6 @@
 import { dom } from '../../shared/runtime.js';
 import { createBrandController } from './FallbackBrand.jsx';
-import { HEADER_SOURCE_ROOT_SELECTOR, KEFIN_HOME_SELECTOR, KEFIN_SOURCE_SELECTOR, appRoute, catalogDescriptors, catalogSignature, chromeSignature, cloneCatalogTemplate, cloneChromeTemplate, discoverHeaderChrome, discoverHeaderControls, isDashboardRoute, setHeaderUserViews } from './inventory.js';
+import { HEADER_SOURCE_ROOT_SELECTOR, KEFIN_HOME_SELECTOR, KEFIN_SOURCE_SELECTOR, MODERN_USER_MENU_SELECTOR, appRoute, catalogDescriptors, catalogSignature, chromeSignature, cloneCatalogTemplate, cloneChromeTemplate, discoverHeaderChrome, discoverHeaderControls, isDashboardRoute, setHeaderUserViews, sourceDisabled } from './inventory.js';
 import { createLegacyAdapter } from './legacy.js';
 import { createModernAdapter } from './modern.js';
 import { DEFAULT_SETTINGS, isItemId, normalizeSettings } from './settings.js';
@@ -318,14 +318,18 @@ function createHeaderFeature() {
     if ((!surface && !dashboard) || !currentScope().key) return;
 
     let records = discoverHeaderControls(surface);
+    records.forEach((record) => {
+      if (sourceDisabled(record.source)) record.nativeHidden = true;
+    });
     if (dashboard) {
       const merged = new Map(state.catalog
         .filter((record) => !record.dashboard)
         .map((record) => [record.key, record]));
       records.forEach((record) => {
-        if (!isItemId(record.key) || record.key.startsWith('source:')) return;
+        const inUserMenu = record.source.closest(MODERN_USER_MENU_SELECTOR);
+        if (!isItemId(record.key) || record.key.startsWith('source:') && !inUserMenu) return;
         const previous = merged.get(record.key);
-        if (previous && !previous.remembered && !record.key.startsWith('kt:')) return;
+        if (previous && !previous.remembered && !inUserMenu && !record.key.startsWith('kt:')) return;
         merged.set(record.key, {
           ...record,
           dashboard: true,

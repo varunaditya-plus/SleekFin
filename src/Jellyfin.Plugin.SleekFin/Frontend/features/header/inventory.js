@@ -5,9 +5,10 @@ export const HEADER_CONTROL_SELECTOR = 'button, a[href], [role="button"], [role=
 export const JE_LAUNCHER_SELECTOR = '.je-header-more-toggle, .je-header-launcher';
 export const KEFIN_HOME_SELECTOR = '#kefin-home-category-rail, #kefin-home-create-section-btn';
 const MODERN_FALLBACK_SELECTOR = '.MuiDrawer-paper, #user-view-overflow-menu';
+export const MODERN_USER_MENU_SELECTOR = '#app-user-menu';
 const LEGACY_FALLBACK_SELECTOR = '.mainDrawer-scrollContainer, .mainDrawer';
 const PROVIDER_FALLBACK_SELECTOR = '.customMenuOptions, .jellyfinEnhancedSection';
-export const HEADER_SOURCE_ROOT_SELECTOR = `header.MuiAppBar-root, .skinHeader, ${MODERN_FALLBACK_SELECTOR}, ${LEGACY_FALLBACK_SELECTOR}, ${PROVIDER_FALLBACK_SELECTOR}`;
+export const HEADER_SOURCE_ROOT_SELECTOR = `header.MuiAppBar-root, .skinHeader, ${MODERN_FALLBACK_SELECTOR}, ${MODERN_USER_MENU_SELECTOR}, ${LEGACY_FALLBACK_SELECTOR}, ${PROVIDER_FALLBACK_SELECTOR}`;
 const CONDITIONAL_VIEW_KEYS = new Map([
   ['boxsets', 'jellyfin:collections'],
   ['folders', 'jellyfin:folders'],
@@ -137,8 +138,12 @@ function stableElementOrdinal(source) {
 }
 
 function genericIdentity(source, route) {
+  const userMenu = source.closest(MODERN_USER_MENU_SELECTOR);
+  const menuIcon = userMenu && source.querySelector('.MuiListItemIcon-root svg[data-testid]')?.getAttribute('data-testid');
   if (route) {
     const url = urlFor(source);
+    const userId = menuIcon && url?.origin === window.location.origin && new URLSearchParams(route.split('?')[1]).get('userid');
+    if (userId && userId === window.ApiClient?.getCurrentUserId?.()?.toLowerCase()) return `user-menu:${menuIcon}`;
     return `href:${url && url.origin !== window.location.origin ? url.href : route}`;
   }
   if (source.id && !/^mui-|^:r/i.test(source.id)) return `id:${source.id}`;
@@ -148,6 +153,10 @@ function genericIdentity(source, route) {
 
   const data = stableData(source);
   if (data) return `data:${data}`;
+  if (userMenu) {
+    const label = menuIcon || source.getAttribute('aria-label')?.trim() || source.getAttribute('title')?.trim() || visibleLabel(source);
+    return label ? `user-menu:${label}` : '';
+  }
 
   const classes = stableClasses(source);
   const role = source.getAttribute('role') || source.tagName.toLowerCase();
@@ -264,6 +273,7 @@ function modernCandidates(header) {
   const seen = new Set();
   const toolbar = header?.querySelector('.MuiToolbar-root');
   addCandidates(result, seen, toolbar, HEADER_CONTROL_SELECTOR, 'header');
+  addCandidates(result, seen, document.querySelector(`${MODERN_USER_MENU_SELECTOR} [role="menu"]`), '[role="menuitem"]', 'fallback');
   document.querySelectorAll(`${MODERN_FALLBACK_SELECTOR}, ${PROVIDER_FALLBACK_SELECTOR}`).forEach((container) => addCandidates(result, seen, container, container.matches('.jellyfinEnhancedSection') ? HEADER_CONTROL_SELECTOR : 'a[href]', 'fallback'));
   return result;
 }
@@ -295,10 +305,14 @@ function addKefinCandidates(candidates, surface) {
 }
 
 function candidateScore(candidate) {
+  const { source } = candidate;
   const inline = candidate.fallback ? 0 : 20;
-  const owned = candidate.source.hasAttribute('data-sleekfin-header-source-hidden') || candidate.source.hasAttribute('data-sleekfin-header-source-anchor') ? 4 : 0;
-  const nativeMore = candidate.source.matches('[aria-controls="user-view-overflow-menu"]:not([data-kefin-custom-menu-more])');
-  return inline + (sourceNativeHidden(candidate.source) ? 0 : 16) + (nativeMore ? 8 : 0) + owned + (dom.isVisible(candidate.source) ? 2 : 0);
+  const owned = source.hasAttribute('data-sleekfin-header-source-hidden') || source.hasAttribute('data-sleekfin-header-source-anchor') ? 4 : 0;
+  const nativeMore = source.matches('[aria-controls="user-view-overflow-menu"]:not([data-kefin-custom-menu-more])');
+  const available = !sourceNativeHidden(source) && !sourceDisabled(source);
+  // The dashboard drawer can repeat links from the account menu.
+  const accountMenu = source.closest(MODERN_USER_MENU_SELECTOR) ? 4 : 0;
+  return inline + (available ? 16 : 0) + (nativeMore ? 8 : 0) + owned + accountMenu + (dom.isVisible(source) ? 2 : 0);
 }
 
 function namespaceSvgIds(clone) {
@@ -430,7 +444,7 @@ function visibleLabel(source) {
 }
 
 function fallbackLabel(key, source) {
-  const label = source.getAttribute('data-header-label')?.trim() || LABELS[key] || source.getAttribute('title')?.trim() || source.getAttribute('aria-label')?.trim() || visibleLabel(source) || key;
+  const label = source.getAttribute('data-header-label')?.trim() || LABELS[key] || source.getAttribute('title')?.trim() || source.getAttribute('aria-label')?.trim() || '';
   return LABELS[label] || label;
 }
 
@@ -465,6 +479,10 @@ export function sourceNativeHidden(source) {
     if (element.hidden || element.classList.contains('hide') || element.style.display === 'none') return true;
   }
   return false;
+}
+
+export function sourceDisabled(source) {
+  return Boolean(source.disabled) || source.getAttribute('aria-disabled') === 'true' || source.matches('.kefinTweaks-breadcrumb-element') && source.style.cursor !== 'pointer';
 }
 
 function sourceInline(candidate) {
@@ -578,6 +596,8 @@ export function discoverHeaderControls(surface) {
     }
 
     const visual = visualTemplate(candidate.source);
+    const label = visual.label || fallbackLabel(key, candidate.source);
+    if (!label && key.startsWith('source:')) return;
     const record = {
       aliases: [...aliases],
       caption: captionFor(key, candidate.source, visual.label),
@@ -585,7 +605,7 @@ export function discoverHeaderControls(surface) {
       headerSources,
       inline: sourceInline(candidate),
       key,
-      label: visual.label || fallbackLabel(key, candidate.source),
+      label: label || key,
       nativeHidden: sourceNativeHidden(candidate.source),
       popup: sourceOpensPopup(key, candidate.source),
       separate: candidate.separate,
