@@ -2,5 +2,5 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("Jellyfin.Plugin.SleekFin")]
 [assembly: AssemblyDescription("The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.")]
-[assembly: AssemblyVersion("1.8.6.2")]
-[assembly: AssemblyFileVersion("1.8.6.2")]
+[assembly: AssemblyVersion("1.8.6.3")]
+[assembly: AssemblyFileVersion("1.8.6.3")]
