@@ -1,5 +1,7 @@
 html.sleekfin-main-ui:root {
-    --sleekfin-accent: #dc2626;
+    --sleekfin-accent-channel: var(--sleekfin-accent-r) var(--sleekfin-accent-g) var(--sleekfin-accent-b);
+    --sleekfin-accent-track: rgb(calc(var(--sleekfin-accent-r) * 0.5) calc(var(--sleekfin-accent-g) * 0.5) calc(var(--sleekfin-accent-b) * 0.5));
+    --sleekfin-accent-disabled: rgb(calc(var(--sleekfin-accent-r) * 0.45) calc(var(--sleekfin-accent-g) * 0.45) calc(var(--sleekfin-accent-b) * 0.45));
     --sleekfin-background: #000;
     --sleekfin-border: #26292e;
     --sleekfin-border-hover: rgba(241, 242, 244, 0.22);
@@ -38,19 +40,19 @@ html.sleekfin-main-ui:root {
     --jf-palette-divider: var(--sleekfin-border);
     --jf-palette-dividerChannel: 38 41 46;
     --jf-palette-primary-main: var(--sleekfin-accent);
-    --jf-palette-primary-mainChannel: 220 38 38;
-    --jf-palette-primary-dark: #b42318;
-    --jf-palette-primary-darkChannel: 180 35 24;
-    --jf-palette-primary-light: #f87171;
-    --jf-palette-primary-lightChannel: 248 113 113;
+    --jf-palette-primary-mainChannel: var(--sleekfin-accent-channel);
+    --jf-palette-primary-dark: rgb(var(--jf-palette-primary-darkChannel));
+    --jf-palette-primary-darkChannel: calc(var(--sleekfin-accent-r) * 0.82) calc(var(--sleekfin-accent-g) * 0.82) calc(var(--sleekfin-accent-b) * 0.82);
+    --jf-palette-primary-light: rgb(var(--jf-palette-primary-lightChannel));
+    --jf-palette-primary-lightChannel: calc(var(--sleekfin-accent-r) * 0.65 + 255 * 0.35) calc(var(--sleekfin-accent-g) * 0.65 + 255 * 0.35) calc(var(--sleekfin-accent-b) * 0.65 + 255 * 0.35);
     --jf-palette-primary-contrastText: #fff;
     --jf-palette-primary-contrastTextChannel: 255 255 255;
     --jf-palette-secondary-main: var(--sleekfin-accent);
-    --jf-palette-secondary-mainChannel: 220 38 38;
-    --jf-palette-secondary-dark: #b42318;
-    --jf-palette-secondary-darkChannel: 180 35 24;
-    --jf-palette-secondary-light: #f87171;
-    --jf-palette-secondary-lightChannel: 248 113 113;
+    --jf-palette-secondary-mainChannel: var(--sleekfin-accent-channel);
+    --jf-palette-secondary-dark: var(--jf-palette-primary-dark);
+    --jf-palette-secondary-darkChannel: var(--jf-palette-primary-darkChannel);
+    --jf-palette-secondary-light: var(--jf-palette-primary-light);
+    --jf-palette-secondary-lightChannel: var(--jf-palette-primary-lightChannel);
     --jf-palette-secondary-contrastText: #fff;
     --jf-palette-secondary-contrastTextChannel: 255 255 255;
     --jf-palette-error-main: var(--sleekfin-accent);
@@ -83,21 +85,21 @@ html.sleekfin-main-ui:root {
     --jf-palette-FilledInput-disabledBg: rgba(16, 17, 19, 0.6);
     --jf-palette-FilledInput-hoverBg: var(--sleekfin-surface-raised);
     --jf-palette-LinearProgress-errorBg: rgb(110, 19, 19);
-    --jf-palette-LinearProgress-primaryBg: rgb(110, 19, 19);
-    --jf-palette-LinearProgress-secondaryBg: rgb(110, 19, 19);
+    --jf-palette-LinearProgress-primaryBg: var(--sleekfin-accent-track);
+    --jf-palette-LinearProgress-secondaryBg: var(--sleekfin-accent-track);
     --jf-palette-Skeleton-bg: var(--sleekfin-skeleton-line);
-    --jf-palette-Slider-primaryTrack: rgb(110, 19, 19);
+    --jf-palette-Slider-primaryTrack: var(--sleekfin-accent-track);
     --jf-palette-SnackbarContent-bg: var(--sleekfin-surface-raised);
     --jf-palette-SnackbarContent-color: var(--sleekfin-text);
     --jf-palette-SpeedDialAction-fabHoverBg: var(--sleekfin-border);
     --jf-palette-StepConnector-border: var(--sleekfin-border);
     --jf-palette-StepContent-border: var(--sleekfin-border);
     --jf-palette-Switch-errorDisabledColor: rgb(99, 17, 17);
-    --jf-palette-Switch-primaryDisabledColor: rgb(99, 17, 17);
-    --jf-palette-Switch-secondaryDisabledColor: rgb(99, 17, 17);
+    --jf-palette-Switch-primaryDisabledColor: var(--sleekfin-accent-disabled);
+    --jf-palette-Switch-secondaryDisabledColor: var(--sleekfin-accent-disabled);
     --jf-palette-Tooltip-bg: rgba(26, 28, 32, 0.96);
     --jf-palette-starIcon-main: var(--sleekfin-accent);
-    --jf-palette-starIcon-mainChannel: 220 38 38;
+    --jf-palette-starIcon-mainChannel: var(--sleekfin-accent-channel);
 }
 
 @media (min-width: 768px) {

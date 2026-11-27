@@ -323,7 +323,7 @@ html:root .sleekfin-menu-popup .sleekfin-menu-item > .sleekfin-menu-control {
 }
 
 html:root .sleekfin-menu-toggle {
-    accent-color: var(--sleekfin-accent, #dc2626);
+    accent-color: var(--sleekfin-accent);
     flex: 0 0 16px;
     height: 16px;
     margin: 0;

@@ -80,7 +80,10 @@ public static class TransformationPatches
         string compactCardRadius = ShapeRadius(configuration.MediaCardShape, 4, 16);
         string personRadius = ShapeRadius(configuration.CastCrewShape, 4, 10);
         string personInnerRadius = ShapeRadius(configuration.CastCrewShape, 3, 9);
-        contents = contents.Replace("</head>", $"<style data-sleekfin-asset=\"accent-color\">html.sleekfin-main-ui:root{{--sleekfin-accent:{configuration.AccentColor};--sleekfin-card-button-radius:{cardButtonRadius};--sleekfin-card-play-radius:{cardPlayRadius};--sleekfin-card-radius:{cardRadius};--sleekfin-card-inner-radius:{cardInnerRadius};--sleekfin-compact-card-radius:{compactCardRadius};--sleekfin-person-radius:{personRadius};--sleekfin-person-inner-radius:{personInnerRadius};}}</style></head>", StringComparison.Ordinal);
+        string accent = configuration.AccentColor;
+        byte[] accentChannels = Convert.FromHexString(accent.AsSpan(1));
+        string accentStyle = string.Create(CultureInfo.InvariantCulture, $"--sleekfin-accent:{accent};--sleekfin-accent-r:{accentChannels[0]};--sleekfin-accent-g:{accentChannels[1]};--sleekfin-accent-b:{accentChannels[2]};");
+        contents = contents.Replace("</head>", $"<style data-sleekfin-asset=\"accent-color\">html:root{{{accentStyle}}}html.sleekfin-main-ui:root{{--sleekfin-card-button-radius:{cardButtonRadius};--sleekfin-card-play-radius:{cardPlayRadius};--sleekfin-card-radius:{cardRadius};--sleekfin-card-inner-radius:{cardInnerRadius};--sleekfin-compact-card-radius:{compactCardRadius};--sleekfin-person-radius:{personRadius};--sleekfin-person-inner-radius:{personInnerRadius};}}</style></head>", StringComparison.Ordinal);
 
         contents = contents.Replace("</head>", $"{CreateBootScript(configuration, cacheQuery)}</head>", StringComparison.Ordinal);
 

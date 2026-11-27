@@ -113,7 +113,7 @@ html.sleekfin-main-ui #je-active-streams-panel .je-as-badge {
 }
 
 html.sleekfin-main-ui #je-active-streams-panel .je-as-state-playing {
-    background: rgba(220, 38, 38, 0.18);
+    background: rgba(var(--sleekfin-accent-channel) / 0.18);
     color: var(--jf-palette-primary-light);
 }
 
@@ -142,7 +142,7 @@ html.sleekfin-main-ui #je-active-streams-panel .je-as-badge-neutral {
 }
 
 html.sleekfin-main-ui #je-active-streams-panel .je-as-badge-reason {
-    background: rgba(220, 38, 38, 0.13);
+    background: rgba(var(--sleekfin-accent-channel) / 0.13);
     color: var(--jf-palette-primary-light);
 }
 
@@ -218,5 +218,5 @@ html.sleekfin-main-ui #je-active-streams-panel .je-as-broadcast-result.je-as-bro
 
 html.sleekfin-main-ui #je-active-streams-panel .je-as-broadcast-result.je-as-broadcast-err {
     background: rgba(220, 38, 38, 0.13);
-    color: var(--jf-palette-primary-light);
+    color: var(--jf-palette-error-light);
 }

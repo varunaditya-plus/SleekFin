@@ -5,6 +5,7 @@ import { mount as mountPreview } from './preview.js';
 const SETTINGS_EVENT = 'sleekfin:user-settings-changed';
 const EVENTS = ['hashchange', 'pageshow', 'popstate'];
 const LINK_SELECTOR = '[data-sleekfin-user-settings-link]';
+const ACCENT_PROPERTIES = ['--sleekfin-accent', '--sleekfin-accent-r', '--sleekfin-accent-g', '--sleekfin-accent-b'];
 
 function currentScope() {
   const client = window.ApiClient;
@@ -16,7 +17,7 @@ function currentScope() {
 
 function createUserSettingsFeature() {
   const root = document.documentElement;
-  const baseAccent = root.style.getPropertyValue('--sleekfin-accent');
+  const baseAccent = ACCENT_PROPERTIES.map((property) => root.style.getPropertyValue(property));
   const baseDropdown = root.dataset.sleekfinDropdownStyle;
   const state = { started: false, scope: '', snapshot: null, signature: '', request: 0, pending: null, timer: 0, observer: null, dialog: null, opening: false };
 
@@ -28,7 +29,9 @@ function createUserSettingsFeature() {
     if (state.dialog && (!snapshot.enabled || JSON.stringify(state.snapshot?.fields) !== JSON.stringify(snapshot.fields))) close();
     const signature = JSON.stringify([snapshot.fields, { ...snapshot.defaults, ...snapshot.overrides }, snapshot.appearance]);
     state.snapshot = snapshot;
-    root.style.setProperty('--sleekfin-accent', snapshot.appearance.accentColor);
+    const accent = snapshot.appearance.accentColor;
+    const accentValues = [accent, ...[1, 3, 5].map((offset) => parseInt(accent.slice(offset, offset + 2), 16))];
+    ACCENT_PROPERTIES.forEach((property, index) => root.style.setProperty(property, accentValues[index]));
     root.dataset.sleekfinDropdownStyle = snapshot.appearance.dropdownStyle;
     if (signature !== state.signature) {
       state.signature = signature;
@@ -38,8 +41,7 @@ function createUserSettingsFeature() {
   }
 
   function restoreAppearance() {
-    if (baseAccent) root.style.setProperty('--sleekfin-accent', baseAccent);
-    else root.style.removeProperty('--sleekfin-accent');
+    ACCENT_PROPERTIES.forEach((property, index) => root.style.setProperty(property, baseAccent[index]));
     if (baseDropdown === undefined) delete root.dataset.sleekfinDropdownStyle;
     else root.dataset.sleekfinDropdownStyle = baseDropdown;
   }
