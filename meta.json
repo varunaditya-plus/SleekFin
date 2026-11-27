@@ -1,14 +1,14 @@
 {
   "category": "General",
-  "changelog": "Styled episode previews menu and plugin action sheets",
+  "changelog": "Applied SleekFin accent color to Jellyfin controls and anywhere the original red was hardcoded",
   "description": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "guid": "da36c4ef-1d10-4169-8a68-26b194d5301a",
   "name": "SleekFin",
   "overview": "The ultimate Jellyfin Web revamp, with new elements, styles, plus compatible with the most popular plugins.",
   "owner": "varunaditya-plus",
   "targetAbi": "12.0.0.0",
-  "timestamp": "2026-11-27T08:12:44.0000000Z",
-  "version": "1.8.6.3",
+  "timestamp": "2026-11-27T12:34:44.0000000Z",
+  "version": "1.8.6.4",
   "status": "Active",
   "autoUpdate": true,
   "assemblies": [
