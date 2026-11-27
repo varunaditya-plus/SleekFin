@@ -93,20 +93,23 @@ html:root .sleekfin-menu-dismissed {
     visibility: hidden;
 }
 
-html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu) {
+html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu, .sleekfin-menu-in-place) {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     background: linear-gradient(rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.01)), #161618 !important;
     border: 1px solid rgba(255, 255, 255, 0.07) !important;
-    border-radius: 12px;
     box-shadow: inset 0 1px rgba(255, 255, 255, 0.075), 0 16px 40px -12px rgba(0, 0, 0, 0.72), 0 4px 10px rgba(0, 0, 0, 0.22);
     box-sizing: border-box;
     color: var(--sleekfin-text, #f1f2f4);
+    font: 450 13px/20px var(--sleekfin-font-family, Inter, "Noto Sans", sans-serif);
+    letter-spacing: -0.2px;
+}
+
+html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu) {
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
-    font: 450 13px/20px var(--sleekfin-font-family, Inter, "Noto Sans", sans-serif);
     gap: 0;
-    letter-spacing: -0.2px;
     max-height: calc(100vh - 24px);
     max-width: calc(100vw - 24px);
     overflow-x: hidden;
@@ -119,6 +122,34 @@ html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dro
     touch-action: manipulation;
     width: max-content;
     z-index: 20;
+}
+
+html:root .sleekfin-menu-in-place {
+    border-radius: 12px !important;
+}
+
+html:root .sleekfin-menu-in-place .actionSheetTitle {
+    font-size: 1.15em;
+    font-weight: 550;
+}
+
+html:root .sleekfin-menu-in-place :is(.actionSheetMenuItem, .previewQuickActionContainer > button) {
+    border-radius: 6px;
+}
+
+html:root .sleekfin-menu-in-place.previewPopup {
+    padding: 4px !important;
+}
+
+html:root .sleekfin-menu-in-place .previewPopupTitle {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    max-height: none;
+    min-height: 36px;
+}
+
+html:root .sleekfin-menu-in-place .previewGroupWatchedCount {
+    color: var(--sleekfin-muted, #969aa1);
+    font-size: 0.85em;
 }
 
 html:root :is(.sleekfin-menu-popup, .sleekfin-select-menu) {
@@ -163,11 +194,13 @@ html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dr
     width: 100%;
 }
 
-html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option)[data-selected="true"] {
+html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option)[data-selected="true"],
+html:root .sleekfin-menu-in-place .previewListItem:has(.selectedListItem) {
     background: rgba(255, 255, 255, 0.035);
 }
 
-html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option):not(:disabled, [aria-disabled="true"]):is(:hover, :focus, [data-active="true"]) {
+html:root :is(.sleekfin-menu-item, .sleekfin-select-option, .sleekfin-details-dropdown-option):not(:disabled, [aria-disabled="true"]):is(:hover, :focus, [data-active="true"]),
+html:root .sleekfin-menu-in-place :is(.actionSheetMenuItem, .previewQuickActionContainer > button):not(:disabled, [aria-disabled="true"]):is(:hover, :focus) {
     background: rgba(255, 255, 255, 0.065);
     color: #fff;
 }
@@ -345,7 +378,7 @@ html:root [data-selected="true"] > .sleekfin-menu-check {
     visibility: visible;
 }
 
-html:root.layout-tv :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu) {
+html:root.layout-tv :is(.sleekfin-menu-popup, .sleekfin-select-menu, .sleekfin-details-dropdown-menu, .sleekfin-menu-in-place) {
     font-size: 18px;
 }
 

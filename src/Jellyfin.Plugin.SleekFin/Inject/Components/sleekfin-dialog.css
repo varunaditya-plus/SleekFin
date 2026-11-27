@@ -42,6 +42,15 @@ html.sleekfin-main-ui .dialog:not(.actionSheet, .je-launcher-panel).dialog-fulls
     }
 }
 
+@media (max-width: 767px) {
+    html.sleekfin-main-ui #popupFocusContainer {
+        left: 16px;
+        max-width: none;
+        right: 16px;
+        width: auto;
+    }
+}
+
 html.sleekfin-main-ui :is(.dialogBackdrop, .MuiBackdrop-root, .je-hidden-management-overlay, .je-hide-confirm-overlay, .je-bm-library-modal-overlay, .je-bm-player-modal-overlay, .jellyseerr-season-modal, .je-more-info-modal, #streaming-settings-modal):not(.sleekfin-menu-backdrop, .MuiBackdrop-invisible) {
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);

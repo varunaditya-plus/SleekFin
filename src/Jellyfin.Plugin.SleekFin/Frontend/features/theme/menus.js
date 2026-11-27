@@ -297,6 +297,8 @@ export function createMenuFeature() {
   function adopt(source, root) {
     if (previewSheets.has(source) || menus.has(source) || !sourceOpen(source, root)) return;
     const legacy = source.matches('.actionSheet');
+    // Plugin menus/actions sheets keep their own content.
+    if (legacy && source.classList.toggle('sleekfin-menu-in-place', source.dialogContainer !== root)) return;
     const activeSource = document.activeElement;
     const list = source.querySelector('[role="listbox"], [role="menu"]');
     if (!legacy && !list && !root.matches('#filter-popover')) return;
@@ -547,7 +549,7 @@ export function createMenuFeature() {
     roots.forEach((rootObserver) => rootObserver.disconnect());
     roots.clear();
     [...menus.values()].forEach(release);
-    document.querySelectorAll('.sleekfin-menu-dismissed, .sleekfin-menu-backdrop, .sleekfin-menu-backdrop-closing').forEach((node) => node.classList.remove('sleekfin-menu-dismissed', 'sleekfin-menu-backdrop', 'sleekfin-menu-backdrop-closing'));
+    document.querySelectorAll('.sleekfin-menu-dismissed, .sleekfin-menu-backdrop, .sleekfin-menu-backdrop-closing, .sleekfin-menu-in-place').forEach((node) => node.classList.remove('sleekfin-menu-dismissed', 'sleekfin-menu-backdrop', 'sleekfin-menu-backdrop-closing', 'sleekfin-menu-in-place'));
     document.removeEventListener('open', onDialogOpen, true);
     document.removeEventListener('click', onClick, true);
     document.removeEventListener('input', onInput, true);
